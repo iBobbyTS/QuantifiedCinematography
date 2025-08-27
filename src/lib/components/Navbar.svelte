@@ -3,6 +3,9 @@
 	import { onMount } from 'svelte';
 	import Icon from '@iconify/svelte';
 	import { _ } from 'svelte-i18n';
+	import { page } from '$app/stores';
+	let currentUser: any = null;
+	$: currentUser = $page?.data?.user ?? null;
 	
 	// Props
 	export let centerTitle: string = ''; // 本地化key，用于中间title
@@ -109,14 +112,39 @@
 			
 			<!-- Right align - Language and Theme controls -->
 			<div class="flex items-center justify-end space-x-4">
-				<!-- Login Button -->
-				<a
-					href="/login"
-					class="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-lg transition-colors duration-200"
-				>
-					<Icon icon="mdi:login" class="w-4 h-4" />
-					<span class="hidden sm:inline">登录</span>
-				</a>
+				{#if currentUser}
+					<!-- User Menu -->
+					<div class="relative">
+						<button
+							class="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+							on:click={() => document.getElementById('userDropdown')?.classList.toggle('hidden')}
+						>
+							<Icon icon="mdi:account" class="w-5 h-5" />
+							<span class="hidden sm:inline">{currentUser.displayName}</span>
+							<Icon icon="mdi:chevron-down" class="w-4 h-4" />
+						</button>
+						<div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+							<button
+								class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+								on:click={async () => { await fetch('/logout', { method: 'POST' }); location.reload(); }}
+							>
+								<Icon icon="mdi:logout" class="w-4 h-4 inline mr-2" /> 退出登录
+							</button>
+							<a href="/user/change-password" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+								<Icon icon="mdi:key-variant" class="w-4 h-4 inline mr-2" /> 修改密码
+							</a>
+						</div>
+					</div>
+				{:else}
+					<!-- Login Button -->
+					<a
+						href="/login"
+						class="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-lg transition-colors duration-200"
+					>
+						<Icon icon="mdi:login" class="w-4 h-4" />
+						<span class="hidden sm:inline">登录</span>
+					</a>
+				{/if}
 				
 				<!-- Language Selector -->
 				<div class="relative">
