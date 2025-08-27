@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
+	import { invalidateAll } from '$app/navigation';
 	import Icon from '@iconify/svelte';
 	import { _ } from 'svelte-i18n';
 	
@@ -71,7 +72,8 @@
 								errorMessage = raw || $_('app.networkError');
 							}
 						} else if (result.type === 'redirect') {
-							// 显式执行跳转
+							// 登录成功后，先刷新所有数据，然后跳转
+							await invalidateAll();
 							goto((result as any).location);
 						} else {
 							errorMessage = '';
