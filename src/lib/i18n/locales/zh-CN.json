@@ -46,7 +46,7 @@
 				"description": "测试白光的光品质量，包括色温准确性、显色指标等。",
 				"buttons": {
 					"cct_vs_actual": "设定色温 vs 实际色温",
-					"cct_vs_duv": "设置色温 vs D'uv",
+					"cct_vs_duv": "设定色温 vs D'uv",
 					"brightness_vs_duv": "设定亮度 vs D'uv",
 					"cct_vs_color_rendering": "设定色温 vs 显色指标",
 					"spectrum": "光谱"
