@@ -9,6 +9,13 @@
 		"zh": "中文",
 		"switch": "Switch Language"
 	},
+	"theme": {
+		"title": "Theme Settings",
+		"light": "Light Mode",
+		"dark": "Dark Mode",
+		"system": "Follow System",
+		"switch": "Switch Theme"
+	},
 	"homepage": {
 		"welcome": "Welcome to Quantified Cinematography",
 		"subtitle": "Analyzing and quantifying the art of filmmaking"
