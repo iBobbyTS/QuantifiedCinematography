@@ -13,15 +13,17 @@ RUN apt-get update && apt-get install -y \
 RUN curl -fsSL https://bun.sh/install | bash
 ENV PATH="/root/.bun/bin:$PATH"
 
-# 创建package.json（如果不存在）
-RUN echo '{"name":"quantified-cinematography","version":"1.0.0","type":"module","scripts":{"start":"echo \"Server starting...\""}}' > package.json
+# 复制 package.json 和依赖文件
+COPY package.json bun.lock ./
 
-# 安装依赖（如果有的话）
-RUN bun install --ci || true
+# 安装依赖
+RUN bun install --ci
 
+# 复制源代码
 COPY . .
-# 构建步骤（如果有的话）
-RUN echo "Build completed"
+
+# 构建应用
+RUN bun run build
 
 # ===== run =====
 FROM ubuntu:22.04
@@ -38,8 +40,15 @@ RUN apt-get update && apt-get install -y \
 RUN curl -fsSL https://bun.sh/install | bash
 ENV PATH="/root/.bun/bin:$PATH"
 
+# 设置环境变量
 ENV NODE_ENV=production
+ENV PORT=3000
+
+# 复制构建后的应用
 COPY --from=build /usr/src/app /usr/src/app
 
+# 暴露端口
 EXPOSE 3000
-# 由 entrypoint.sh 负责迁移并启动
+
+# 设置默认启动命令（可以被 docker compose 覆盖）
+CMD ["bun", "run", "preview"]

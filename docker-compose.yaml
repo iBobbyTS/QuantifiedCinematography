@@ -35,7 +35,7 @@ services:
       - "5173:3000"   # 外部访问 http://localhost:5173
     volumes:
       - .:/usr/src/app  # 开发期热更新；生产可移除，改用纯镜像
-    command: ["/bin/sh", "/usr/src/app/entrypoint.sh"]
+    command: ["bun", "run", "dev"]
 
 volumes:
   db_data:
