@@ -25,40 +25,27 @@
 	
 	// 切换主题
 	function changeTheme(theme: string) {
-		console.log('🔧 changeTheme called with:', theme);
-		console.log('🔧 Previous currentTheme:', currentTheme);
-		
 		currentTheme = theme;
-		console.log('🔧 currentTheme updated to:', currentTheme);
 		
 		// 移除所有主题类
 		document.documentElement.classList.remove('light', 'dark');
-		console.log('🔧 Removed all theme classes, current classes:', document.documentElement.classList.toString());
 		
 		if (theme === 'system') {
 			// 跟随系统
 			const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-			console.log('🔧 System theme check - prefers-color-scheme: dark =', isSystemDark);
 			
 			if (isSystemDark) {
 				document.documentElement.classList.add('dark');
-				console.log('🔧 Added "dark" class for system preference');
 			} else {
 				document.documentElement.classList.add('light');
-				console.log('🔧 Added "light" class for system preference');
 			}
 		} else {
 			// 手动设置
 			document.documentElement.classList.add(theme);
-			console.log('🔧 Added manual theme class:', theme);
 		}
-		
-		console.log('🔧 Final documentElement classes:', document.documentElement.classList.toString());
-		console.log('🔧 Final documentElement classList contains "dark":', document.documentElement.classList.contains('dark'));
 		
 		// 保存到本地存储
 		localStorage.setItem('theme', theme);
-		console.log('🔧 Saved theme to localStorage:', theme);
 	}
 	
 	// 获取当前主题的显示名称
@@ -95,41 +82,27 @@
 	
 	// 组件挂载时检查主题设置
 	onMount(() => {
-		console.log('🚀 onMount started');
 		try {
 			// 检查本地存储的主题设置
 			const savedTheme = localStorage.getItem('theme') || 'system';
-			console.log('🚀 Saved theme from localStorage:', savedTheme);
-			console.log('🚀 Default theme will be:', savedTheme || 'system');
 			
 			changeTheme(savedTheme);
 			
 			// 监听系统主题变化
 			const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-			console.log('🚀 System media query created:', mediaQuery);
-			console.log('🚀 Current system preference:', mediaQuery.matches ? 'dark' : 'light');
 			
 			mediaQuery.addEventListener('change', (e) => {
-				console.log('🚀 System theme changed event:', e);
-				console.log('🚀 New system preference:', e.matches ? 'dark' : 'light');
-				console.log('🚀 Current user theme setting:', currentTheme);
 				
 				if (currentTheme === 'system') {
-					console.log('🚀 User is following system, updating theme...');
 					changeTheme('system');
-				} else {
-					console.log('🚀 User has manual theme, ignoring system change');
 				}
 			});
-			
-			console.log('🚀 System theme listener added successfully');
 			
 			// 加载产品数量
 			loadProductCount();
 		} catch (error) {
 			console.error('❌ Failed to check theme:', error);
 		}
-		console.log('🚀 onMount completed');
 	});
 </script>
 
@@ -215,7 +188,6 @@
 								<button
 									class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2 transition-colors duration-200"
 									on:click={() => {
-										console.log('🎯 Theme option clicked:', theme.code);
 										changeTheme(theme.code);
 										document.getElementById('themeDropdown')?.classList.add('hidden');
 									}}
