@@ -102,7 +102,7 @@
 	});
 </script>
 
-<nav class="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700">
+<nav class="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700">
 	<div class="mx-auto px-4 sm:px-6 lg:px-8">
 		<div class="grid grid-cols-3 items-center h-16">
 			<!-- Left side - Empty space -->
@@ -214,7 +214,7 @@
 									document.getElementById('themeDropdown')?.classList.add('hidden');
 								}}
 							>
-								<Icon icon={theme.icon} class="w-5 h-5" />
+								<Icon icon={theme.icon} />
 								<span>{theme.localizedName}</span>
 							</button>
 						{/each}

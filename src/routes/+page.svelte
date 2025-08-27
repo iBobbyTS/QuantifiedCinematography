@@ -177,7 +177,7 @@
 	<title>Quantified Cinematography</title>
 </svelte:head>
 
-<div class="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
+<div class="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200 pt-16">
 	<!-- Navbar -->
 	<Navbar centerTitle="app.title" />
 	
