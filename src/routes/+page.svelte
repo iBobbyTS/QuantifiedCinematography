@@ -62,6 +62,8 @@
 	// 切换语言
 	function changeLanguage(langCode: string) {
 		locale.set(langCode);
+		// 保存语言设置到localStorage
+		localStorage.setItem('locale', langCode);
 	}
 	
 	// 加载产品数量
@@ -85,8 +87,10 @@
 		try {
 			// 检查本地存储的主题设置
 			const savedTheme = localStorage.getItem('theme') || 'system';
+			const savedLocale = localStorage.getItem('locale') || 'en'; // 默认英语
 			
 			changeTheme(savedTheme);
+			locale.set(savedLocale); // 初始化语言
 			
 			// 监听系统主题变化
 			const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -233,7 +237,7 @@
 					<p class="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
 						{$_('testing.lighting.products.description')}
 					</p>
-					<button class="w-full border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-medium py-3 rounded-lg transition-all duration-200 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-400 dark:hover:text-gray-900">
+					<button class="w-full border-2 border-blue-800 text-blue-800 hover:bg-blue-800 hover:text-white font-medium py-3 rounded-lg transition-all duration-200 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-400 dark:hover:text-gray-900">
 						{$_('testing.lighting.products.button')}
 					</button>
 				</div>
@@ -249,10 +253,10 @@
 					
 					<!-- Brightness Test Buttons -->
 					<div class="space-y-3">
-						<button class="w-full border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white font-medium py-3 rounded-lg transition-all duration-200 dark:border-green-400 dark:text-green-400 dark:hover:bg-green-400 dark:hover:text-gray-900">
+						<button class="w-full border-2 border-green-800 text-green-800 hover:bg-green-600 hover:border-green-600 hover:text-white font-medium py-3 rounded-lg transition-all duration-200 dark:border-green-400 dark:text-green-400 dark:hover:bg-green-400 dark:hover:text-gray-900">
 							{$_('testing.lighting.brightness.buttons.cct_illuminance')}
 						</button>
-						<button class="w-full border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white font-medium py-3 rounded-lg transition-all duration-200 dark:border-green-400 dark:text-green-400 dark:hover:bg-green-400 dark:hover:text-gray-900">
+						<button class="w-full border-2 border-green-800 text-green-800 hover:bg-green-600 hover:border-green-600 hover:text-white font-medium py-3 rounded-lg transition-all duration-200 dark:border-green-400 dark:text-green-400 dark:hover:bg-green-400 dark:hover:text-gray-900">
 							{$_('testing.lighting.brightness.buttons.brightness_illuminance')}
 						</button>
 					</div>

@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* 自定义深色模式变体 - 基于.dark类而不是媒体查询 */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* 基础样式 */
 @layer base {
   html {
@@ -11,62 +14,11 @@
   }
 }
 
-/* 深色模式样式定义 */
-.dark {
-  /* 深色模式下的基础颜色 */
-  color-scheme: dark;
-}
-
-.dark body {
-  background-color: #111827; /* gray-900 */
-  color: #f9fafb; /* gray-50 */
-}
-
-/* 深色模式下的导航栏样式 */
-.dark nav {
-  background-color: #1f2937 !important; /* gray-800 */
-  border-color: #374151 !important; /* gray-700 */
-}
-
-/* 深色模式下的卡片样式 */
-.dark .bg-white {
-  background-color: #1f2937 !important; /* gray-800 */
-}
-
-/* 深色模式下的文本样式 */
-.dark .text-gray-900 {
-  color: #f9fafb !important; /* gray-50 */
-}
-
-.dark .text-gray-700 {
-  color: #d1d5db !important; /* gray-300 */
-}
-
-.dark .text-gray-600 {
-  color: #9ca3af !important; /* gray-400 */
-}
-
-/* 深色模式下的边框样式 */
-.dark .border-gray-200 {
-  border-color: #374151 !important; /* gray-700 */
-}
-
-.dark .border-gray-300 {
-  border-color: #4b5563 !important; /* gray-600 */
-}
-
-/* 深色模式下的按钮样式 */
-.dark .bg-gray-100 {
-  background-color: #374151 !important; /* gray-700 */
-}
-
-.dark .hover\:bg-gray-200:hover {
-  background-color: #4b5563 !important; /* gray-600 */
-}
-
-/* 深色模式下的阴影样式 */
-.dark .shadow-lg {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2) !important;
+/* 主题切换过渡效果 */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
 }
 
 /* 自定义样式 */
@@ -75,13 +27,6 @@
   #languageDropdown, #themeDropdown {
     backdrop-filter: blur(10px);
   }
-}
-
-/* 主题切换过渡效果 */
-* {
-  transition-property: background-color, border-color, color, fill, stroke;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
 }
 
 /* 自定义CSS变量 */
