@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
+	import { page } from '$app/stores';
 	import Navbar from '../lib/components/Navbar.svelte';
 	import Card from '../lib/components/Card.svelte';
+	import { UserPermissions, USER_PERMISSIONS } from '../lib/bitmask.js';
 	
 	// 产品数量状态
 	let productCount = 0;
@@ -22,6 +24,71 @@
 			productCount = 0;
 		}
 	}
+	
+	// 检查用户是否为管理员
+	$: isAdministrator = $page.data.user && UserPermissions.hasPermission($page.data.user.permission, USER_PERMISSIONS.ADMINISTRATOR);
+	
+	// 检查用户是否具有灯光权限
+	$: hasLightPermission = $page.data.user && UserPermissions.hasPermission($page.data.user.permission, USER_PERMISSIONS.LIGHT);
+	
+	// 管理员卡片配置数据
+	$: adminCards = [
+		{
+			title: $_('testing.administrator.user_management.title'),
+			description: $_('testing.administrator.user_management.description'),
+			buttons: [
+				{
+					text: $_('testing.administrator.user_management.button'),
+					color: 'red',
+					onClick: () => console.log('Manage Users')
+				}
+			],
+			color: 'red'
+		}
+	];
+	
+	// 数据提供方灯光卡片配置数据
+	$: dataProviderLightingCards = [
+		{
+			title: $_('testing.data_provider_lighting.recorded_lighting_products.title').replace('{{count}}', productCount.toString()),
+			description: $_('testing.data_provider_lighting.recorded_lighting_products.description'),
+			buttons: [
+				{
+					text: $_('testing.data_provider_lighting.recorded_lighting_products.button'),
+					color: 'blue',
+					onClick: () => console.log('Manage Lighting Products')
+				},
+				{
+					text: $_('testing.data_provider_lighting.lighting_accessories.button'),
+					color: 'blue',
+					onClick: () => console.log('Manage Lighting Accessories')
+				},
+				{
+					text: $_('testing.data_provider_lighting.spectrometer.button'),
+					color: 'blue',
+					onClick: () => console.log('Manage Spectrometer')
+				}
+			],
+			color: 'blue'
+		},
+		{
+			title: $_('testing.data_provider_lighting.data_upload.title'),
+			description: $_('testing.data_provider_lighting.data_upload.description'),
+			buttons: [
+				{
+					text: $_('testing.data_provider_lighting.data_upload.white_light_test'),
+					color: 'blue',
+					onClick: () => console.log('White Light Test Data')
+				},
+				{
+					text: $_('testing.data_provider_lighting.data_upload.color_light_test'),
+					color: 'blue',
+					onClick: () => console.log('Color Light Test Data')
+				}
+			],
+			color: 'blue'
+		}
+	];
 	
 	// 卡片配置数据
 	$: cards = [
@@ -127,6 +194,48 @@
 				</p>
 			</div>
 		</div>
+		
+		<!-- Administrator Section (Only visible to administrators) -->
+		{#if isAdministrator}
+			<div class="mb-12">
+				<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+					{$_('testing.administrator.title')}
+				</h2>
+				
+				<!-- Admin Cards Grid Container -->
+				<div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+					{#each adminCards as card}
+						<Card
+							title={card.title}
+							description={card.description}
+							buttons={card.buttons}
+							color={card.color}
+						/>
+					{/each}
+				</div>
+			</div>
+		{/if}
+		
+		<!-- Data Provider - Lighting Section (Only visible to users with LIGHT permission) -->
+		{#if hasLightPermission}
+			<div class="mb-12">
+				<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+					{$_('testing.data_provider_lighting.title')}
+				</h2>
+				
+				<!-- Data Provider Lighting Cards Grid Container -->
+				<div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+					{#each dataProviderLightingCards as card}
+						<Card
+							title={card.title}
+							description={card.description}
+							buttons={card.buttons}
+							color={card.color}
+						/>
+					{/each}
+				</div>
+			</div>
+		{/if}
 		
 		<!-- Lighting Section -->
 		<div class="mb-12">

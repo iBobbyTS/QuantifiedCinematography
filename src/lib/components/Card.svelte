@@ -30,6 +30,11 @@
 			border: 'border-purple-600 dark:border-purple-400',
 			text: 'text-purple-600 dark:text-purple-400',
 			hover: 'hover:bg-purple-600 hover:text-white dark:hover:bg-purple-400 dark:hover:text-gray-900'
+		},
+		red: {
+			border: 'border-red-600 dark:border-red-400',
+			text: 'text-red-600 dark:text-red-400',
+			hover: 'hover:bg-red-600 hover:text-white dark:hover:bg-red-400 dark:hover:text-gray-900'
 		}
 	};
 	

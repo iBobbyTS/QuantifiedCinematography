@@ -35,6 +35,38 @@
 			"title": "Quantified Cinematography",
 			"description": "Quantified Cinematography is a platform that collects technical specification test data for film photography equipment, featuring easy-to-use visualizations."
 		},
+		"administrator": {
+			"title": "Administrator",
+			"user_management": {
+				"title": "User Management",
+				"description": "Manage user accounts, permissions, and system settings. Only administrators can access this section.",
+				"button": "Manage Users"
+			}
+		},
+		"data_provider_lighting": {
+			"title": "Data Provider - Lighting",
+			"recorded_lighting_products": {
+				"title": "Recorded Lighting Products: {{count}} models",
+				"description": "This section contains comprehensive testing from multiple test bloggers on various lighting products. Click the button below to view all lights, with detailed test projects in the following cards.",
+				"button": "Manage Lighting Products"
+			},
+			"lighting_accessories": {
+				"title": "Manage Lighting Accessories",
+				"description": "Manage lighting accessories and their specifications.",
+				"button": "Manage Accessories"
+			},
+			"spectrometer": {
+				"title": "Manage Spectrometer",
+				"description": "Manage spectrometer devices and their calibration data.",
+				"button": "Manage Spectrometer"
+			},
+			"data_upload": {
+				"title": "Data Upload",
+				"description": "Upload test data for various lighting tests.",
+				"white_light_test": "White Light Test Data",
+				"color_light_test": "Color Light Test Data"
+			}
+		},
 		"lighting": {
 			"title": "Lighting",
 			"products": {

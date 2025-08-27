@@ -35,6 +35,38 @@
 			"title": "量化光影",
 			"description": "量化光影（Quantified Cinematography）是一个收录(电影)摄影器材技术指标测试数据的平台，网页包含了易用的可视化视图。"
 		},
+		"administrator": {
+			"title": "管理员",
+			"user_management": {
+				"title": "用户管理",
+				"description": "管理用户账户、权限和系统设置。只有管理员可以访问此部分。",
+				"button": "管理用户"
+			}
+		},
+		"data_provider_lighting": {
+			"title": "数据提供方 - 灯光",
+			"recorded_lighting_products": {
+				"title": "已收录的灯光产品：{{count}}款",
+				"description": "本板块收录多位测试博主对多款灯光产品的全面测试，点击下方按钮查看所有灯，后方的卡片有详细的测试项目。",
+				"button": "管理灯光产品"
+			},
+			"lighting_accessories": {
+				"title": "管理灯光附件",
+				"description": "管理灯光附件及其规格参数。",
+				"button": "管理附件"
+			},
+			"spectrometer": {
+				"title": "管理分光光度计",
+				"description": "管理分光光度计设备及其校准数据。",
+				"button": "管理分光光度计"
+			},
+			"data_upload": {
+				"title": "数据上传",
+				"description": "上传各种灯光测试的测试数据。",
+				"white_light_test": "白光测试数据",
+				"color_light_test": "彩光测试数据"
+			}
+		},
 		"lighting": {
 			"title": "灯光",
 			"products": {
