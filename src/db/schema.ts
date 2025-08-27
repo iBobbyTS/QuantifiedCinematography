@@ -24,6 +24,13 @@ export const users = pgTable('users', {
   index('users_permission_idx').on(table.permission),
 ]);
 
+// Session table for Lucia authentication
+export const sessions = pgTable('sessions', {
+  id: text('id').primaryKey(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  expiresAt: timestamp('expires_at', { withTimezone: true, mode: 'date' }).notNull()
+});
+
 // Brand table
 export const brands = pgTable('brands', {
   id: serial('id').primaryKey(),

@@ -12,10 +12,12 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
+    "db:seed": "bun run src/db/seed.ts",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@iconify/svelte": "^5.0.1",
+    "@lucia-auth/adapter-drizzle": "^1.1.0",
     "@skeletonlabs/skeleton": "^3.2.0",
     "@sveltejs/adapter-node": "^5.3.1",
     "@sveltejs/kit": "^2.36.2",
@@ -23,6 +25,7 @@
     "bun": "^1.1.21",
     "dotenv": "^17.2.1",
     "drizzle-orm": "^0.44.5",
+    "lucia": "^3.2.2",
     "postgres": "^3.4.7",
     "svelte-i18n": "^4.0.1"
   },

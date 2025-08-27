@@ -58,5 +58,16 @@
 				"button": "RGB纯色 VS 照度"
 			}
 		}
+	},
+	"login": {
+		"title": "登录",
+		"subtitle": "登录您的账户",
+		"username": "用户名",
+		"usernamePlaceholder": "请输入用户名",
+		"password": "密码",
+		"passwordPlaceholder": "请输入密码",
+		"signIn": "登录",
+		"signingIn": "登录中...",
+		"description": "只有管理员和数据提供方需要登录，普通用户暂时没有登录功能。如果想成为数据提供者，请通过Email: ibobbyts@gmail.com联系Bobby"
 	}
 }

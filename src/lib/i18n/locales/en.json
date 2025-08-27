@@ -58,5 +58,16 @@
 				"button": "RGB Pure Color VS Illuminance"
 			}
 		}
+	},
+	"login": {
+		"title": "Sign In",
+		"subtitle": "Sign in to your account",
+		"username": "Username",
+		"usernamePlaceholder": "Enter your username",
+		"password": "Password",
+		"passwordPlaceholder": "Enter your password",
+		"signIn": "Sign In",
+		"signingIn": "Signing In...",
+		"description": "Only administrators and data providers need to log in. Regular users currently do not have login functionality. If you want to become a data provider, please contact Bobby via Email:ibobbyts@gmail.com."
 	}
 }
