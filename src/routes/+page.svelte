@@ -4,8 +4,8 @@
 	import Icon from '@iconify/svelte';
 	import { _ } from 'svelte-i18n';
 	
-	// 深色模式状态
-	let isDarkMode = false;
+	// 主题模式状态
+	let currentTheme = 'system'; // 'light', 'dark', 'system'
 	
 	// 语言选项
 	const languageOptions = [
@@ -13,19 +13,48 @@
 		{ code: 'zh-CN', name: '中文', flag: '🇨🇳' }
 	];
 	
+	// 主题选项
+	const themeOptions = [
+		{ code: 'light', name: 'light', icon: 'mdi:weather-sunny' },
+		{ code: 'dark', name: 'dark', icon: 'mdi:weather-night' },
+		{ code: 'system', name: 'system', icon: 'mdi:monitor' }
+	];
+	
 	// 产品数量状态
 	let productCount = 0;
 	
-	// 切换深色模式
-	function toggleDarkMode() {
-		isDarkMode = !isDarkMode;
-		if (isDarkMode) {
-			document.documentElement.classList.add('dark');
-			localStorage.setItem('theme', 'dark');
+	// 切换主题
+	function changeTheme(theme: string) {
+		currentTheme = theme;
+		
+		// 移除所有主题类
+		document.documentElement.classList.remove('light', 'dark');
+		
+		if (theme === 'system') {
+			// 跟随系统
+			if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+				document.documentElement.classList.add('dark');
+			} else {
+				document.documentElement.classList.add('light');
+			}
 		} else {
-			document.documentElement.classList.remove('dark');
-			localStorage.setItem('theme', 'light');
+			// 手动设置
+			document.documentElement.classList.add(theme);
 		}
+		
+		// 保存到本地存储
+		localStorage.setItem('theme', theme);
+	}
+	
+	// 获取当前主题的显示名称
+	function getThemeDisplayName(themeCode: string) {
+		return $_('theme.' + themeCode);
+	}
+	
+	// 获取当前主题的图标
+	function getCurrentThemeIcon() {
+		const option = themeOptions.find(t => t.code === currentTheme);
+		return option ? option.icon : 'mdi:monitor';
 	}
 	
 	// 切换语言
@@ -53,11 +82,16 @@
 	onMount(() => {
 		try {
 			// 检查本地存储的主题设置
-			const savedTheme = localStorage.getItem('theme');
-			if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-				isDarkMode = true;
-				document.documentElement.classList.add('dark');
-			}
+			const savedTheme = localStorage.getItem('theme') || 'system';
+			changeTheme(savedTheme);
+			
+			// 监听系统主题变化
+			const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+			mediaQuery.addEventListener('change', (e) => {
+				if (currentTheme === 'system') {
+					changeTheme('system');
+				}
+			});
 			
 			// 加载产品数量
 			loadProductCount();
@@ -127,18 +161,38 @@
 						</div>
 					</div>
 					
-					<!-- Dark Mode Toggle -->
-					<button
-						class="p-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
-						on:click={toggleDarkMode}
-						title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-					>
-						{#if isDarkMode}
-							<Icon icon="mdi:weather-sunny" class="w-5 h-5" />
-						{:else}
-							<Icon icon="mdi:weather-night" class="w-5 h-5" />
-						{/if}
-					</button>
+					<!-- Theme Selector -->
+					<div class="relative">
+						<button
+							class="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+							on:click={() => document.getElementById('themeDropdown')?.classList.toggle('hidden')}
+						>
+							<Icon icon={getCurrentThemeIcon()} class="w-5 h-5" />
+							<span class="hidden sm:inline">
+								{getThemeDisplayName(currentTheme)}
+							</span>
+							<Icon icon="mdi:chevron-down" class="w-4 h-4" />
+						</button>
+						
+						<!-- Theme Dropdown -->
+						<div
+							id="themeDropdown"
+							class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
+						>
+							{#each themeOptions as theme}
+								<button
+									class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2 transition-colors duration-200"
+									on:click={() => {
+										changeTheme(theme.code);
+										document.getElementById('themeDropdown')?.classList.add('hidden');
+									}}
+								>
+									<Icon icon={theme.icon} class="w-5 h-5" />
+									<span>{getThemeDisplayName(theme.code)}</span>
+								</button>
+							{/each}
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -247,7 +301,7 @@
 
 <style>
 	/* 确保下拉菜单在深色模式下正确显示 */
-	#languageDropdown {
+	#languageDropdown, #themeDropdown {
 		backdrop-filter: blur(10px);
 	}
 	
