@@ -73,9 +73,10 @@ export class Bitmask {
 
 // User permission bitmask constants
 export const USER_PERMISSIONS = {
-  LIGHT: 1 << 0,      // 0000000000000000000000000001 (bit 0)
-  CAMERA: 1 << 1,     // 0000000000000000000000000010 (bit 1)
-  LENS: 1 << 2,       // 0000000000000000000000000100 (bit 2)
+  LIGHT: 1 << 0,           // 0000000000000000000000000001 (bit 0)
+  CAMERA: 1 << 1,          // 0000000000000000000000000010 (bit 1)
+  LENS: 1 << 2,            // 0000000000000000000000000100 (bit 2)
+  ADMINISTRATOR: 1 << 31,  // 1000000000000000000000000000 (bit 31)
 } as const;
 
 export type UserPermission = typeof USER_PERMISSIONS[keyof typeof USER_PERMISSIONS];
