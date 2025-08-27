@@ -62,6 +62,9 @@
 		return option ? option.icon : 'mdi:monitor';
 	}
 	
+	// 响应式获取主题显示名称
+	$: currentThemeDisplayName = $_('theme.' + currentTheme);
+	
 	// 切换语言
 	function changeLanguage(langCode: string) {
 		locale.set(langCode);
@@ -94,7 +97,7 @@
 </script>
 
 <nav class="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700">
-	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+	<div class="mx-auto px-4 sm:px-6 lg:px-8">
 		<div class="grid grid-cols-3 items-center h-16">
 			<!-- Left side - Empty space -->
 			<div class="flex items-center">
@@ -128,10 +131,10 @@
 								class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
 								on:click={async () => { await fetch('/logout', { method: 'POST' }); location.reload(); }}
 							>
-								<Icon icon="mdi:logout" class="w-4 h-4 inline mr-2" /> 退出登录
+								<Icon icon="mdi:logout" class="w-4 h-4 inline mr-2" /> {$_('auth.logout')}
 							</button>
 							<a href="/user/change-password" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-								<Icon icon="mdi:key-variant" class="w-4 h-4 inline mr-2" /> 修改密码
+								<Icon icon="mdi:key-variant" class="w-4 h-4 inline mr-2" /> {$_('auth.changePassword')}
 							</a>
 						</div>
 					</div>
@@ -142,7 +145,7 @@
 						class="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-lg transition-colors duration-200"
 					>
 						<Icon icon="mdi:login" class="w-4 h-4" />
-						<span class="hidden sm:inline">登录</span>
+						<span class="hidden sm:inline">{$_('auth.login')}</span>
 					</a>
 				{/if}
 				
@@ -187,7 +190,7 @@
 					>
 						<Icon icon={getCurrentThemeIcon()} class="w-5 h-5" />
 						<span class="hidden sm:inline">
-							{getThemeDisplayName(currentTheme)}
+							{currentThemeDisplayName}
 						</span>
 						<Icon icon="mdi:chevron-down" class="w-4 h-4" />
 					</button>

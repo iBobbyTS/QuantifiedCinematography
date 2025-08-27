@@ -16,6 +16,15 @@
 		"system": "Follow System",
 		"switch": "Switch Theme"
 	},
+	"auth": {
+		"login": "Sign In",
+		"logout": "Sign Out",
+		"changePassword": "Change Password",
+		"errors": {
+			"userNotFound": "User not found",
+			"wrongPassword": "Incorrect password"
+		}
+	},
 	"homepage": {
 		"welcome": "Welcome to Quantified Cinematography",
 		"subtitle": "Analyzing and quantifying the art of filmmaking"

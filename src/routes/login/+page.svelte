@@ -61,8 +61,15 @@
 					return async ({ result }) => {
 						isLoading = false;
 						if (result.type === 'error') {
-							// 从后端 error 响应中读取 message
-							errorMessage = (result as any)?.error?.message || '登录过程中发生错误，请稍后重试';
+							const raw = (result as any)?.error?.message || '';
+							// map known backend messages to i18n keys
+							if (raw.includes('用户不存在') || raw.toLowerCase().includes('user not found')) {
+								errorMessage = $_('auth.errors.userNotFound');
+							} else if (raw.includes('密码错误') || raw.toLowerCase().includes('incorrect password')) {
+								errorMessage = $_('auth.errors.wrongPassword');
+							} else {
+								errorMessage = raw || $_('app.networkError');
+							}
 						} else if (result.type === 'redirect') {
 							// 显式执行跳转
 							goto((result as any).location);
@@ -118,7 +125,7 @@
 							{$_('login.signingIn')}
 						{:else}
 							<Icon icon="mdi:login" class="-ml-1 mr-3 h-5 w-5" />
-							{$_('login.signIn')}
+							{$_('auth.login')}
 						{/if}
 					</button>
 				</div>
