@@ -37,25 +37,25 @@
 				"title": "Brightness Testing",
 				"description": "Browse the actual illuminance and brightness change curves of lighting products at different color temperatures.",
 				"buttons": {
-					"cct_illuminance": "Set CCT vs Illuminance (+Accessories)",
-					"brightness_illuminance": "Set Brightness (%) vs Actual Illuminance (lux)"
+					"cct_illuminance": "Set CCT VS Illuminance (+Accessories)",
+					"brightness_illuminance": "Set Brightness (%) VS Actual Illuminance (lux)"
 				}
 			},
 			"white_light_quality": {
 				"title": "White Light Quality Testing",
 				"description": "Test the quality of white light, including color temperature accuracy and color rendering metrics.",
 				"buttons": {
-					"cct_vs_actual": "Set CCT vs Actual CCT",
-					"cct_vs_duv": "Set CCT vs D'uv",
-					"brightness_vs_duv": "Set Brightness vs D'uv",
-					"cct_vs_color_rendering": "Set CCT vs Color Rendering",
+					"cct_vs_actual": "Set CCT VS Actual CCT",
+					"cct_vs_duv": "Set CCT VS D'uv",
+					"brightness_vs_duv": "Set Brightness VS D'uv",
+					"cct_vs_color_rendering": "Set CCT VS Color Rendering",
 					"spectrum": "Spectrum"
 				}
 			},
 			"color_light": {
 				"title": "Color Light Testing",
 				"description": "Browse illuminance, saturation and other information of colored lighting products.",
-				"button": "RGB Pure Color vs Illuminance"
+				"button": "RGB Pure Color VS Illuminance"
 			}
 		}
 	}

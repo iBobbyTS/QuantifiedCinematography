@@ -37,7 +37,7 @@
 				"title": "亮度测试",
 				"description": "浏览灯光产品不同色温的实际照度、亮度变化曲线。",
 				"buttons": {
-					"cct_illuminance": "设定色温 vs 照度(+附件)",
+					"cct_illuminance": "设定色温 VS 照度(+附件)",
 					"brightness_illuminance": "设定亮度(%) VS 实际照度(lux)"
 				}
 			},
@@ -45,17 +45,17 @@
 				"title": "白光光品测试",
 				"description": "测试白光的光品质量，包括色温准确性、显色指标等。",
 				"buttons": {
-					"cct_vs_actual": "设定色温 vs 实际色温",
-					"cct_vs_duv": "设定色温 vs D'uv",
-					"brightness_vs_duv": "设定亮度 vs D'uv",
-					"cct_vs_color_rendering": "设定色温 vs 显色指标",
+					"cct_vs_actual": "设定色温 VS 实际色温",
+					"cct_vs_duv": "设定色温 VS D'uv",
+					"brightness_vs_duv": "设定亮度 VS D'uv",
+					"cct_vs_color_rendering": "设定色温 VS 显色指标",
 					"spectrum": "光谱"
 				}
 			},
 			"color_light": {
 				"title": "彩光测试",
 				"description": "浏览灯光产品彩光的照度、饱和度等信息。",
-				"button": "RGB纯色 vs 照度"
+				"button": "RGB纯色 VS 照度"
 			}
 		}
 	}
