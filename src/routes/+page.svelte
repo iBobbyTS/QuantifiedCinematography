@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
 	import Navbar from '../lib/components/Navbar.svelte';
+	import Card from '../lib/components/Card.svelte';
 	
 	// 产品数量状态
 	let productCount = 0;
@@ -21,6 +22,83 @@
 			productCount = 0;
 		}
 	}
+	
+	// 卡片配置数据
+	$: cards = [
+		{
+			title: $_('testing.lighting.products.title').replace('{{count}}', productCount.toString()),
+			description: $_('testing.lighting.products.description'),
+			buttons: [
+				{
+					text: $_('testing.lighting.products.button'),
+					color: 'blue',
+					onClick: () => console.log('Browse all lighting products')
+				}
+			],
+			color: 'blue'
+		},
+		{
+			title: $_('testing.lighting.brightness.title'),
+			description: $_('testing.lighting.brightness.description'),
+			buttons: [
+				{
+					text: $_('testing.lighting.brightness.buttons.cct_illuminance'),
+					color: 'green',
+					onClick: () => console.log('CCT vs Illuminance')
+				},
+				{
+					text: $_('testing.lighting.brightness.buttons.brightness_illuminance'),
+					color: 'green',
+					onClick: () => console.log('Brightness vs Illuminance')
+				}
+			],
+			color: 'green'
+		},
+		{
+			title: $_('testing.lighting.white_light_quality.title'),
+			description: $_('testing.lighting.white_light_quality.description'),
+			buttons: [
+				{
+					text: $_('testing.lighting.white_light_quality.buttons.cct_vs_actual'),
+					color: 'orange',
+					onClick: () => console.log('CCT vs Actual CCT')
+				},
+				{
+					text: $_('testing.lighting.white_light_quality.buttons.cct_vs_duv'),
+					color: 'orange',
+					onClick: () => console.log('CCT vs D\'uv')
+				},
+				{
+					text: $_('testing.lighting.white_light_quality.buttons.brightness_vs_duv'),
+					color: 'orange',
+					onClick: () => console.log('Brightness vs D\'uv')
+				},
+				{
+					text: $_('testing.lighting.white_light_quality.buttons.cct_vs_color_rendering'),
+					color: 'orange',
+					onClick: () => console.log('CCT vs Color Rendering')
+				},
+				{
+					text: $_('testing.lighting.white_light_quality.buttons.spectrum'),
+					color: 'orange',
+					onClick: () => console.log('Spectrum')
+				}
+			],
+			color: 'orange'
+		},
+		{
+			title: $_('testing.lighting.color_light.title'),
+			description: $_('testing.lighting.color_light.description'),
+			buttons: [
+				{
+					text: $_('testing.lighting.color_light.button'),
+					color: 'purple',
+					onClick: () => console.log('RGB Pure Color vs Illuminance')
+				}
+			],
+			color: 'purple'
+		}
+	];
 	
 	// 组件挂载时加载产品数量
 	onMount(() => {
@@ -58,80 +136,14 @@
 			
 			<!-- Cards Grid Container -->
 			<div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-				<!-- Products Card -->
-				<div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-					<h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-						{$_('testing.lighting.products.title').replace('{{count}}', productCount.toString())}
-					</h3>
-					<p class="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
-						{$_('testing.lighting.products.description')}
-					</p>
-					<button class="w-full border-2 border-blue-800 text-blue-800 hover:bg-blue-800 hover:text-white font-medium py-3 rounded-lg transition-all duration-200 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-400 dark:hover:text-gray-900">
-						{$_('testing.lighting.products.button')}
-					</button>
-				</div>
-				
-				<!-- Brightness Testing Card -->
-				<div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-					<h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-						{$_('testing.lighting.brightness.title')}
-					</h3>
-					<p class="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
-						{$_('testing.lighting.brightness.description')}
-					</p>
-					
-					<!-- Brightness Test Buttons -->
-					<div class="space-y-3">
-						<button class="w-full border-2 border-green-800 text-green-800 hover:bg-green-600 hover:border-green-600 hover:text-white font-medium py-3 rounded-lg transition-all duration-200 dark:border-green-400 dark:text-green-400 dark:hover:bg-green-400 dark:hover:text-gray-900">
-							{$_('testing.lighting.brightness.buttons.cct_illuminance')}
-						</button>
-						<button class="w-full border-2 border-green-800 text-green-800 hover:bg-green-600 hover:border-green-600 hover:text-white font-medium py-3 rounded-lg transition-all duration-200 dark:border-green-400 dark:text-green-400 dark:hover:bg-green-400 dark:hover:text-gray-900">
-							{$_('testing.lighting.brightness.buttons.brightness_illuminance')}
-						</button>
-					</div>
-				</div>
-				
-				<!-- White Light Quality Testing Card -->
-				<div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-					<h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-						{$_('testing.lighting.white_light_quality.title')}
-					</h3>
-					<p class="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
-						{$_('testing.lighting.white_light_quality.description')}
-					</p>
-					
-					<!-- Quality Test Buttons -->
-					<div class="space-y-3">
-						<button class="w-full border-2 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white font-medium py-3 rounded-lg transition-all duration-200 dark:border-orange-400 dark:text-orange-400 dark:hover:bg-orange-400 dark:hover:text-gray-900">
-							{$_('testing.lighting.white_light_quality.buttons.cct_vs_actual')}
-						</button>
-						<button class="w-full border-2 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white font-medium py-3 rounded-lg transition-all duration-200 dark:border-orange-400 dark:text-orange-400 dark:hover:bg-orange-400 dark:hover:text-gray-900">
-							{$_('testing.lighting.white_light_quality.buttons.cct_vs_duv')}
-						</button>
-						<button class="w-full border-2 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white font-medium py-3 rounded-lg transition-all duration-200 dark:border-orange-400 dark:text-orange-400 dark:hover:bg-orange-400 dark:hover:text-gray-900">
-							{$_('testing.lighting.white_light_quality.buttons.brightness_vs_duv')}
-						</button>
-						<button class="w-full border-2 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white font-medium py-3 rounded-lg transition-all duration-200 dark:border-orange-400 dark:text-orange-400 dark:hover:bg-orange-400 dark:hover:text-gray-900">
-							{$_('testing.lighting.white_light_quality.buttons.cct_vs_color_rendering')}
-						</button>
-						<button class="w-full border-2 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white font-medium py-3 rounded-lg transition-all duration-200 dark:border-orange-400 dark:text-orange-400 dark:hover:bg-orange-400 dark:hover:text-gray-900">
-							{$_('testing.lighting.white_light_quality.buttons.spectrum')}
-						</button>
-					</div>
-				</div>
-				
-				<!-- Color Light Testing Card -->
-				<div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-					<h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-						{$_('testing.lighting.color_light.title')}
-					</h3>
-					<p class="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
-						{$_('testing.lighting.color_light.description')}
-					</p>
-					<button class="w-full border-2 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white font-medium py-3 rounded-lg transition-all duration-200 dark:border-purple-400 dark:text-purple-400 dark:hover:bg-purple-400 dark:hover:text-gray-900">
-						{$_('testing.lighting.color_light.button')}
-					</button>
-				</div>
+				{#each cards as card}
+					<Card
+						title={card.title}
+						description={card.description}
+						buttons={card.buttons}
+						color={card.color}
+					/>
+				{/each}
 			</div>
 		</div>
 	</main>
