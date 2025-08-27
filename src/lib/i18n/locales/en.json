@@ -1,0 +1,55 @@
+{
+	"app": {
+		"title": "Quantified Cinematography",
+		"error": "Error: {message}",
+		"networkError": "Network error"
+	},
+	"language": {
+		"en": "English",
+		"zh": "中文",
+		"switch": "Switch Language"
+	},
+	"homepage": {
+		"welcome": "Welcome to Quantified Cinematography",
+		"subtitle": "Analyzing and quantifying the art of filmmaking"
+	},
+	"testing": {
+		"title": "Testing Projects",
+		"intro": {
+			"title": "Quantified Cinematography",
+			"description": "Quantified Cinematography is a platform that collects technical specification test data for film photography equipment, featuring easy-to-use visualizations."
+		},
+		"lighting": {
+			"title": "Lighting",
+			"products": {
+				"title": "Recorded Lighting Products: {{count}} models",
+				"description": "This section contains comprehensive testing from multiple test bloggers on various lighting products. Click the button below to view all lights, with detailed test projects in the following cards.",
+				"button": "Browse All Lighting Products"
+			},
+			"brightness": {
+				"title": "Brightness Testing",
+				"description": "Browse the actual illuminance and brightness change curves of lighting products at different color temperatures.",
+				"buttons": {
+					"cct_illuminance": "Set CCT vs Illuminance (+Accessories)",
+					"brightness_illuminance": "Set Brightness (%) vs Actual Illuminance (lux)"
+				}
+			},
+			"white_light_quality": {
+				"title": "White Light Quality Testing",
+				"description": "Test the quality of white light, including color temperature accuracy and color rendering metrics.",
+				"buttons": {
+					"cct_vs_actual": "Set CCT vs Actual CCT",
+					"cct_vs_duv": "Set CCT vs D'uv",
+					"brightness_vs_duv": "Set Brightness vs D'uv",
+					"cct_vs_color_rendering": "Set CCT vs Color Rendering",
+					"spectrum": "Spectrum"
+				}
+			},
+			"color_light": {
+				"title": "Color Light Testing",
+				"description": "Browse illuminance, saturation and other information of colored lighting products.",
+				"button": "RGB Pure Color vs Illuminance"
+			}
+		}
+	}
+}
