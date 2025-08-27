@@ -65,6 +65,12 @@
 	// 响应式获取主题显示名称
 	$: currentThemeDisplayName = $_('theme.' + currentTheme);
 	
+	// 响应式获取所有主题选项的本地化名称
+	$: themeOptionsLocalized = themeOptions.map(theme => ({
+		...theme,
+		localizedName: $_('theme.' + theme.code)
+	}));
+	
 	// 切换语言
 	function changeLanguage(langCode: string) {
 		locale.set(langCode);
@@ -200,7 +206,7 @@
 						id="themeDropdown"
 						class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
 					>
-						{#each themeOptions as theme}
+						{#each themeOptionsLocalized as theme}
 							<button
 								class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2 transition-colors duration-200"
 								on:click={() => {
@@ -209,7 +215,7 @@
 								}}
 							>
 								<Icon icon={theme.icon} class="w-5 h-5" />
-								<span>{getThemeDisplayName(theme.code)}</span>
+								<span>{theme.localizedName}</span>
 							</button>
 						{/each}
 					</div>
