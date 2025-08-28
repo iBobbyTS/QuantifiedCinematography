@@ -5,11 +5,17 @@
 	import Icon from '@iconify/svelte';
 	import type { PageData } from './$types';
 	import Navbar from '../../../lib/components/Navbar.svelte';
+	import PermissionModal from './PermissionModal.svelte';
 
 	export let data: PageData;
 
 	// 用户数据
 	$: users = data.users;
+
+	// 弹窗状态
+	let showPermissionModal = false;
+	let selectedUser: any = null;
+	let originalPermissions: number = 0;
 
 	// 权限显示函数
 	function getPermissionText(permission: number): string {
@@ -24,6 +30,28 @@
 	// 添加用户
 	function addUser() {
 		goto('/admin/add-user');
+	}
+
+	// 打开权限修改弹窗
+	function openPermissionModal(user: any) {
+		selectedUser = user;
+		originalPermissions = user.permission;
+		showPermissionModal = true;
+	}
+
+	// 关闭权限修改弹窗
+	function closePermissionModal() {
+		showPermissionModal = false;
+		selectedUser = null;
+		originalPermissions = 0;
+	}
+
+	// 权限修改成功后的回调
+	function onPermissionChanged(newPermissions: number) {
+		if (selectedUser) {
+			selectedUser.permission = newPermissions;
+		}
+		closePermissionModal();
 	}
 
 	// 禁用用户
@@ -110,9 +138,13 @@
 										{user.email}
 									</td>
 									<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-										<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+										<button
+											onclick={() => openPermissionModal(user)}
+											class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors duration-200 cursor-pointer"
+										>
 											{getPermissionText(user.permission)}
-										</span>
+											<Icon icon="mdi:pencil" class="w-3 h-3 ml-1" />
+										</button>
 									</td>
 									<td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
 										<div class="flex space-x-4">
@@ -160,3 +192,13 @@
 		</div>
 	</div>
 </div>
+
+<!-- Permission Modal -->
+{#if showPermissionModal && selectedUser}
+	<PermissionModal
+		user={selectedUser}
+		originalPermissions={originalPermissions}
+		onClose={closePermissionModal}
+		onPermissionChanged={onPermissionChanged}
+	/>
+{/if}
