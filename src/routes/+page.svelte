@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
 	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 	import Navbar from '../lib/components/Navbar.svelte';
 	import Card from '../lib/components/Card.svelte';
 	import { UserPermissions, USER_PERMISSIONS } from '../lib/bitmask.js';
@@ -40,7 +41,7 @@
 				{
 					text: $_('testing.administrator.user_management.button'),
 					color: 'red',
-					onClick: () => console.log('Manage Users')
+					onClick: () => goto('/admin/manage-users')
 				}
 			],
 			color: 'red'
