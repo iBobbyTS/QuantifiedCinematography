@@ -1,6 +1,6 @@
 {
 	"app": {
-		"title": "量化电影摄影",
+		"title": "量化光影",
 		"error": "错误：{message}",
 		"networkError": "网络错误"
 	},
@@ -26,8 +26,7 @@
 		}
 	},
 	"homepage": {
-		"welcome": "欢迎来到量化电影摄影",
-		"subtitle": "分析和量化电影制作艺术"
+		"welcome": "欢迎来到量化光影"
 	},
 	"testing": {
 		"title": "测试项目",
