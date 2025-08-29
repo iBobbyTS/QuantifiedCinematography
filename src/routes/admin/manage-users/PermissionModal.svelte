@@ -1,56 +1,106 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Icon from '@iconify/svelte';
+	import { USER_PERMISSIONS, UserPermissions } from '../../../lib/bitmask.js';
 
 	export let user: any;
 	export let originalPermissions: number;
+	export let currentUser: any; // 当前登录用户
 	export let onClose: () => void;
 	export let onPermissionChanged: (permissions: number) => void;
 
-	// 权限选项
+	// 权限选项 - 直接使用权限值，不需要Math.log2()
 	const permissionOptions = [
-		{ bit: 0, label: 'Light', description: 'Access to lighting-related features' },
-		{ bit: 1, label: 'Camera', description: 'Access to camera-related features' },
-		{ bit: 2, label: 'Lens', description: 'Access to lens-related features' },
-		{ bit: 31, label: 'Administrator', description: 'Full system access' }
+		{ permission: USER_PERMISSIONS.LIGHT, label: 'Light', description: 'Access to lighting-related features' },
+		{ permission: USER_PERMISSIONS.CAMERA, label: 'Camera', description: 'Access to camera-related features' },
+		{ permission: USER_PERMISSIONS.LENS, label: 'Lens', description: 'Access to lens-related features' },
+		{ permission: USER_PERMISSIONS.ADMINISTRATOR, label: 'Administrator', description: 'Full system access' }
 	];
 
 	// 当前选择的权限
 	let currentPermissions: number = 0;
 	let isLoading = false;
 	let errorMessage = '';
+	let hasChanges = false;
+	let isInitialized = false; // 跟踪是否已经初始化
+
+	// 检查编辑对象是否是当前用户
+	$: isEditingCurrentUser = currentUser && user && currentUser.id === user.id;
+
+	// 响应式声明：当 originalPermissions 变化时重新初始化（但只在没有手动修改时）
+	$: if (originalPermissions !== undefined && !isInitialized) {
+		console.log('响应式更新: originalPermissions 变化为:', originalPermissions);
+		currentPermissions = originalPermissions;
+		isInitialized = true; // 标记为已初始化
+		console.log('响应式更新: currentPermissions 设置为:', currentPermissions);
+		console.log('响应式更新后检查权限:');
+		console.log('Light (bit 0):', UserPermissions.hasLightPermission(currentPermissions));
+		console.log('Camera (bit 1):', UserPermissions.hasCameraPermission(currentPermissions));
+		console.log('Lens (bit 2):', UserPermissions.hasLensPermission(currentPermissions));
+		console.log('Admin (bit 30):', UserPermissions.hasAdministratorPermission(currentPermissions));
+	}
 
 	// 初始化权限
 	onMount(() => {
+		console.log('=== 弹窗组件挂载 ===');
+		console.log('接收到的 originalPermissions:', originalPermissions);
+		console.log('originalPermissions 类型:', typeof originalPermissions);
+		console.log('originalPermissions 二进制:', originalPermissions.toString(2));
+		
 		currentPermissions = originalPermissions;
+		console.log('设置 currentPermissions:', currentPermissions);
+		console.log('onMount后检查权限:');
+		console.log('Light (bit 0):', UserPermissions.hasLightPermission(currentPermissions));
+		console.log('Camera (bit 1):', UserPermissions.hasCameraPermission(currentPermissions));
+		console.log('Lens (bit 2):', UserPermissions.hasLensPermission(currentPermissions));
+		console.log('Admin (bit 30):', UserPermissions.hasAdministratorPermission(currentPermissions));
+		console.log('初始 hasChanges 状态:', hasChanges);
 	});
 
 	// 检查权限是否被选中
-	function isPermissionSelected(bit: number): boolean {
-		return (currentPermissions & (1 << bit)) !== 0;
+	function isPermissionSelected(permission: number): boolean {
+		return (currentPermissions & permission) !== 0;
 	}
 
 	// 切换权限选择
-	function togglePermission(bit: number) {
-		if (bit === 31) {
+	function togglePermission(permission: number) {
+		console.log('切换权限前 - currentPermissions:', currentPermissions, 'permission:', permission);
+		console.log('切换权限前 - hasChanges:', hasChanges);
+		
+		let newPermissions: number;
+		
+		if (permission === USER_PERMISSIONS.ADMINISTRATOR) {
 			// Administrator 是互斥的
-			if (isPermissionSelected(31)) {
-				currentPermissions = 0;
+			if (UserPermissions.hasPermission(currentPermissions, USER_PERMISSIONS.ADMINISTRATOR)) {
+				newPermissions = 0;
 			} else {
-				currentPermissions = 1 << 31;
+				newPermissions = USER_PERMISSIONS.ADMINISTRATOR;
 			}
 		} else {
 			// 其他权限可以组合
-			if (isPermissionSelected(bit)) {
-				currentPermissions &= ~(1 << bit);
+			if (isPermissionSelected(permission)) {
+				newPermissions = currentPermissions & ~permission;
 			} else {
-				currentPermissions |= (1 << bit);
+				newPermissions = currentPermissions | permission;
 			}
 		}
+		
+		// 更新权限并立即计算变化状态
+		currentPermissions = newPermissions;
+		hasChanges = currentPermissions !== originalPermissions;
+		
+		console.log('切换权限后 - currentPermissions:', currentPermissions);
+		console.log('切换权限后 - hasChanges:', hasChanges);
 	}
 
 	// 检查权限是否有变化
-	$: hasChanges = currentPermissions !== originalPermissions;
+	$: {
+		hasChanges = currentPermissions !== originalPermissions;
+		console.log('hasChanges 重新计算:');
+		console.log('  currentPermissions:', currentPermissions, '(', currentPermissions.toString(2), ')');
+		console.log('  originalPermissions:', originalPermissions, '(', originalPermissions.toString(2), ')');
+		console.log('  hasChanges:', hasChanges);
+	}
 
 	// 提交权限修改
 	async function submitPermissions() {
@@ -144,14 +194,17 @@
 					<label class="flex items-start space-x-3 cursor-pointer">
 						<input
 							type="checkbox"
-							checked={isPermissionSelected(option.bit)}
-							onchange={() => togglePermission(option.bit)}
-							disabled={isLoading}
+							checked={isPermissionSelected(option.permission)}
+							onchange={() => togglePermission(option.permission)}
+							disabled={isLoading || (isEditingCurrentUser && option.permission === USER_PERMISSIONS.ADMINISTRATOR)}
 							class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
 						/>
 						<div class="flex-1">
 							<div class="text-sm font-medium text-gray-900 dark:text-white">
 								{option.label}
+								{#if isEditingCurrentUser && option.permission === USER_PERMISSIONS.ADMINISTRATOR}
+									<span class="text-xs text-gray-500 dark:text-gray-400 ml-1">(Cannot modify own admin permission)</span>
+								{/if}
 							</div>
 							<div class="text-xs text-gray-500 dark:text-gray-400">
 								{option.description}

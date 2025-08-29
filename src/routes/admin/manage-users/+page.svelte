@@ -6,6 +6,7 @@
 	import type { PageData } from './$types';
 	import Navbar from '../../../lib/components/Navbar.svelte';
 	import PermissionModal from './PermissionModal.svelte';
+	import { UserPermissions } from '../../../lib/bitmask.js';
 
 	export let data: PageData;
 
@@ -17,14 +18,10 @@
 	let selectedUser: any = null;
 	let originalPermissions: number = 0;
 
-	// 权限显示函数
+	// 权限显示函数 - 使用 bitmask.ts 中的函数
 	function getPermissionText(permission: number): string {
-		const permissions = [];
-		if (permission & (1 << 0)) permissions.push('Light');
-		if (permission & (1 << 1)) permissions.push('Camera');
-		if (permission & (1 << 2)) permissions.push('Lens');
-		if (permission & (1 << 31)) permissions.push('Administrator');
-		return permissions.length > 0 ? permissions.join(', ') : 'None';
+		const permissionNames = UserPermissions.getPermissionNames(permission);
+		return permissionNames.length > 0 ? permissionNames.join(', ') : 'None';
 	}
 
 	// 添加用户
@@ -34,9 +31,17 @@
 
 	// 打开权限修改弹窗
 	function openPermissionModal(user: any) {
+		console.log('=== 打开权限弹窗 ===');
+		console.log('用户对象:', user);
+		console.log('用户权限值:', user.permission);
+		console.log('权限值类型:', typeof user.permission);
+		console.log('权限值二进制:', user.permission.toString(2));
+		
 		selectedUser = user;
 		originalPermissions = user.permission;
+		console.log('设置 originalPermissions:', originalPermissions);
 		showPermissionModal = true;
+		console.log('弹窗状态设置为:', showPermissionModal);
 	}
 
 	// 关闭权限修改弹窗
@@ -198,6 +203,7 @@
 	<PermissionModal
 		user={selectedUser}
 		originalPermissions={originalPermissions}
+		currentUser={$page.data.user}
 		onClose={closePermissionModal}
 		onPermissionChanged={onPermissionChanged}
 	/>
