@@ -76,7 +76,8 @@ export const USER_PERMISSIONS = {
   LIGHT: 1 << 0,           // 0000000000000000000000000001 (bit 0)
   CAMERA: 1 << 1,          // 0000000000000000000000000010 (bit 1)
   LENS: 1 << 2,            // 0000000000000000000000000100 (bit 2)
-  ADMINISTRATOR: 1 << 31,  // 1000000000000000000000000000 (bit 31)
+  ADMINISTRATOR: 1 << 30,  // 0100000000000000000000000000 (bit 30)
+  // Don't use bit 31, it will cause problems with the database because it's the sign bit
 } as const;
 
 export type UserPermission = typeof USER_PERMISSIONS[keyof typeof USER_PERMISSIONS];
@@ -87,7 +88,7 @@ export class UserPermissions {
    * Check if user has a specific permission
    */
   static hasPermission(userPermission: number, permission: UserPermission): boolean {
-    return Bitmask.hasBit(userPermission, Math.log2(permission));
+    return (userPermission & permission) !== 0;
   }
 
   /**
@@ -112,6 +113,13 @@ export class UserPermissions {
   }
 
   /**
+   * Check if user has administrator permission
+   */
+  static hasAdministratorPermission(userPermission: number): boolean {
+    return this.hasPermission(userPermission, USER_PERMISSIONS.ADMINISTRATOR);
+  }
+
+  /**
    * Add a permission to user
    */
   static addPermission(userPermission: number, permission: UserPermission): number {
@@ -129,22 +137,26 @@ export class UserPermissions {
    * Get all permissions as an array
    */
   static getPermissions(userPermission: number): UserPermission[] {
-    const setBits = Bitmask.getSetBits(userPermission);
-    return setBits
-      .map(bit => 1 << bit)
-      .filter(permission => Object.values(USER_PERMISSIONS).includes(permission as UserPermission)) as UserPermission[];
+    const permissions: UserPermission[] = [];
+    
+    if (this.hasLightPermission(userPermission)) permissions.push(USER_PERMISSIONS.LIGHT);
+    if (this.hasCameraPermission(userPermission)) permissions.push(USER_PERMISSIONS.CAMERA);
+    if (this.hasLensPermission(userPermission)) permissions.push(USER_PERMISSIONS.LENS);
+    if (this.hasPermission(userPermission, USER_PERMISSIONS.ADMINISTRATOR)) permissions.push(USER_PERMISSIONS.ADMINISTRATOR);
+    
+    return permissions;
   }
 
   /**
    * Get permission names as an array
    */
   static getPermissionNames(userPermission: number): string[] {
-    const permissions = this.getPermissions(userPermission);
     const permissionNames: string[] = [];
     
     if (this.hasLightPermission(userPermission)) permissionNames.push('Light');
     if (this.hasCameraPermission(userPermission)) permissionNames.push('Camera');
     if (this.hasLensPermission(userPermission)) permissionNames.push('Lens');
+    if (this.hasAdministratorPermission(userPermission)) permissionNames.push('Administrator');
     
     return permissionNames;
   }

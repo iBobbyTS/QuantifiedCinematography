@@ -30,7 +30,7 @@ VALUES (
     'Administrator', 
     'admin@quantifiedcinematography.com', 
     '$2b$12$77uo6iqUdnZnIeUrwkYsluXEfv.9JpkEyjwG1OhpXK.acD2nCHSc2', -- admin123
-    65535, -- LIGHT | CAMERA | LENS permissions
+    2147483647, -- All permissions: bits 0-30 all set to 1 (0x7FFFFFFF)
     NOW(), 
     NOW()
 )
