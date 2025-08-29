@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { _ } from 'svelte-i18n';
 	import Icon from '@iconify/svelte';
 	import { USER_PERMISSIONS, UserPermissions } from '../../../lib/bitmask.js';
 
@@ -9,12 +10,28 @@
 	export let onClose: () => void;
 	export let onPermissionChanged: (permissions: number) => void;
 
-	// 权限选项 - 直接使用权限值，不需要Math.log2()
+	// 权限选项 - 使用国际化函数
 	const permissionOptions = [
-		{ permission: USER_PERMISSIONS.LIGHT, label: 'Light', description: 'Access to lighting-related features' },
-		{ permission: USER_PERMISSIONS.CAMERA, label: 'Camera', description: 'Access to camera-related features' },
-		{ permission: USER_PERMISSIONS.LENS, label: 'Lens', description: 'Access to lens-related features' },
-		{ permission: USER_PERMISSIONS.ADMINISTRATOR, label: 'Administrator', description: 'Full system access' }
+		{ 
+			permission: USER_PERMISSIONS.LIGHT, 
+			label: $_('testing.administrator.manage_users.permission_modal.permission_options.light.label'), 
+			description: $_('testing.administrator.manage_users.permission_modal.permission_options.light.description') 
+		},
+		{ 
+			permission: USER_PERMISSIONS.CAMERA, 
+			label: $_('testing.administrator.manage_users.permission_modal.permission_options.camera.label'), 
+			description: $_('testing.administrator.manage_users.permission_modal.permission_options.camera.description') 
+		},
+		{ 
+			permission: USER_PERMISSIONS.LENS, 
+			label: $_('testing.administrator.manage_users.permission_modal.permission_options.lens.label'), 
+			description: $_('testing.administrator.manage_users.permission_modal.permission_options.lens.description') 
+		},
+		{ 
+			permission: USER_PERMISSIONS.ADMINISTRATOR, 
+			label: $_('testing.administrator.manage_users.permission_modal.permission_options.administrator.label'), 
+			description: $_('testing.administrator.manage_users.permission_modal.permission_options.administrator.description') 
+		}
 	];
 
 	// 当前选择的权限
@@ -125,11 +142,11 @@
 				onPermissionChanged(currentPermissions);
 			} else {
 				const errorData = await response.json();
-				errorMessage = errorData.message || 'Failed to update permissions';
+				errorMessage = errorData.message || $_('testing.administrator.manage_users.permission_modal.errors.failed_to_update');
 			}
 		} catch (error) {
 			console.error('Error updating permissions:', error);
-			errorMessage = 'Network error occurred';
+			errorMessage = $_('testing.administrator.manage_users.permission_modal.errors.network_error');
 		} finally {
 			isLoading = false;
 		}
@@ -161,7 +178,7 @@
 		<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
 			<div class="flex items-center justify-between">
 				<h3 class="text-lg font-medium text-gray-900 dark:text-white">
-					Modify Permissions
+					{$_('testing.administrator.manage_users.permission_modal.title')}
 				</h3>
 				<button
 					onclick={handleClose}
@@ -172,7 +189,7 @@
 				</button>
 			</div>
 			<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-				User: {user.displayName} ({user.username})
+				{$_('testing.administrator.manage_users.permission_modal.user_info').replace('{displayName}', user.displayName).replace('{username}', user.username)}
 			</p>
 		</div>
 
@@ -203,7 +220,7 @@
 							<div class="text-sm font-medium text-gray-900 dark:text-white">
 								{option.label}
 								{#if isEditingCurrentUser && option.permission === USER_PERMISSIONS.ADMINISTRATOR}
-									<span class="text-xs text-gray-500 dark:text-gray-400 ml-1">(Cannot modify own admin permission)</span>
+									<span class="text-xs text-gray-500 dark:text-gray-400 ml-1">{$_('testing.administrator.manage_users.permission_modal.permission_options.administrator.cannot_modify_own')}</span>
 								{/if}
 							</div>
 							<div class="text-xs text-gray-500 dark:text-gray-400">
@@ -222,7 +239,7 @@
 				disabled={isLoading}
 				class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
 			>
-				Cancel
+				{$_('testing.administrator.manage_users.permission_modal.buttons.cancel')}
 			</button>
 			<button
 				onclick={submitPermissions}
@@ -231,9 +248,9 @@
 			>
 				{#if isLoading}
 					<Icon icon="mdi:loading" class="animate-spin -ml-1 mr-2 h-4 w-4" />
-					Updating...
+					{$_('testing.administrator.manage_users.permission_modal.buttons.updating')}
 				{:else}
-					Update Permissions
+					{$_('testing.administrator.manage_users.permission_modal.buttons.update')}
 				{/if}
 			</button>
 		</div>

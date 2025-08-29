@@ -21,7 +21,7 @@
 			// 模拟数据
 			productCount = 42;
 		} catch (error) {
-			console.error('Failed to load product count:', error);
+			console.error($_('app.networkError'), error);
 			productCount = 0;
 		}
 	}
@@ -175,7 +175,7 @@
 </script>
 
 <svelte:head>
-	<title>Quantified Cinematography</title>
+	<title>{$_('testing.intro.title')}</title>
 </svelte:head>
 
 <div class="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200 pt-16">

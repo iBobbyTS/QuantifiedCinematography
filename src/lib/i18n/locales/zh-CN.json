@@ -40,6 +40,65 @@
 				"title": "用户管理",
 				"description": "管理用户账户、权限和系统设置。只有管理员可以访问此部分。",
 				"button": "管理用户"
+			},
+			"manage_users": {
+				"title": "管理用户",
+				"subtitle": "管理用户账户、权限和系统访问",
+				"add_user": "添加用户",
+				"table": {
+					"username": "用户名",
+					"nickname": "昵称",
+					"email": "邮箱",
+					"permissions": "权限",
+					"actions": "操作"
+				},
+				"actions": {
+					"disable_user": "禁用用户",
+					"delete_user": "删除用户"
+				},
+				"confirmations": {
+					"disable_user": "确定要禁用此用户吗？",
+					"delete_user": "确定要删除此用户吗？此操作无法撤销。"
+				},
+				"empty_state": {
+					"title": "暂无用户",
+					"description": "通过创建新用户开始使用。"
+				},
+				"permissions": {
+					"none": "无"
+				},
+				"permission_modal": {
+					"title": "修改权限",
+					"user_info": "用户：{displayName} ({username})",
+					"permission_options": {
+						"light": {
+							"label": "灯光",
+							"description": "访问灯光相关功能"
+						},
+						"camera": {
+							"label": "相机",
+							"description": "访问相机相关功能"
+						},
+						"lens": {
+							"label": "镜头",
+							"description": "访问镜头相关功能"
+						},
+						"administrator": {
+							"label": "管理员",
+							"description": "完整系统访问权限",
+							"cannot_modify_own": "(不能修改自己的管理员权限)"
+						}
+					},
+					"buttons": {
+						"cancel": "取消",
+						"update": "更新权限",
+						"updating": "更新中..."
+					},
+					"errors": {
+						"failed_to_update": "更新权限失败",
+						"network_error": "网络错误"
+					}
+				}
 			}
 		},
 		"data_provider_lighting": {
