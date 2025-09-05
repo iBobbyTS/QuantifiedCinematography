@@ -38,8 +38,8 @@
 		hasPermissionChanges = currentPermissions !== originalPermissions;
 	}
 
-	// 权限显示函数 - 使用国际化函数
-	function getPermissionText(permission: number): string {
+	// 权限显示函数 - 使用国际化函数，响应语言变化
+	$: getPermissionText = (permission: number): string => {
 		const permissionNames: string[] = [];
 		
 		if (UserPermissions.hasLightPermission(permission)) {
@@ -56,7 +56,7 @@
 		}
 		
 		return permissionNames.length > 0 ? permissionNames.join(', ') : $_(PERMISSION_I18N_KEYS.permissions.none);
-	}
+	};
 
 	// 添加用户
 	function addUser() {
