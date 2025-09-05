@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import Icon from '@iconify/svelte';
@@ -12,6 +11,9 @@
 	let isLoading = false;
 	let showPermissionModal = false;
 	let selectedPermissions = 0;
+	let showPasswordModal = false;
+	let generatedPassword = '';
+	let createdUsername = '';
 
 	// 权限弹窗相关状态
 	let permissionModalUser: any = null;
@@ -36,9 +38,50 @@
 		hasPermissionChanges = currentPermissions !== originalPermissions;
 	}
 
-	function handleSubmit() {
+	async function handleSubmit() {
 		isLoading = true;
 		errorMessage = '';
+
+		try {
+			const response = await fetch('/api/admin/user/create', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					username: (document.getElementById('username') as HTMLInputElement)?.value,
+					permissions: selectedPermissions
+				})
+			});
+
+			if (response.ok) {
+				const data = await response.json();
+				generatedPassword = data.password;
+				createdUsername = data.username;
+				showPasswordModal = true;
+			} else {
+				const errorData = await response.json();
+				errorMessage = errorData.message || 'Failed to create user';
+			}
+		} catch (error) {
+			console.error('Error creating user:', error);
+			errorMessage = 'Network error occurred';
+		} finally {
+			isLoading = false;
+		}
+	}
+
+	function closePasswordModal() {
+		showPasswordModal = false;
+		generatedPassword = '';
+		createdUsername = '';
+		// 清空表单
+		(document.getElementById('username') as HTMLInputElement).value = '';
+		selectedPermissions = 0;
+	}
+
+	function copyPassword() {
+		navigator.clipboard.writeText(generatedPassword);
 	}
 
 	function openPermissionModal() {
@@ -190,18 +233,10 @@
 
 				<form
 					class="space-y-6"
-					method="POST"
-					use:enhance={() => {
-						return async ({ result }) => {
-							isLoading = false;
-							if (result.type === 'error') {
-								errorMessage = result.error?.message || 'Failed to create user';
-							} else if (result.type === 'redirect') {
-								goto(result.location);
-							}
-						};
+					onsubmit={(e) => {
+						e.preventDefault();
+						handleSubmit();
 					}}
-					onsubmit={handleSubmit}
 				>
 					<div>
 						<label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -220,54 +255,6 @@
 						</div>
 					</div>
 
-					<div>
-						<label for="nickname" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-							{$_('testing.administrator.manage_users.add_user_page.form.nickname')}
-						</label>
-						<div class="mt-1">
-							<input
-								id="nickname"
-								name="nickname"
-								type="text"
-								required
-								class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm"
-								placeholder={$_('testing.administrator.manage_users.add_user_page.form.nickname_placeholder')}
-							/>
-						</div>
-					</div>
-
-					<div>
-						<label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-							{$_('testing.administrator.manage_users.add_user_page.form.email')}
-						</label>
-						<div class="mt-1">
-							<input
-								id="email"
-								name="email"
-								type="email"
-								required
-								class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm"
-								placeholder={$_('testing.administrator.manage_users.add_user_page.form.email_placeholder')}
-							/>
-						</div>
-					</div>
-
-					<div>
-						<label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-							{$_('testing.administrator.manage_users.add_user_page.form.password')}
-						</label>
-						<div class="mt-1">
-							<input
-								id="password"
-								name="password"
-								type="password"
-								required
-								minlength="6"
-								class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm"
-								placeholder={$_('testing.administrator.manage_users.add_user_page.form.password_placeholder')}
-							/>
-						</div>
-					</div>
 
 					<div>
 						<fieldset>
@@ -429,6 +416,91 @@
 					{:else}
 						{$_(PERMISSION_I18N_KEYS.modal.buttons.update)}
 					{/if}
+				</button>
+			</div>
+		</div>
+	</div>
+{/if}
+
+<!-- Password Modal -->
+{#if showPasswordModal}
+	<!-- Modal Backdrop -->
+	<div 
+		class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+		onclick={(e) => e.target === e.currentTarget && closePasswordModal()}
+		onkeydown={(e) => e.key === 'Escape' && closePasswordModal()}
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby="password-modal-title"
+		tabindex="-1"
+	>
+		<!-- Modal Content -->
+		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full border border-gray-200 dark:border-gray-700">
+			<!-- Header -->
+			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+				<div class="flex items-center justify-between">
+					<h3 id="password-modal-title" class="text-lg font-medium text-gray-900 dark:text-white">
+						User Created Successfully
+					</h3>
+					<button
+						onclick={closePasswordModal}
+						class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+					>
+						<Icon icon="mdi:close" class="w-5 h-5" />
+					</button>
+				</div>
+			</div>
+
+			<!-- Body -->
+			<div class="px-6 py-4">
+				<div class="mb-4">
+					<p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+						User <strong>{createdUsername}</strong> has been created successfully.
+					</p>
+					<p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+						Please copy the generated password and share it with the user:
+					</p>
+				</div>
+
+				<div class="mb-4">
+					<label for="generated-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+						Generated Password:
+					</label>
+					<div class="flex">
+						<input
+							id="generated-password"
+							type="text"
+							value={generatedPassword}
+							readonly
+							class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-l-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm font-mono"
+						/>
+						<button
+							type="button"
+							onclick={copyPassword}
+							class="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium"
+						>
+							Copy
+						</button>
+					</div>
+				</div>
+
+				<div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-3">
+					<div class="flex">
+						<Icon icon="mdi:alert" class="h-5 w-5 text-yellow-400" />
+						<p class="ml-2 text-sm text-yellow-800 dark:text-yellow-200">
+							Please save this password securely. It will not be shown again.
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+				<button
+					onclick={closePasswordModal}
+					class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+				>
+					Close
 				</button>
 			</div>
 		</div>

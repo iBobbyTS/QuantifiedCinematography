@@ -21,6 +21,22 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 }
 
 /**
+ * 生成随机密码
+ * @param length 密码长度
+ * @returns 随机密码
+ */
+export function generatePassword(length: number = 12): string {
+	const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+	let password = '';
+	
+	for (let i = 0; i < length; i++) {
+		password += charset.charAt(Math.floor(Math.random() * charset.length));
+	}
+	
+	return password;
+}
+
+/**
  * 生成测试密码哈希（用于开发环境）
  */
 export async function generateTestHashes() {
