@@ -1,16 +1,40 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
 	import Icon from '@iconify/svelte';
 	import { _ } from 'svelte-i18n';
 	import Navbar from '../../../lib/components/Navbar.svelte';
-	import PermissionModal from '../manage-users/PermissionModal.svelte';
-	import { USER_PERMISSIONS } from '../../../lib/bitmask.js';
+	import { USER_PERMISSIONS, UserPermissions } from '../../../lib/bitmask.js';
+	import { PERMISSION_OPTIONS, PERMISSION_I18N_KEYS } from '../../../lib/permissions.js';
 
 	let errorMessage = '';
 	let isLoading = false;
 	let showPermissionModal = false;
 	let selectedPermissions = 0;
+
+	// 权限弹窗相关状态
+	let permissionModalUser: any = null;
+	let originalPermissions: number = 0;
+	let currentPermissions: number = 0;
+	let isPermissionModalLoading = false;
+	let permissionModalErrorMessage = '';
+	let hasPermissionChanges = false;
+	let isPermissionModalInitialized = false;
+
+	// 检查编辑对象是否是当前用户
+	$: isEditingCurrentUser = permissionModalUser && permissionModalUser.id === 'new';
+
+	// 响应式声明：当 originalPermissions 变化时重新初始化
+	$: if (originalPermissions !== undefined && !isPermissionModalInitialized) {
+		currentPermissions = originalPermissions;
+		isPermissionModalInitialized = true;
+	}
+
+	// 检查权限是否有变化
+	$: {
+		hasPermissionChanges = currentPermissions !== originalPermissions;
+	}
 
 	function handleSubmit() {
 		isLoading = true;
@@ -18,11 +42,20 @@
 	}
 
 	function openPermissionModal() {
+		permissionModalUser = { id: 'new', displayName: 'New User', username: 'newuser' };
+		originalPermissions = selectedPermissions;
+		currentPermissions = selectedPermissions;
+		isPermissionModalInitialized = false;
 		showPermissionModal = true;
 	}
 
 	function closePermissionModal() {
 		showPermissionModal = false;
+		permissionModalUser = null;
+		originalPermissions = 0;
+		currentPermissions = 0;
+		isPermissionModalInitialized = false;
+		permissionModalErrorMessage = '';
 	}
 
 	function handlePermissionChanged(permissions: number) {
@@ -30,18 +63,88 @@
 		closePermissionModal();
 	}
 
+	// 检查权限是否被选中
+	function isPermissionSelected(permission: number): boolean {
+		return (currentPermissions & permission) !== 0;
+	}
+
+	// 切换权限选择
+	function togglePermission(permission: number) {
+		let newPermissions: number;
+		
+		if (permission === USER_PERMISSIONS.ADMINISTRATOR) {
+			// Administrator 权限可以与其他权限组合
+			if (isPermissionSelected(permission)) {
+				newPermissions = currentPermissions & ~permission;
+			} else {
+				newPermissions = currentPermissions | permission;
+			}
+		} else {
+			// 其他权限可以组合
+			if (isPermissionSelected(permission)) {
+				newPermissions = currentPermissions & ~permission;
+			} else {
+				newPermissions = currentPermissions | permission;
+			}
+		}
+		
+		// 更新权限并立即计算变化状态
+		currentPermissions = newPermissions;
+		hasPermissionChanges = currentPermissions !== originalPermissions;
+	}
+
+	// 提交权限修改
+	async function submitPermissions() {
+		if (!hasPermissionChanges) return;
+
+		isPermissionModalLoading = true;
+		permissionModalErrorMessage = '';
+
+		try {
+			// 模拟API调用，实际应该调用真实的API
+			await new Promise(resolve => setTimeout(resolve, 1000));
+			
+			// 更新权限
+			handlePermissionChanged(currentPermissions);
+		} catch (error) {
+			console.error('Error updating permissions:', error);
+			permissionModalErrorMessage = $_(PERMISSION_I18N_KEYS.modal.errors.networkError);
+		} finally {
+			isPermissionModalLoading = false;
+		}
+	}
+
+	// 关闭权限弹窗
+	function handlePermissionModalClose() {
+		if (!isPermissionModalLoading) {
+			closePermissionModal();
+		}
+	}
+
+	// 点击背景关闭弹窗
+	function handlePermissionModalBackgroundClick(event: MouseEvent) {
+		if (event.target === event.currentTarget) {
+			handlePermissionModalClose();
+		}
+	}
+
 	// 获取权限显示文本
 	function getPermissionDisplayText(permissions: number): string {
-		if (permissions === 0) return $_('testing.administrator.manage_users.permissions.none');
+		if (permissions === 0) return $_(PERMISSION_I18N_KEYS.permissions.none);
 		
 		const permissionNames = [];
-		if (permissions & USER_PERMISSIONS.LIGHT) permissionNames.push($_('testing.administrator.manage_users.permission_modal.permission_options.light.label'));
-		if (permissions & USER_PERMISSIONS.CAMERA) permissionNames.push($_('testing.administrator.manage_users.permission_modal.permission_options.camera.label'));
-		if (permissions & USER_PERMISSIONS.LENS) permissionNames.push($_('testing.administrator.manage_users.permission_modal.permission_options.lens.label'));
-		if (permissions & USER_PERMISSIONS.ADMINISTRATOR) permissionNames.push($_('testing.administrator.manage_users.permission_modal.permission_options.administrator.label'));
+		if (permissions & USER_PERMISSIONS.LIGHT) permissionNames.push($_(PERMISSION_OPTIONS[0].labelKey));
+		if (permissions & USER_PERMISSIONS.CAMERA) permissionNames.push($_(PERMISSION_OPTIONS[1].labelKey));
+		if (permissions & USER_PERMISSIONS.LENS) permissionNames.push($_(PERMISSION_OPTIONS[2].labelKey));
+		if (permissions & USER_PERMISSIONS.ADMINISTRATOR) permissionNames.push($_(PERMISSION_OPTIONS[3].labelKey));
 		
 		return permissionNames.join(', ');
 	}
+
+	// 初始化权限
+	onMount(() => {
+		currentPermissions = originalPermissions;
+	});
 </script>
 
 <svelte:head>
@@ -170,27 +273,44 @@
 					</div>
 
 					<div>
-						<label for="permission-button" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-							{$_('testing.administrator.manage_users.add_user_page.form.permissions')}
-						</label>
+						<fieldset>
+							<legend class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+								{$_('testing.administrator.manage_users.add_user_page.form.permissions')}
+							</legend>
 						<div class="mt-1">
-							<button
-								id="permission-button"
-								type="button"
-								onclick={openPermissionModal}
-								class="w-full flex items-center justify-between px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-							>
-								<span class="text-left">
-									{selectedPermissions === 0 ? $_('testing.administrator.manage_users.add_user_page.form.select_permissions') : getPermissionDisplayText(selectedPermissions)}
-								</span>
-								<Icon icon="mdi:chevron-down" class="w-4 h-4" />
-							</button>
+							<div class="space-y-3">
+								{#each PERMISSION_OPTIONS as option}
+									<label class="flex items-start space-x-3 cursor-pointer">
+										<input
+											type="checkbox"
+											checked={(selectedPermissions & option.permission) !== 0}
+											onchange={() => {
+												if ((selectedPermissions & option.permission) !== 0) {
+													selectedPermissions = selectedPermissions & ~option.permission;
+												} else {
+													selectedPermissions = selectedPermissions | option.permission;
+												}
+											}}
+											class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+										/>
+										<div class="flex-1">
+											<div class="text-sm font-medium text-gray-900 dark:text-white">
+												{$_(option.labelKey)}
+											</div>
+											<div class="text-xs text-gray-500 dark:text-gray-400">
+												{$_(option.descriptionKey)}
+											</div>
+										</div>
+									</label>
+								{/each}
+							</div>
 						</div>
 						<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
 							{$_('testing.administrator.manage_users.add_user_page.form.permissions_description')}
 						</p>
 						<!-- Hidden input for form submission -->
 						<input type="hidden" name="permission" value={selectedPermissions} />
+						</fieldset>
 					</div>
 
 					<div class="flex justify-end space-x-3">
@@ -222,12 +342,99 @@
 </div>
 
 <!-- Permission Modal -->
-{#if showPermissionModal}
-	<PermissionModal
-		user={{ id: 'new', displayName: 'New User', username: 'newuser' }}
-		originalPermissions={selectedPermissions}
-		currentUser={null}
-		onClose={closePermissionModal}
-		onPermissionChanged={handlePermissionChanged}
-	/>
+{#if showPermissionModal && permissionModalUser}
+	<!-- Modal Backdrop -->
+	<div 
+		class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+		onclick={handlePermissionModalBackgroundClick}
+		onkeydown={(e) => e.key === 'Escape' && handlePermissionModalClose()}
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby="permission-modal-title"
+		tabindex="-1"
+	>
+		<!-- Modal Content -->
+		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700">
+			<!-- Header -->
+			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+				<div class="flex items-center justify-between">
+					<h3 id="permission-modal-title" class="text-lg font-medium text-gray-900 dark:text-white">
+						{$_(PERMISSION_I18N_KEYS.modal.title)}
+					</h3>
+					<button
+						onclick={handlePermissionModalClose}
+						disabled={isPermissionModalLoading}
+						class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-50"
+					>
+						<Icon icon="mdi:close" class="w-5 h-5" />
+					</button>
+				</div>
+				<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+					{$_(PERMISSION_I18N_KEYS.modal.userInfo).replace('{displayName}', permissionModalUser.displayName).replace('{username}', permissionModalUser.username)}
+				</p>
+			</div>
+
+			<!-- Body -->
+			<div class="px-6 py-4">
+				{#if permissionModalErrorMessage}
+					<div class="mb-4 rounded-md bg-red-50 dark:bg-red-900/20 p-3">
+						<div class="flex">
+							<Icon icon="mdi:alert-circle" class="h-5 w-5 text-red-400" />
+							<p class="ml-2 text-sm text-red-800 dark:text-red-200">
+								{permissionModalErrorMessage}
+							</p>
+						</div>
+					</div>
+				{/if}
+
+				<div class="space-y-3">
+					{#each PERMISSION_OPTIONS as option}
+						<label class="flex items-start space-x-3 cursor-pointer">
+							<input
+								type="checkbox"
+								checked={isPermissionSelected(option.permission)}
+								onchange={() => togglePermission(option.permission)}
+								disabled={isPermissionModalLoading || (isEditingCurrentUser && option.permission === USER_PERMISSIONS.ADMINISTRATOR)}
+								class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
+							/>
+							<div class="flex-1">
+								<div class="text-sm font-medium text-gray-900 dark:text-white">
+									{$_(option.labelKey)}
+									{#if isEditingCurrentUser && option.permission === USER_PERMISSIONS.ADMINISTRATOR}
+										<span class="text-xs text-gray-500 dark:text-gray-400 ml-1">{$_(PERMISSION_I18N_KEYS.modal.permissionOptions.administrator.cannotModifyOwn)}</span>
+									{/if}
+								</div>
+								<div class="text-xs text-gray-500 dark:text-gray-400">
+									{$_(option.descriptionKey)}
+								</div>
+							</div>
+						</label>
+					{/each}
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+				<button
+					onclick={handlePermissionModalClose}
+					disabled={isPermissionModalLoading}
+					class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+				>
+					{$_(PERMISSION_I18N_KEYS.modal.buttons.cancel)}
+				</button>
+				<button
+					onclick={submitPermissions}
+					disabled={!hasPermissionChanges || isPermissionModalLoading}
+					class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+				>
+					{#if isPermissionModalLoading}
+						<Icon icon="mdi:loading" class="animate-spin -ml-1 mr-2 h-4 w-4" />
+						{$_(PERMISSION_I18N_KEYS.modal.buttons.updating)}
+					{:else}
+						{$_(PERMISSION_I18N_KEYS.modal.buttons.update)}
+					{/if}
+				</button>
+			</div>
+		</div>
+	</div>
 {/if}
