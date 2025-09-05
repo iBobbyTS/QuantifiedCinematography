@@ -438,17 +438,9 @@
 		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full border border-gray-200 dark:border-gray-700">
 			<!-- Header -->
 			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-				<div class="flex items-center justify-between">
-					<h3 id="password-modal-title" class="text-lg font-medium text-gray-900 dark:text-white">
-						User Created Successfully
-					</h3>
-					<button
-						onclick={closePasswordModal}
-						class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-					>
-						<Icon icon="mdi:close" class="w-5 h-5" />
-					</button>
-				</div>
+				<h3 id="password-modal-title" class="text-lg font-medium text-gray-900 dark:text-white">
+					User Created Successfully
+				</h3>
 			</div>
 
 			<!-- Body -->
@@ -495,12 +487,21 @@
 			</div>
 
 			<!-- Footer -->
-			<div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+			<div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
 				<button
 					onclick={closePasswordModal}
+					class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+				>
+					Continue Adding Users
+				</button>
+				<button
+					onclick={() => {
+						closePasswordModal();
+						goto('/admin/manage-users');
+					}}
 					class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
 				>
-					Close
+					Return to User Management
 				</button>
 			</div>
 		</div>
