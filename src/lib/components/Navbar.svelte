@@ -10,6 +10,8 @@
 	// Props
 	export let centerTitle: string = ''; // 本地化key，用于中间title
 	export let showBackButton: boolean = false; // 是否显示返回按钮
+	export let backButtonUrl: string = '/'; // 返回按钮的URL
+	export let backButtonText: string = 'navbar.backToHome'; // 返回按钮的文本key
 	
 	// 主题模式状态
 	let currentTheme = 'system'; // 'light', 'dark', 'system'
@@ -110,11 +112,11 @@
 			<div class="flex items-center">
 				{#if showBackButton}
 					<a
-						href="/"
+						href={backButtonUrl}
 						class="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
 					>
 						<Icon icon="mdi:arrow-left" class="w-4 h-4" />
-						<span class="hidden sm:inline">{$_('navbar.backToHome')}</span>
+						<span class="hidden sm:inline">{$_(backButtonText)}</span>
 					</a>
 				{/if}
 			</div>
