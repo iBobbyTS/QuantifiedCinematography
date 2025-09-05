@@ -4,6 +4,9 @@
 		"error": "错误：{message}",
 		"networkError": "网络错误"
 	},
+	"navbar": {
+		"backToHome": "主页"
+	},
 	"language": {
 		"en": "English",
 		"zh": "中文",

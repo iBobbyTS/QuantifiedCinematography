@@ -4,6 +4,9 @@
 		"error": "Error: {message}",
 		"networkError": "Network error"
 	},
+	"navbar": {
+		"backToHome": "Home"
+	},
 	"language": {
 		"en": "English",
 		"zh": "中文",
