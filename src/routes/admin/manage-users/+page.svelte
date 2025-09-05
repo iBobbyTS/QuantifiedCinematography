@@ -253,7 +253,7 @@
 										{user.username}
 									</td>
 									<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-										{user.displayName}
+										{user.nickname}
 									</td>
 									<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
 										{user.email}
@@ -343,7 +343,7 @@
 					</button>
 				</div>
 				<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-					{$_(PERMISSION_I18N_KEYS.modal.userInfo).replace('{displayName}', selectedUser.displayName).replace('{username}', selectedUser.username)}
+					{$_(PERMISSION_I18N_KEYS.modal.userInfo).replace('{nickname}', selectedUser.nickname).replace('{username}', selectedUser.username)}
 				</p>
 			</div>
 

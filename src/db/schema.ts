@@ -12,7 +12,7 @@ export const sizeEnum = pgEnum('size', ['Tiny', 'Small', 'Medium', 'Large']);
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   username: text('username').notNull().unique(), // For login
-  displayName: text('display_name').notNull(), // For display
+  nickname: text('nickname').notNull(), // For display
   email: text('email').notNull().unique(), // Company Email
   passwordHash: text('password_hash').notNull(), // argon2id
   permission: integer('permission').notNull(), // Bitmask: bit 0=Light, bit 1=Camera, bit 2=Lens

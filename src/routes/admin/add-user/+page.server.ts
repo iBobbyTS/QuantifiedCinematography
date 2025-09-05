@@ -34,13 +34,13 @@ export const actions: Actions = {
 
 		const data = await request.formData();
 		const username = data.get('username') as string;
-		const displayName = data.get('displayName') as string;
+		const nickname = data.get('nickname') as string;
 		const email = data.get('email') as string;
 		const password = data.get('password') as string;
 		const permission = parseInt(data.get('permission') as string) || 0;
 
 		// 验证输入
-		if (!username || !displayName || !email || !password) {
+		if (!username || !nickname || !email || !password) {
 			throw error(400, { message: 'All fields are required' });
 		}
 
@@ -71,7 +71,7 @@ export const actions: Actions = {
 			// 创建新用户
 			await db.insert(users).values({
 				username,
-				displayName,
+				nickname,
 				email,
 				passwordHash,
 				permission

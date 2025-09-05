@@ -4,7 +4,7 @@ export interface PageData extends BasePageData {
 	users: Array<{
 		id: string;
 		username: string;
-		displayName: string;
+		nickname: string;
 		email: string;
 		permission: number;
 		createdAt: Date;

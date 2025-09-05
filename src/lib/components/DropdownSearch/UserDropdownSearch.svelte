@@ -74,7 +74,7 @@
 			const data = await response.json();
 			return data.users.map((user: any) => ({
 				id: user.id,
-				title: user.display_name,
+				title: user.nickname,
 				sub1: user.username,
 				sub2: user.email
 			}));
@@ -110,7 +110,7 @@
 				return {
 					valid: true,
 					id: data.user.id,
-					title: data.user.display_name,
+					title: data.user.nickname,
 					sub1: data.user.username,
 					sub2: data.user.email
 				};

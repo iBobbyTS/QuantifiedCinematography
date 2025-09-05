@@ -24,7 +24,7 @@ VALUES (0, 'None', 0, 0, NOW(), NOW())
 ON CONFLICT (id) DO NOTHING;
 
 -- Insert admin user
-INSERT INTO users (username, display_name, email, password_hash, permission, created_at, updated_at) 
+INSERT INTO users (username, nickname, email, password_hash, permission, created_at, updated_at) 
 VALUES (
     'admin', 
     'Administrator', 
@@ -37,7 +37,7 @@ VALUES (
 ON CONFLICT (username) DO NOTHING;
 
 -- Insert test user
-INSERT INTO users (username, display_name, email, password_hash, permission, created_at, updated_at) 
+INSERT INTO users (username, nickname, email, password_hash, permission, created_at, updated_at) 
 VALUES (
     'test', 
     'Test User', 

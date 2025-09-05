@@ -20,7 +20,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		const allUsers = await db.select({
 			id: users.id,
 			username: users.username,
-			displayName: users.displayName,
+			nickname: users.nickname,
 			email: users.email,
 			permission: users.permission,
 			createdAt: users.createdAt,

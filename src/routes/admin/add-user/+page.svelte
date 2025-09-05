@@ -42,7 +42,7 @@
 	}
 
 	function openPermissionModal() {
-		permissionModalUser = { id: 'new', displayName: 'New User', username: 'newuser' };
+		permissionModalUser = { id: 'new', nickname: 'New User', username: 'newuser' };
 		originalPermissions = selectedPermissions;
 		currentPermissions = selectedPermissions;
 		isPermissionModalInitialized = false;
@@ -221,17 +221,17 @@
 					</div>
 
 					<div>
-						<label for="displayName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-							{$_('testing.administrator.manage_users.add_user_page.form.display_name')}
+						<label for="nickname" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+							{$_('testing.administrator.manage_users.add_user_page.form.nickname')}
 						</label>
 						<div class="mt-1">
 							<input
-								id="displayName"
-								name="displayName"
+								id="nickname"
+								name="nickname"
 								type="text"
 								required
 								class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm"
-								placeholder={$_('testing.administrator.manage_users.add_user_page.form.display_name_placeholder')}
+								placeholder={$_('testing.administrator.manage_users.add_user_page.form.nickname_placeholder')}
 							/>
 						</div>
 					</div>
@@ -366,7 +366,7 @@
 					</button>
 				</div>
 				<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-					{$_(PERMISSION_I18N_KEYS.modal.userInfo).replace('{displayName}', permissionModalUser.displayName).replace('{username}', permissionModalUser.username)}
+					{$_(PERMISSION_I18N_KEYS.modal.userInfo).replace('{nickname}', permissionModalUser.nickname).replace('{username}', permissionModalUser.username)}
 				</p>
 			</div>
 

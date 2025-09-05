@@ -140,7 +140,7 @@
 							on:click={() => document.getElementById('userDropdown')?.classList.toggle('hidden')}
 						>
 							<Icon icon="mdi:account" class="w-5 h-5" />
-							<span class="hidden sm:inline">{currentUser.displayName}</span>
+							<span class="hidden sm:inline">{currentUser.nickname}</span>
 							<Icon icon="mdi:chevron-down" class="w-4 h-4" />
 						</button>
 						<div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">

@@ -55,8 +55,8 @@
 					"form": {
 						"username": "Username",
 						"username_placeholder": "Enter username (min 3 characters)",
-						"display_name": "Display Name",
-						"display_name_placeholder": "Enter display name",
+						"nickname": "Nickname",
+						"nickname_placeholder": "Enter nickname",
 						"email": "Email",
 						"email_placeholder": "Enter email address",
 						"password": "Password",
@@ -97,7 +97,7 @@
 				},
 				"permission_modal": {
 					"title": "Modify Permissions",
-					"user_info": "User: {displayName} ({username})",
+					"user_info": "User: {nickname} ({username})",
 					"permission_options": {
 						"light": {
 							"label": "Light",
