@@ -5,7 +5,8 @@
 		"networkError": "Network error"
 	},
 	"navbar": {
-		"backToHome": "Home"
+		"backToHome": "Home",
+		"backToManageUsers": "Back to Manage Users"
 	},
 	"language": {
 		"en": "English",
@@ -49,6 +50,31 @@
 				"title": "Manage Users",
 				"subtitle": "Manage user accounts, permissions, and system access",
 				"add_user": "Add User",
+				"add_user_page": {
+					"title": "Add New User",
+					"subtitle": "Create a new user account with specific permissions",
+					"form": {
+						"username": "Username",
+						"username_placeholder": "Enter username (min 3 characters)",
+						"display_name": "Display Name",
+						"display_name_placeholder": "Enter display name",
+						"email": "Email",
+						"email_placeholder": "Enter email address",
+						"password": "Password",
+						"password_placeholder": "Enter password (min 6 characters)",
+						"permissions": "Permissions",
+						"permissions_description": "Select the permissions for this user. Administrator has full access to all features.",
+						"select_permissions": "Select Permissions"
+					},
+					"buttons": {
+						"cancel": "Cancel",
+						"create": "Create User",
+						"creating": "Creating..."
+					},
+					"errors": {
+						"failed_to_create": "Failed to create user"
+					}
+				},
 				"table": {
 					"username": "Username",
 					"nickname": "Nickname",

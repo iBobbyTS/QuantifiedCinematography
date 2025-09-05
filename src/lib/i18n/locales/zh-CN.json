@@ -5,7 +5,8 @@
 		"networkError": "网络错误"
 	},
 	"navbar": {
-		"backToHome": "主页"
+		"backToHome": "主页",
+		"backToManageUsers": "返回用户管理"
 	},
 	"language": {
 		"en": "English",
@@ -48,6 +49,31 @@
 				"title": "管理用户",
 				"subtitle": "管理用户账户、权限和系统访问",
 				"add_user": "添加用户",
+				"add_user_page": {
+					"title": "添加新用户",
+					"subtitle": "创建具有特定权限的新用户账户",
+					"form": {
+						"username": "用户名",
+						"username_placeholder": "输入用户名（最少3个字符）",
+						"display_name": "显示名称",
+						"display_name_placeholder": "输入显示名称",
+						"email": "邮箱",
+						"email_placeholder": "输入邮箱地址",
+						"password": "密码",
+						"password_placeholder": "输入密码（最少6个字符）",
+						"permissions": "权限",
+						"permissions_description": "选择此用户的权限。管理员拥有所有功能的完全访问权限。",
+						"select_permissions": "选择权限"
+					},
+					"buttons": {
+						"cancel": "取消",
+						"create": "创建用户",
+						"creating": "创建中..."
+					},
+					"errors": {
+						"failed_to_create": "创建用户失败"
+					}
+				},
 				"table": {
 					"username": "用户名",
 					"nickname": "昵称",

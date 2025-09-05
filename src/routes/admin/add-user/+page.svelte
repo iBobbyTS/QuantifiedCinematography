@@ -3,52 +3,70 @@
 	import { goto } from '$app/navigation';
 	import Icon from '@iconify/svelte';
 	import { _ } from 'svelte-i18n';
+	import Navbar from '../../../lib/components/Navbar.svelte';
+	import PermissionModal from '../manage-users/PermissionModal.svelte';
+	import { USER_PERMISSIONS } from '../../../lib/bitmask.js';
 
 	let errorMessage = '';
 	let isLoading = false;
-
-	// 权限选项
-	const permissionOptions = [
-		{ value: 0, label: 'No Permissions' },
-		{ value: 1, label: 'Light' },
-		{ value: 2, label: 'Camera' },
-		{ value: 4, label: 'Lens' },
-		{ value: 3, label: 'Light + Camera' },
-		{ value: 5, label: 'Light + Lens' },
-		{ value: 6, label: 'Camera + Lens' },
-		{ value: 7, label: 'Light + Camera + Lens' },
-		{ value: 2147483648, label: 'Administrator (Full Access)' }
-	];
+	let showPermissionModal = false;
+	let selectedPermissions = 0;
 
 	function handleSubmit() {
 		isLoading = true;
 		errorMessage = '';
 	}
+
+	function openPermissionModal() {
+		showPermissionModal = true;
+	}
+
+	function closePermissionModal() {
+		showPermissionModal = false;
+	}
+
+	function handlePermissionChanged(permissions: number) {
+		selectedPermissions = permissions;
+		closePermissionModal();
+	}
+
+	// 获取权限显示文本
+	function getPermissionDisplayText(permissions: number): string {
+		if (permissions === 0) return $_('testing.administrator.manage_users.permissions.none');
+		
+		const permissionNames = [];
+		if (permissions & USER_PERMISSIONS.LIGHT) permissionNames.push($_('testing.administrator.manage_users.permission_modal.permission_options.light.label'));
+		if (permissions & USER_PERMISSIONS.CAMERA) permissionNames.push($_('testing.administrator.manage_users.permission_modal.permission_options.camera.label'));
+		if (permissions & USER_PERMISSIONS.LENS) permissionNames.push($_('testing.administrator.manage_users.permission_modal.permission_options.lens.label'));
+		if (permissions & USER_PERMISSIONS.ADMINISTRATOR) permissionNames.push($_('testing.administrator.manage_users.permission_modal.permission_options.administrator.label'));
+		
+		return permissionNames.join(', ');
+	}
 </script>
 
 <svelte:head>
-	<title>Add User - Quantified Cinematography</title>
+	<title>{$_('testing.administrator.manage_users.add_user_page.title')} - Quantified Cinematography</title>
 </svelte:head>
 
+<!-- Navbar -->
+<Navbar 
+	centerTitle="testing.administrator.manage_users.add_user_page.title" 
+	showBackButton={true} 
+	backButtonUrl="/admin/manage-users"
+	backButtonText="navbar.backToManageUsers"
+/>
+
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">
-	<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+	<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 		<!-- Header -->
 		<div class="mb-8">
-			<div class="flex items-center">
-				<button
-					onclick={() => goto('/admin/manage-users')}
-					class="mr-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-				>
-					<Icon icon="mdi:arrow-left" class="w-5 h-5" />
-				</button>
-				<div>
-					<h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-						Add New User
-					</h1>
-					<p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-						Create a new user account with specific permissions
-					</p>
-				</div>
+			<div>
+				<h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+					{$_('testing.administrator.manage_users.add_user_page.title')}
+				</h1>
+				<p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+					{$_('testing.administrator.manage_users.add_user_page.subtitle')}
+				</p>
 			</div>
 		</div>
 
@@ -87,7 +105,7 @@
 				>
 					<div>
 						<label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-							Username
+							{$_('testing.administrator.manage_users.add_user_page.form.username')}
 						</label>
 						<div class="mt-1">
 							<input
@@ -97,14 +115,14 @@
 								required
 								minlength="3"
 								class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm"
-								placeholder="Enter username (min 3 characters)"
+								placeholder={$_('testing.administrator.manage_users.add_user_page.form.username_placeholder')}
 							/>
 						</div>
 					</div>
 
 					<div>
 						<label for="displayName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-							Display Name
+							{$_('testing.administrator.manage_users.add_user_page.form.display_name')}
 						</label>
 						<div class="mt-1">
 							<input
@@ -113,14 +131,14 @@
 								type="text"
 								required
 								class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm"
-								placeholder="Enter display name"
+								placeholder={$_('testing.administrator.manage_users.add_user_page.form.display_name_placeholder')}
 							/>
 						</div>
 					</div>
 
 					<div>
 						<label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-							Email
+							{$_('testing.administrator.manage_users.add_user_page.form.email')}
 						</label>
 						<div class="mt-1">
 							<input
@@ -129,14 +147,14 @@
 								type="email"
 								required
 								class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm"
-								placeholder="Enter email address"
+								placeholder={$_('testing.administrator.manage_users.add_user_page.form.email_placeholder')}
 							/>
 						</div>
 					</div>
 
 					<div>
 						<label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-							Password
+							{$_('testing.administrator.manage_users.add_user_page.form.password')}
 						</label>
 						<div class="mt-1">
 							<input
@@ -146,29 +164,33 @@
 								required
 								minlength="6"
 								class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm"
-								placeholder="Enter password (min 6 characters)"
+								placeholder={$_('testing.administrator.manage_users.add_user_page.form.password_placeholder')}
 							/>
 						</div>
 					</div>
 
 					<div>
-						<label for="permission" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-							Permissions
+						<label for="permission-button" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+							{$_('testing.administrator.manage_users.add_user_page.form.permissions')}
 						</label>
 						<div class="mt-1">
-							<select
-								id="permission"
-								name="permission"
-								class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm"
+							<button
+								id="permission-button"
+								type="button"
+								onclick={openPermissionModal}
+								class="w-full flex items-center justify-between px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
 							>
-								{#each permissionOptions as option}
-									<option value={option.value}>{option.label}</option>
-								{/each}
-							</select>
+								<span class="text-left">
+									{selectedPermissions === 0 ? $_('testing.administrator.manage_users.add_user_page.form.select_permissions') : getPermissionDisplayText(selectedPermissions)}
+								</span>
+								<Icon icon="mdi:chevron-down" class="w-4 h-4" />
+							</button>
 						</div>
 						<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-							Select the permissions for this user. Administrator has full access to all features.
+							{$_('testing.administrator.manage_users.add_user_page.form.permissions_description')}
 						</p>
+						<!-- Hidden input for form submission -->
+						<input type="hidden" name="permission" value={selectedPermissions} />
 					</div>
 
 					<div class="flex justify-end space-x-3">
@@ -177,7 +199,7 @@
 							onclick={() => goto('/admin/manage-users')}
 							class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
 						>
-							Cancel
+							{$_('testing.administrator.manage_users.add_user_page.buttons.cancel')}
 						</button>
 						<button
 							type="submit"
@@ -186,10 +208,10 @@
 						>
 							{#if isLoading}
 								<Icon icon="mdi:loading" class="animate-spin -ml-1 mr-3 h-5 w-5" />
-								Creating...
+								{$_('testing.administrator.manage_users.add_user_page.buttons.creating')}
 							{:else}
 								<Icon icon="mdi:plus" class="-ml-1 mr-3 h-5 w-5" />
-								Create User
+								{$_('testing.administrator.manage_users.add_user_page.buttons.create')}
 							{/if}
 						</button>
 					</div>
@@ -198,3 +220,14 @@
 		</div>
 	</div>
 </div>
+
+<!-- Permission Modal -->
+{#if showPermissionModal}
+	<PermissionModal
+		user={{ id: 'new', displayName: 'New User', username: 'newuser' }}
+		originalPermissions={selectedPermissions}
+		currentUser={null}
+		onClose={closePermissionModal}
+		onPermissionChanged={handlePermissionChanged}
+	/>
+{/if}
