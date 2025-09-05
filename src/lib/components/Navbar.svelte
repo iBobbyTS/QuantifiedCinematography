@@ -9,6 +9,7 @@
 	
 	// Props
 	export let centerTitle: string = ''; // 本地化key，用于中间title
+	export let showBackButton: boolean = false; // 是否显示返回按钮
 	
 	// 主题模式状态
 	let currentTheme = 'system'; // 'light', 'dark', 'system'
@@ -105,9 +106,17 @@
 <nav class="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700">
 	<div class="mx-auto px-4 sm:px-6 lg:px-8">
 		<div class="grid grid-cols-3 items-center h-16">
-			<!-- Left side - Empty space -->
+			<!-- Left side - Back button or empty space -->
 			<div class="flex items-center">
-				<!-- 左边不显示内容 -->
+				{#if showBackButton}
+					<a
+						href="/"
+						class="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+					>
+						<Icon icon="mdi:arrow-left" class="w-4 h-4" />
+						<span class="hidden sm:inline">{$_('navbar.backToHome')}</span>
+					</a>
+				{/if}
 			</div>
 			
 			<!-- Center - Dynamic Title (always centered) -->
