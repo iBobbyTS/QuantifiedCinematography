@@ -51,7 +51,6 @@
 				"add_user": "添加用户",
 				"add_user_page": {
 					"title": "添加新用户",
-					"subtitle": "创建具有特定权限的新用户账户",
 					"form": {
 						"username": "用户名",
 						"username_placeholder": "输入用户名（最少3个字符）",

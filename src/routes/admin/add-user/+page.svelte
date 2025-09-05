@@ -167,9 +167,6 @@
 				<h1 class="text-3xl font-bold text-gray-900 dark:text-white">
 					{$_('testing.administrator.manage_users.add_user_page.title')}
 				</h1>
-				<p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-					{$_('testing.administrator.manage_users.add_user_page.subtitle')}
-				</p>
 			</div>
 		</div>
 

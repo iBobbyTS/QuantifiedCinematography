@@ -52,7 +52,6 @@
 				"add_user": "Add User",
 				"add_user_page": {
 					"title": "Add New User",
-					"subtitle": "Create a new user account with specific permissions",
 					"form": {
 						"username": "Username",
 						"username_placeholder": "Enter username (min 3 characters)",
