@@ -63,7 +63,6 @@
 						"password": "Password",
 						"password_placeholder": "Enter password (min 6 characters)",
 						"permissions": "Permissions",
-						"permissions_description": "Select the permissions for this user. Administrator has full access to all features.",
 						"select_permissions": "Select Permissions"
 					},
 					"buttons": {

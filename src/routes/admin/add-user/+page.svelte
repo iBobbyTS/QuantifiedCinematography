@@ -277,39 +277,38 @@
 							<legend class="block text-sm font-medium text-gray-700 dark:text-gray-300">
 								{$_('testing.administrator.manage_users.add_user_page.form.permissions')}
 							</legend>
-						<div class="mt-1">
-							<div class="space-y-3">
-								{#each PERMISSION_OPTIONS as option}
-									<label class="flex items-start space-x-3 cursor-pointer">
-										<input
-											type="checkbox"
-											checked={(selectedPermissions & option.permission) !== 0}
-											onchange={() => {
-												if ((selectedPermissions & option.permission) !== 0) {
-													selectedPermissions = selectedPermissions & ~option.permission;
-												} else {
-													selectedPermissions = selectedPermissions | option.permission;
-												}
-											}}
-											class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-										/>
-										<div class="flex-1">
-											<div class="text-sm font-medium text-gray-900 dark:text-white">
-												{$_(option.labelKey)}
-											</div>
-											<div class="text-xs text-gray-500 dark:text-gray-400">
-												{$_(option.descriptionKey)}
-											</div>
-										</div>
-									</label>
-								{/each}
+							<div class="mt-1">
+								<div class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm dark:bg-gray-700">
+									<div class="space-y-3">
+										{#each PERMISSION_OPTIONS as option}
+											<label class="flex items-start space-x-3 cursor-pointer">
+												<input
+													type="checkbox"
+													checked={(selectedPermissions & option.permission) !== 0}
+													onchange={() => {
+														if ((selectedPermissions & option.permission) !== 0) {
+															selectedPermissions = selectedPermissions & ~option.permission;
+														} else {
+															selectedPermissions = selectedPermissions | option.permission;
+														}
+													}}
+													class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+												/>
+												<div class="flex-1">
+													<div class="text-sm font-medium text-gray-900 dark:text-white">
+														{$_(option.labelKey)}
+													</div>
+													<div class="text-xs text-gray-500 dark:text-gray-400">
+														{$_(option.descriptionKey)}
+													</div>
+												</div>
+											</label>
+										{/each}
+									</div>
+								</div>
 							</div>
-						</div>
-						<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-							{$_('testing.administrator.manage_users.add_user_page.form.permissions_description')}
-						</p>
-						<!-- Hidden input for form submission -->
-						<input type="hidden" name="permission" value={selectedPermissions} />
+							<!-- Hidden input for form submission -->
+							<input type="hidden" name="permission" value={selectedPermissions} />
 						</fieldset>
 					</div>
 

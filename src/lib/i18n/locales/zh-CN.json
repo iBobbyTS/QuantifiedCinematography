@@ -62,7 +62,6 @@
 						"password": "密码",
 						"password_placeholder": "输入密码（最少6个字符）",
 						"permissions": "权限",
-						"permissions_description": "选择此用户的权限。管理员拥有所有功能的完全访问权限。",
 						"select_permissions": "选择权限"
 					},
 					"buttons": {
