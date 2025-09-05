@@ -1,5 +1,5 @@
 ---
-description: when localization files are modified or project is rebuilt, restart the docker service.
+description: when localization files are modified or project is rebuilt, restart the docker service, by `docker compose restart app`
 globs: src/lib/i18n/locales/
 alwaysApply: true
 ---

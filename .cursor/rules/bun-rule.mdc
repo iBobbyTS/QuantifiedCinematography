@@ -1,0 +1,5 @@
+---
+description: never run `bun` in native machine, service is always running, no need to run `bun run dev`. When needed, run `docker exec -it quantified_cinematography_app bash -c "bun run check"`
+globs:
+alwaysApply: true
+---
