@@ -46,32 +46,13 @@
 
 	// 响应式声明：当 originalPermissions 变化时重新初始化（但只在没有手动修改时）
 	$: if (originalPermissions !== undefined && !isInitialized) {
-		console.log('响应式更新: originalPermissions 变化为:', originalPermissions);
 		currentPermissions = originalPermissions;
 		isInitialized = true; // 标记为已初始化
-		console.log('响应式更新: currentPermissions 设置为:', currentPermissions);
-		console.log('响应式更新后检查权限:');
-		console.log('Light (bit 0):', UserPermissions.hasLightPermission(currentPermissions));
-		console.log('Camera (bit 1):', UserPermissions.hasCameraPermission(currentPermissions));
-		console.log('Lens (bit 2):', UserPermissions.hasLensPermission(currentPermissions));
-		console.log('Admin (bit 30):', UserPermissions.hasAdministratorPermission(currentPermissions));
 	}
 
 	// 初始化权限
 	onMount(() => {
-		console.log('=== 弹窗组件挂载 ===');
-		console.log('接收到的 originalPermissions:', originalPermissions);
-		console.log('originalPermissions 类型:', typeof originalPermissions);
-		console.log('originalPermissions 二进制:', originalPermissions.toString(2));
-		
 		currentPermissions = originalPermissions;
-		console.log('设置 currentPermissions:', currentPermissions);
-		console.log('onMount后检查权限:');
-		console.log('Light (bit 0):', UserPermissions.hasLightPermission(currentPermissions));
-		console.log('Camera (bit 1):', UserPermissions.hasCameraPermission(currentPermissions));
-		console.log('Lens (bit 2):', UserPermissions.hasLensPermission(currentPermissions));
-		console.log('Admin (bit 30):', UserPermissions.hasAdministratorPermission(currentPermissions));
-		console.log('初始 hasChanges 状态:', hasChanges);
 	});
 
 	// 检查权限是否被选中
@@ -81,17 +62,14 @@
 
 	// 切换权限选择
 	function togglePermission(permission: number) {
-		console.log('切换权限前 - currentPermissions:', currentPermissions, 'permission:', permission);
-		console.log('切换权限前 - hasChanges:', hasChanges);
-		
 		let newPermissions: number;
 		
 		if (permission === USER_PERMISSIONS.ADMINISTRATOR) {
-			// Administrator 是互斥的
-			if (UserPermissions.hasPermission(currentPermissions, USER_PERMISSIONS.ADMINISTRATOR)) {
-				newPermissions = 0;
+			// Administrator 权限可以与其他权限组合
+			if (isPermissionSelected(permission)) {
+				newPermissions = currentPermissions & ~permission;
 			} else {
-				newPermissions = USER_PERMISSIONS.ADMINISTRATOR;
+				newPermissions = currentPermissions | permission;
 			}
 		} else {
 			// 其他权限可以组合
@@ -105,18 +83,11 @@
 		// 更新权限并立即计算变化状态
 		currentPermissions = newPermissions;
 		hasChanges = currentPermissions !== originalPermissions;
-		
-		console.log('切换权限后 - currentPermissions:', currentPermissions);
-		console.log('切换权限后 - hasChanges:', hasChanges);
 	}
 
 	// 检查权限是否有变化
 	$: {
 		hasChanges = currentPermissions !== originalPermissions;
-		console.log('hasChanges 重新计算:');
-		console.log('  currentPermissions:', currentPermissions, '(', currentPermissions.toString(2), ')');
-		console.log('  originalPermissions:', originalPermissions, '(', originalPermissions.toString(2), ')');
-		console.log('  hasChanges:', hasChanges);
 	}
 
 	// 提交权限修改

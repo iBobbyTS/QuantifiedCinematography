@@ -45,17 +45,9 @@
 
 	// 打开权限修改弹窗
 	function openPermissionModal(user: any) {
-		console.log('=== 打开权限弹窗 ===');
-		console.log('用户对象:', user);
-		console.log('用户权限值:', user.permission);
-		console.log('权限值类型:', typeof user.permission);
-		console.log('权限值二进制:', user.permission.toString(2));
-		
 		selectedUser = user;
 		originalPermissions = user.permission;
-		console.log('设置 originalPermissions:', originalPermissions);
 		showPermissionModal = true;
-		console.log('弹窗状态设置为:', showPermissionModal);
 	}
 
 	// 关闭权限修改弹窗
@@ -68,7 +60,11 @@
 	// 权限修改成功后的回调
 	function onPermissionChanged(newPermissions: number) {
 		if (selectedUser) {
-			selectedUser.permission = newPermissions;
+			// 更新 users 数组中对应的用户权限
+			const userIndex = users.findIndex(u => u.id === selectedUser.id);
+			if (userIndex !== -1) {
+				users[userIndex].permission = newPermissions;
+			}
 		}
 		closePermissionModal();
 	}
@@ -77,7 +73,6 @@
 	function disableUser(userId: string) {
 		if (confirm($_('testing.administrator.manage_users.confirmations.disable_user'))) {
 			// TODO: 实现禁用用户逻辑
-			console.log('Disable user:', userId);
 		}
 	}
 
@@ -85,7 +80,6 @@
 	function deleteUser(userId: string) {
 		if (confirm($_('testing.administrator.manage_users.confirmations.delete_user'))) {
 			// TODO: 实现删除用户逻辑
-			console.log('Delete user:', userId);
 		}
 	}
 </script>
