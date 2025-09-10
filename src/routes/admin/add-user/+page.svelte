@@ -3,9 +3,9 @@
 	import { onMount } from 'svelte';
 	import Icon from '@iconify/svelte';
 	import { _ } from 'svelte-i18n';
-	import Navbar from '../../../lib/components/Navbar.svelte';
-	import { USER_PERMISSIONS, UserPermissions } from '../../../lib/bitmask.js';
-	import { PERMISSION_OPTIONS, PERMISSION_I18N_KEYS } from '../../../lib/permissions.js';
+	import Navbar from '$lib/components/Navbar.svelte';
+	import { USER_PERMISSIONS, UserPermissions } from '$lib/bitmask.js';
+	import { PERMISSION_OPTIONS, PERMISSION_I18N_KEYS } from '$lib/permissions.js';
 
 	let errorMessage = '';
 	let isLoading = false;

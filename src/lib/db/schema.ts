@@ -4,7 +4,7 @@ import { relations } from 'drizzle-orm';
 // Define enums
 export const accessaryTypeEnum = pgEnum('accessary_type', ['reflector', 'fresnel']);
 export const colorTypeEnum = pgEnum('color_type', ['Single', 'Bi', 'Color']);
-export const lightEngineEnum = pgEnum('light_engine', ['W', 'WW', 'Bi+RGB', 'RGBWW', 'RGBACL', 'RGBLAC', 'BLAIR', 'BLAIR-CG']);
+export const lightEngineEnum = pgEnum('light_engine', ['W', 'Bi', 'Bi+RGB', 'RGBWW', 'RGBACL', 'BLAIR', 'BLAIR-CG']);
 export const formFactorEnum = pgEnum('form_factor', ['Point Source', 'Panel', 'Mat', 'Bulb', 'Tube']);
 export const sizeEnum = pgEnum('size', ['Tiny', 'Small', 'Medium', 'Large']);
 

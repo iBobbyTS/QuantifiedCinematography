@@ -1,10 +1,10 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { Actions, ServerLoad } from '@sveltejs/kit';
-import { db } from '../../db/config.js';
-import { users } from '../../db/schema.js';
+import { db } from '$lib/db/config.js';
+import { users } from '$lib/db/schema.js';
 import { eq } from 'drizzle-orm';
-import { verifyPassword } from '../../lib/auth/password.js';
-import { lucia } from '../../lib/server/auth.js';
+import { verifyPassword } from '$lib/auth/password.js';
+import { lucia } from '$lib/server/auth.js';
 
 export const load: ServerLoad = async ({ locals }) => {
 	// 如果用户已经登录，重定向到首页

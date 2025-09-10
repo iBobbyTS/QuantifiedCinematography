@@ -1,11 +1,10 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { db } from '../../../../../db/config.js';
-import { users } from '../../../../../db/schema.js';
-import { UserPermissions, USER_PERMISSIONS } from '../../../../../lib/bitmask.js';
-import { hashPassword } from '../../../../../lib/auth/password.js';
+import { db } from '$lib/db/config.js';
+import { users } from '$lib/db/schema.js';
+import { UserPermissions, USER_PERMISSIONS } from '$lib/bitmask.js';
+import { hashPassword, generatePassword } from '$lib/auth/password.js';
 import { eq } from 'drizzle-orm';
-import { generatePassword } from '../../../../../lib/auth/password.js';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	// 检查用户是否登录

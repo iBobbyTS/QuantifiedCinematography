@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
-	import { onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
 	import Icon from '@iconify/svelte';
 	import type { PageData } from './$types';
-	import Navbar from '../../../lib/components/Navbar.svelte';
-	import { USER_PERMISSIONS, UserPermissions } from '../../../lib/bitmask.js';
-	import { PERMISSION_OPTIONS, PERMISSION_I18N_KEYS } from '../../../lib/permissions.js';
+	import Navbar from '$lib/components/Navbar.svelte';
+	import { USER_PERMISSIONS, UserPermissions } from '$lib/bitmask.js';
+	import { PERMISSION_OPTIONS, PERMISSION_I18N_KEYS } from '$lib/permissions.js';
+	import ConfirmModal from '$lib/components/Modal/ConfirmModal.svelte';
 
 	export let data: PageData;
 
@@ -23,6 +23,11 @@
 	let permissionModalErrorMessage = '';
 	let hasPermissionChanges = false;
 	let isPermissionModalInitialized = false;
+
+	// 删除确认弹窗状态
+	let showDeleteConfirm = false;
+	let userToDelete: any = null;
+	let isDeleting = false;
 
 	// 检查编辑对象是否是当前用户
 	$: isEditingCurrentUser = selectedUser && $page.data.user && selectedUser.id === $page.data.user.id;
@@ -184,10 +189,51 @@
 		}
 	}
 
-	// 删除用户
-	function deleteUser(userId: string) {
-		if (confirm($_('testing.administrator.manage_users.confirmations.delete_user'))) {
-			// TODO: 实现删除用户逻辑
+	// 打开删除确认弹窗
+	function openDeleteConfirm(user: any) {
+		userToDelete = user;
+		showDeleteConfirm = true;
+	}
+
+	// 关闭删除确认弹窗
+	function closeDeleteConfirm() {
+		showDeleteConfirm = false;
+		userToDelete = null;
+	}
+
+	// 确认删除用户
+	async function confirmDeleteUser() {
+		if (!userToDelete) return;
+
+		isDeleting = true;
+
+		try {
+			const response = await fetch('/api/admin/user/delete', {
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					userId: userToDelete.id
+				})
+			});
+
+			if (response.ok) {
+				// 从用户列表中移除已删除的用户
+				const userIndex = users.findIndex(u => u.id === userToDelete.id);
+				if (userIndex !== -1) {
+					users.splice(userIndex, 1);
+				}
+				closeDeleteConfirm();
+			} else {
+				const errorData = await response.json();
+				alert(errorData.message || 'Failed to delete user');
+			}
+		} catch (error) {
+			console.error('Error deleting user:', error);
+			alert('Network error occurred while deleting user');
+		} finally {
+			isDeleting = false;
 		}
 	}
 </script>
@@ -277,7 +323,7 @@
 												<Icon icon="mdi:account-off" class="w-5 h-5" />
 											</button>
 											<button
-												onclick={() => deleteUser(user.id)}
+												onclick={() => openDeleteConfirm(user)}
 												class="p-2 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20"
 												title={$_('testing.administrator.manage_users.actions.delete_user')}
 											>
@@ -411,3 +457,17 @@
 		</div>
 	</div>
 {/if}
+
+<!-- Delete Confirmation Modal -->
+<ConfirmModal
+	bind:isOpen={showDeleteConfirm}
+	title={$_('testing.administrator.manage_users.confirmations.delete_user_title')}
+	message={userToDelete ? $_('testing.administrator.manage_users.confirmations.delete_user_message').replace('{username}', userToDelete.username).replace('{nickname}', userToDelete.nickname) : ''}
+	confirmText={$_('testing.administrator.manage_users.confirmations.delete_confirm')}
+	cancelText={$_('testing.administrator.manage_users.confirmations.delete_cancel')}
+	confirmButtonColor="bg-red-600 hover:bg-red-700"
+	iconName="mdi:delete-alert"
+	iconColor="text-red-500"
+	on:confirm={confirmDeleteUser}
+	on:cancel={closeDeleteConfirm}
+/>

@@ -84,10 +84,14 @@
 					"disable_user": "Disable User",
 					"delete_user": "Delete User"
 				},
-				"confirmations": {
-					"disable_user": "Are you sure you want to disable this user?",
-					"delete_user": "Are you sure you want to delete this user? This action cannot be undone."
-				},
+						"confirmations": {
+			"disable_user": "Are you sure you want to disable this user?",
+			"delete_user": "Are you sure you want to delete this user? This action cannot be undone.",
+			"delete_user_title": "Delete User",
+			"delete_user_message": "Are you sure you want to delete user '{username}' ({nickname})? This will permanently remove the user and all their uploaded data. This action cannot be undone.",
+			"delete_confirm": "Delete User",
+			"delete_cancel": "Cancel"
+		},
 				"empty_state": {
 					"title": "No users",
 					"description": "Get started by creating a new user."

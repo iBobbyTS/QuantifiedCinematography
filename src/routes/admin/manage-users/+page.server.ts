@@ -1,8 +1,8 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { db } from '../../../db/config.js';
-import { users } from '../../../db/schema.js';
-import { UserPermissions, USER_PERMISSIONS } from '../../../lib/bitmask.js';
+import { db } from '$lib/db/config.js';
+import { users } from '$lib/db/schema.js';
+import { UserPermissions, USER_PERMISSIONS } from '$lib/bitmask.js';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	// 检查用户是否登录

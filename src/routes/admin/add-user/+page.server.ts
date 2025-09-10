@@ -1,9 +1,9 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { db } from '../../../db/config.js';
-import { users } from '../../../db/schema.js';
-import { UserPermissions, USER_PERMISSIONS } from '../../../lib/bitmask.js';
-import { hashPassword } from '../../../lib/auth/password.js';
+import { db } from '$lib/db/config.js';
+import { users } from '$lib/db/schema.js';
+import { UserPermissions, USER_PERMISSIONS } from '$lib/bitmask.js';
+import { hashPassword } from '$lib/auth/password.js';
 import { eq } from 'drizzle-orm';
 
 export const load: PageServerLoad = async ({ locals }) => {

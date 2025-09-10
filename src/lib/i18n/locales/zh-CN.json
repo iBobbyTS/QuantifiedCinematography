@@ -83,10 +83,14 @@
 					"disable_user": "禁用用户",
 					"delete_user": "删除用户"
 				},
-				"confirmations": {
-					"disable_user": "确定要禁用此用户吗？",
-					"delete_user": "确定要删除此用户吗？此操作无法撤销。"
-				},
+						"confirmations": {
+			"disable_user": "确定要禁用此用户吗？",
+			"delete_user": "确定要删除此用户吗？此操作无法撤销。",
+			"delete_user_title": "删除用户",
+			"delete_user_message": "确定要删除用户 '{username}' ({nickname}) 吗？这将永久删除该用户及其所有上传的数据。此操作无法撤销。",
+			"delete_confirm": "删除用户",
+			"delete_cancel": "取消"
+		},
 				"empty_state": {
 					"title": "暂无用户",
 					"description": "通过创建新用户开始使用。"
