@@ -48,19 +48,19 @@
 		const permissionNames: string[] = [];
 		
 		if (UserPermissions.hasLightPermission(permission)) {
-			permissionNames.push($_(PERMISSION_OPTIONS[0].labelKey));
+			permissionNames.push(m[PERMISSION_OPTIONS[0].labelKey]());
 		}
 		if (UserPermissions.hasCameraPermission(permission)) {
-			permissionNames.push($_(PERMISSION_OPTIONS[1].labelKey));
+			permissionNames.push(m[PERMISSION_OPTIONS[1].labelKey]());
 		}
 		if (UserPermissions.hasLensPermission(permission)) {
-			permissionNames.push($_(PERMISSION_OPTIONS[2].labelKey));
+			permissionNames.push(m[PERMISSION_OPTIONS[2].labelKey]());
 		}
 		if (UserPermissions.hasAdministratorPermission(permission)) {
-			permissionNames.push($_(PERMISSION_OPTIONS[3].labelKey));
+			permissionNames.push(m[PERMISSION_OPTIONS[3].labelKey]());
 		}
 		
-		return permissionNames.length > 0 ? permissionNames.join(', ') : $_(PERMISSION_I18N_KEYS.permissions.none);
+		return permissionNames.length > 0 ? permissionNames.join(', ') : m[PERMISSION_I18N_KEYS.permissions.none]();
 	};
 
 	// 添加用户
@@ -146,11 +146,11 @@
 				closePermissionModal();
 			} else {
 				const errorData = await response.json();
-				permissionModalErrorMessage = errorData.message || $_(PERMISSION_I18N_KEYS.modal.errors.failedToUpdate);
+				permissionModalErrorMessage = errorData.message || m[PERMISSION_I18N_KEYS.modal.errors.failedToUpdate]();
 			}
 		} catch (error) {
 			console.error('Error updating permissions:', error);
-			permissionModalErrorMessage = $_(PERMISSION_I18N_KEYS.modal.errors.networkError);
+			permissionModalErrorMessage = m[PERMISSION_I18N_KEYS.modal.errors.networkError]();
 		} finally {
 			isPermissionModalLoading = false;
 		}
@@ -184,7 +184,7 @@
 
 	// 禁用用户
 	function disableUser(userId: string) {
-		if (confirm($_('testing.administrator.manage_users.confirmations.disable_user'))) {
+		if (confirm(m['testing.administrator.manage_users.confirmations.disable_user']())) {
 			// TODO: 实现禁用用户逻辑
 		}
 	}
@@ -239,7 +239,7 @@
 </script>
 
 <svelte:head>
-	<title>{$_('testing.administrator.manage_users.title')} - {$_('app.title')}</title>
+	<title>{m['testing.administrator.manage_users.title']()} - {m['app.title']()}</title>
 </svelte:head>
 
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">
@@ -252,10 +252,10 @@
 			<div class="flex items-center justify-between">
 				<div>
 					<h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-						{$_('testing.administrator.manage_users.title')}
+						{m['testing.administrator.manage_users.title']()}
 					</h1>
 					<p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-						{$_('testing.administrator.manage_users.subtitle')}
+						{m['testing.administrator.manage_users.subtitle']()}
 					</p>
 				</div>
 				<button
@@ -263,7 +263,7 @@
 					class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
 				>
 					<Icon icon="mdi:plus" class="w-4 h-4 mr-2" />
-					{$_('testing.administrator.manage_users.add_user')}
+					{m['testing.administrator.manage_users.add_user']()}
 				</button>
 			</div>
 		</div>
@@ -276,19 +276,19 @@
 						<thead class="bg-gray-50 dark:bg-gray-700">
 							<tr>
 								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-									{$_('testing.administrator.manage_users.table.username')}
+									{m['testing.administrator.manage_users.table.username']()}
 								</th>
 								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-									{$_('testing.administrator.manage_users.table.nickname')}
+									{m['testing.administrator.manage_users.table.nickname']()}
 								</th>
 								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-									{$_('testing.administrator.manage_users.table.email')}
+									{m['testing.administrator.manage_users.table.email']()}
 								</th>
 								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-									{$_('testing.administrator.manage_users.table.permissions')}
+									{m['testing.administrator.manage_users.table.permissions']()}
 								</th>
 								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-									{$_('testing.administrator.manage_users.table.actions')}
+									{m['testing.administrator.manage_users.table.actions']()}
 								</th>
 							</tr>
 						</thead>
@@ -318,14 +318,14 @@
 											<button
 												onclick={() => disableUser(user.id)}
 												class="p-2 text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300 transition-colors duration-200 rounded-md hover:bg-yellow-50 dark:hover:bg-yellow-900/20"
-												title={$_('testing.administrator.manage_users.actions.disable_user')}
+												title={m['testing.administrator.manage_users.actions.disable_user']()}
 											>
 												<Icon icon="mdi:account-off" class="w-5 h-5" />
 											</button>
 											<button
 												onclick={() => openDeleteConfirm(user)}
 												class="p-2 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20"
-												title={$_('testing.administrator.manage_users.actions.delete_user')}
+												title={m['testing.administrator.manage_users.actions.delete_user']()}
 											>
 												<Icon icon="mdi:delete" class="w-5 h-5" />
 											</button>
@@ -340,9 +340,9 @@
 				{#if users.length === 0}
 					<div class="text-center py-12">
 						<Icon icon="mdi:account-group" class="mx-auto h-12 w-12 text-gray-400" />
-						<h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">{$_('testing.administrator.manage_users.empty_state.title')}</h3>
+						<h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">{m['testing.administrator.manage_users.empty_state.title']()}</h3>
 						<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-							{$_('testing.administrator.manage_users.empty_state.description')}
+							{m['testing.administrator.manage_users.empty_state.description']()}
 						</p>
 						<div class="mt-6">
 							<button
@@ -350,7 +350,7 @@
 								class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
 							>
 								<Icon icon="mdi:plus" class="w-4 h-4 mr-2" />
-								{$_('testing.administrator.manage_users.add_user')}
+								{m['testing.administrator.manage_users.add_user']()}
 							</button>
 						</div>
 					</div>
@@ -378,7 +378,7 @@
 			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
 				<div class="flex items-center justify-between">
 					<h3 id="permission-modal-title" class="text-lg font-medium text-gray-900 dark:text-white">
-						{$_(PERMISSION_I18N_KEYS.modal.title)}
+						{m[PERMISSION_I18N_KEYS.modal.title]()}
 					</h3>
 					<button
 						onclick={handlePermissionModalClose}
@@ -389,7 +389,7 @@
 					</button>
 				</div>
 				<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-					{$_(PERMISSION_I18N_KEYS.modal.userInfo).replace('{nickname}', selectedUser.nickname).replace('{username}', selectedUser.username)}
+					{m[PERMISSION_I18N_KEYS.modal.userInfo]().replace('{nickname}', selectedUser.nickname).replace('{username}', selectedUser.username)}
 				</p>
 			</div>
 
@@ -418,13 +418,13 @@
 							/>
 							<div class="flex-1">
 								<div class="text-sm font-medium text-gray-900 dark:text-white">
-									{$_(option.labelKey)}
+									{m[option.labelKey]()}
 									{#if isEditingCurrentUser && option.permission === USER_PERMISSIONS.ADMINISTRATOR}
-										<span class="text-xs text-gray-500 dark:text-gray-400 ml-1">{$_(PERMISSION_I18N_KEYS.modal.permissionOptions.administrator.cannotModifyOwn)}</span>
+										<span class="text-xs text-gray-500 dark:text-gray-400 ml-1">{m[PERMISSION_I18N_KEYS.modal.permissionOptions.administrator.cannotModifyOwn]()}</span>
 									{/if}
 								</div>
 								<div class="text-xs text-gray-500 dark:text-gray-400">
-									{$_(option.descriptionKey)}
+									{m[option.descriptionKey]()}
 								</div>
 							</div>
 						</label>
@@ -439,7 +439,7 @@
 					disabled={isPermissionModalLoading}
 					class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
 				>
-					{$_(PERMISSION_I18N_KEYS.modal.buttons.cancel)}
+					{m[PERMISSION_I18N_KEYS.modal.buttons.cancel]()}
 				</button>
 				<button
 					onclick={submitPermissions}
@@ -448,9 +448,9 @@
 				>
 					{#if isPermissionModalLoading}
 						<Icon icon="mdi:loading" class="animate-spin -ml-1 mr-2 h-4 w-4" />
-						{$_(PERMISSION_I18N_KEYS.modal.buttons.updating)}
+						{m[PERMISSION_I18N_KEYS.modal.buttons.updating]()}
 					{:else}
-						{$_(PERMISSION_I18N_KEYS.modal.buttons.update)}
+						{m[PERMISSION_I18N_KEYS.modal.buttons.update]()}
 					{/if}
 				</button>
 			</div>
@@ -461,10 +461,10 @@
 <!-- Delete Confirmation Modal -->
 <ConfirmModal
 	bind:isOpen={showDeleteConfirm}
-	title={$_('testing.administrator.manage_users.confirmations.delete_user_title')}
-	message={userToDelete ? $_('testing.administrator.manage_users.confirmations.delete_user_message').replace('{username}', userToDelete.username).replace('{nickname}', userToDelete.nickname) : ''}
-	confirmText={$_('testing.administrator.manage_users.confirmations.delete_confirm')}
-	cancelText={$_('testing.administrator.manage_users.confirmations.delete_cancel')}
+	title={m['testing.administrator.manage_users.confirmations.delete_user_title']()}
+	message={userToDelete ? m['testing.administrator.manage_users.confirmations.delete_user_message']().replace('{username}', userToDelete.username).replace('{nickname}', userToDelete.nickname) : ''}
+	confirmText={m['testing.administrator.manage_users.confirmations.delete_confirm']()}
+	cancelText={m['testing.administrator.manage_users.confirmations.delete_cancel']()}
 	confirmButtonColor="bg-red-600 hover:bg-red-700"
 	iconName="mdi:delete-alert"
 	iconColor="text-red-500"

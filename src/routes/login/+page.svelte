@@ -22,7 +22,7 @@
 </script>
 
 <svelte:head>
-	<title>{$_('login.title')}</title>
+	<title>{m['login.title']()}</title>
 </svelte:head>
 
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -31,10 +31,10 @@
 			<Icon icon="mdi:movie" class="w-16 h-16 text-blue-600 dark:text-blue-400" />
 		</div>
 		<h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-gray-100">
-			{$_('login.title')}
+			{m['login.title']()}
 		</h2>
 		<p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-			{$_('login.subtitle')}
+			{m['login.subtitle']()}
 		</p>
 	</div>
 
@@ -65,11 +65,11 @@
 							const raw = (result as any)?.error?.message || '';
 							// map known backend messages to i18n keys
 							if (raw.includes('用户不存在') || raw.toLowerCase().includes('user not found')) {
-								errorMessage = $_('auth.errors.userNotFound');
+								errorMessage = m['auth.errors.userNotFound']();
 							} else if (raw.includes('密码错误') || raw.toLowerCase().includes('incorrect password')) {
-								errorMessage = $_('auth.errors.wrongPassword');
+								errorMessage = m['auth.errors.wrongPassword']();
 							} else {
-								errorMessage = raw || $_('app.networkError');
+								errorMessage = raw || m['app.networkError']();
 							}
 						} else if (result.type === 'redirect') {
 							// 登录成功后，先刷新所有数据，然后跳转
@@ -84,7 +84,7 @@
 			>
 				<div>
 					<label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-						{$_('login.username')}
+						{m['login.username']()}
 					</label>
 					<div class="mt-1">
 						<input
@@ -94,14 +94,14 @@
 							required
 							bind:value={username}
 							class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm"
-							placeholder={$_('login.usernamePlaceholder')}
+							placeholder={m['login.usernamePlaceholder']()}
 						/>
 					</div>
 				</div>
 
 				<div>
 					<label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-						{$_('login.password')}
+						{m['login.password']()}
 					</label>
 					<div class="mt-1">
 						<input
@@ -111,7 +111,7 @@
 							required
 							bind:value={password}
 							class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm"
-							placeholder={$_('login.passwordPlaceholder')}
+							placeholder={m['login.passwordPlaceholder']()}
 						/>
 					</div>
 				</div>
@@ -124,10 +124,10 @@
 					>
 						{#if isLoading}
 							<Icon icon="mdi:loading" class="animate-spin -ml-1 mr-3 h-5 w-5" />
-							{$_('login.signingIn')}
+							{m['login.signingIn']()}
 						{:else}
 							<Icon icon="mdi:login" class="-ml-1 mr-3 h-5 w-5" />
-							{$_('auth.login')}
+							{m['auth.login']()}
 						{/if}
 					</button>
 				</div>
@@ -142,7 +142,7 @@
 
 				<div class="mt-6">
 					<p class="text-sm text-gray-600 dark:text-gray-400 text-center leading-relaxed">
-						{$_('login.description')}
+						{m['login.description']()}
 					</p>
 				</div>
 			</div>

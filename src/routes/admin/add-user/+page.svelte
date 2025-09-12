@@ -151,7 +151,7 @@
 			handlePermissionChanged(currentPermissions);
 		} catch (error) {
 			console.error('Error updating permissions:', error);
-			permissionModalErrorMessage = $_(PERMISSION_I18N_KEYS.modal.errors.networkError);
+			permissionModalErrorMessage = m[PERMISSION_I18N_KEYS.modal.errors.networkError]();
 		} finally {
 			isPermissionModalLoading = false;
 		}
@@ -173,13 +173,13 @@
 
 	// 获取权限显示文本
 	function getPermissionDisplayText(permissions: number): string {
-		if (permissions === 0) return $_(PERMISSION_I18N_KEYS.permissions.none);
+		if (permissions === 0) return m[PERMISSION_I18N_KEYS.permissions.none]();
 		
 		const permissionNames = [];
-		if (permissions & USER_PERMISSIONS.LIGHT) permissionNames.push($_(PERMISSION_OPTIONS[0].labelKey));
-		if (permissions & USER_PERMISSIONS.CAMERA) permissionNames.push($_(PERMISSION_OPTIONS[1].labelKey));
-		if (permissions & USER_PERMISSIONS.LENS) permissionNames.push($_(PERMISSION_OPTIONS[2].labelKey));
-		if (permissions & USER_PERMISSIONS.ADMINISTRATOR) permissionNames.push($_(PERMISSION_OPTIONS[3].labelKey));
+		if (permissions & USER_PERMISSIONS.LIGHT) permissionNames.push(m[PERMISSION_OPTIONS[0].labelKey]());
+		if (permissions & USER_PERMISSIONS.CAMERA) permissionNames.push(m[PERMISSION_OPTIONS[1].labelKey]());
+		if (permissions & USER_PERMISSIONS.LENS) permissionNames.push(m[PERMISSION_OPTIONS[2].labelKey]());
+		if (permissions & USER_PERMISSIONS.ADMINISTRATOR) permissionNames.push(m[PERMISSION_OPTIONS[3].labelKey]());
 		
 		return permissionNames.join(', ');
 	}
@@ -191,7 +191,7 @@
 </script>
 
 <svelte:head>
-	<title>{$_('testing.administrator.manage_users.add_user_page.title')} - Quantified Cinematography</title>
+	<title>{m['testing.administrator.manage_users.add_user_page.title']()} - Quantified Cinematography</title>
 </svelte:head>
 
 <!-- Navbar -->
@@ -208,7 +208,7 @@
 		<div class="mb-8">
 			<div>
 				<h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-					{$_('testing.administrator.manage_users.add_user_page.title')}
+					{m['testing.administrator.manage_users.add_user_page.title']()}
 				</h1>
 			</div>
 		</div>
@@ -240,7 +240,7 @@
 				>
 					<div>
 						<label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-							{$_('testing.administrator.manage_users.add_user_page.form.username')}
+							{m['testing.administrator.manage_users.add_user_page.form.username']()}
 						</label>
 						<div class="mt-1">
 							<input
@@ -250,7 +250,7 @@
 								required
 								minlength="3"
 								class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm"
-								placeholder={$_('testing.administrator.manage_users.add_user_page.form.username_placeholder')}
+								placeholder={m['testing.administrator.manage_users.add_user_page.form.username_placeholder']()}
 							/>
 						</div>
 					</div>
@@ -259,7 +259,7 @@
 					<div>
 						<fieldset>
 							<legend class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-								{$_('testing.administrator.manage_users.add_user_page.form.permissions')}
+								{m['testing.administrator.manage_users.add_user_page.form.permissions']()}
 							</legend>
 							<div class="mt-1">
 								<div class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm dark:bg-gray-700">
@@ -280,10 +280,10 @@
 												/>
 												<div class="flex-1">
 													<div class="text-sm font-medium text-gray-900 dark:text-white">
-														{$_(option.labelKey)}
+														{m[option.labelKey]()}
 													</div>
 													<div class="text-xs text-gray-500 dark:text-gray-400">
-														{$_(option.descriptionKey)}
+														{m[option.descriptionKey]()}
 													</div>
 												</div>
 											</label>
@@ -302,7 +302,7 @@
 							onclick={() => goto('/admin/manage-users')}
 							class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
 						>
-							{$_('testing.administrator.manage_users.add_user_page.buttons.cancel')}
+							{m['testing.administrator.manage_users.add_user_page.buttons.cancel']()}
 						</button>
 						<button
 							type="submit"
@@ -311,10 +311,10 @@
 						>
 							{#if isLoading}
 								<Icon icon="mdi:loading" class="animate-spin -ml-1 mr-3 h-5 w-5" />
-								{$_('testing.administrator.manage_users.add_user_page.buttons.creating')}
+								{m['testing.administrator.manage_users.add_user_page.buttons.creating']()}
 							{:else}
 								<Icon icon="mdi:plus" class="-ml-1 mr-3 h-5 w-5" />
-								{$_('testing.administrator.manage_users.add_user_page.buttons.create')}
+								{m['testing.administrator.manage_users.add_user_page.buttons.create']()}
 							{/if}
 						</button>
 					</div>
@@ -342,7 +342,7 @@
 			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
 				<div class="flex items-center justify-between">
 					<h3 id="permission-modal-title" class="text-lg font-medium text-gray-900 dark:text-white">
-						{$_(PERMISSION_I18N_KEYS.modal.title)}
+						{m[PERMISSION_I18N_KEYS.modal.title]()}
 					</h3>
 					<button
 						onclick={handlePermissionModalClose}
@@ -353,7 +353,7 @@
 					</button>
 				</div>
 				<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-					{$_(PERMISSION_I18N_KEYS.modal.userInfo).replace('{nickname}', permissionModalUser.nickname).replace('{username}', permissionModalUser.username)}
+					{m[PERMISSION_I18N_KEYS.modal.userInfo]().replace('{nickname}', permissionModalUser.nickname).replace('{username}', permissionModalUser.username)}
 				</p>
 			</div>
 
@@ -382,13 +382,13 @@
 							/>
 							<div class="flex-1">
 								<div class="text-sm font-medium text-gray-900 dark:text-white">
-									{$_(option.labelKey)}
+									{m[option.labelKey]()}
 									{#if isEditingCurrentUser && option.permission === USER_PERMISSIONS.ADMINISTRATOR}
-										<span class="text-xs text-gray-500 dark:text-gray-400 ml-1">{$_(PERMISSION_I18N_KEYS.modal.permissionOptions.administrator.cannotModifyOwn)}</span>
+										<span class="text-xs text-gray-500 dark:text-gray-400 ml-1">{m[PERMISSION_I18N_KEYS.modal.permissionOptions.administrator.cannotModifyOwn]()}</span>
 									{/if}
 								</div>
 								<div class="text-xs text-gray-500 dark:text-gray-400">
-									{$_(option.descriptionKey)}
+									{m[option.descriptionKey]()}
 								</div>
 							</div>
 						</label>
@@ -403,7 +403,7 @@
 					disabled={isPermissionModalLoading}
 					class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
 				>
-					{$_(PERMISSION_I18N_KEYS.modal.buttons.cancel)}
+					{m[PERMISSION_I18N_KEYS.modal.buttons.cancel]()}
 				</button>
 				<button
 					onclick={submitPermissions}
@@ -412,9 +412,9 @@
 				>
 					{#if isPermissionModalLoading}
 						<Icon icon="mdi:loading" class="animate-spin -ml-1 mr-2 h-4 w-4" />
-						{$_(PERMISSION_I18N_KEYS.modal.buttons.updating)}
+						{m[PERMISSION_I18N_KEYS.modal.buttons.updating]()}
 					{:else}
-						{$_(PERMISSION_I18N_KEYS.modal.buttons.update)}
+						{m[PERMISSION_I18N_KEYS.modal.buttons.update]()}
 					{/if}
 				</button>
 			</div>
