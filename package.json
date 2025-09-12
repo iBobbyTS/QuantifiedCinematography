@@ -55,6 +55,7 @@
 		"vitest-browser-svelte": "^0.1.0"
 	},
 	"dependencies": {
+		"@iconify/svelte": "^5.0.1",
 		"@node-rs/argon2": "^2.0.2",
 		"@rollup/rollup-linux-arm64-gnu": "^4.50.1",
 		"postgres": "^3.4.5"

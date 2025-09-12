@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
-	import { _ } from 'svelte-i18n';
+	import * as m from '$lib/paraglide/messages.js';
 	import Icon from '@iconify/svelte';
 	import type { PageData } from './$types';
 	import Navbar from '$lib/components/Navbar.svelte';
-	import { USER_PERMISSIONS, UserPermissions } from '$lib/bitmask.js';
-	import { PERMISSION_OPTIONS, PERMISSION_I18N_KEYS } from '$lib/permissions.js';
+	import { USER_PERMISSIONS, UserPermissions } from '$lib/permission/bitmask.js';
+	import { PERMISSION_OPTIONS, PERMISSION_I18N_KEYS } from '$lib/permission/permissions.js';
 	import ConfirmModal from '$lib/components/Modal/ConfirmModal.svelte';
 
 	export let data: PageData;

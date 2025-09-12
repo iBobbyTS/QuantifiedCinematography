@@ -1,4 +1,89 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
-	"hello_world": "Hello, {name} from zh-cn!"
+	"hello_world": "Hello, {name} from zh-cn!",
+	"app": {
+		"title": "量化光影",
+		"error": "错误：{message}",
+		"networkError": "网络错误"
+	},
+	"navbar": {
+		"backToHome": "主页",
+		"backToManageUsers": "用户管理"
+	},
+	"theme": {
+		"light": "浅色模式",
+		"dark": "深色模式",
+		"system": "跟随系统"
+	},
+	"auth": {
+		"login": "登录",
+		"logout": "退出登录",
+		"changePassword": "修改密码"
+	},
+	"testing": {
+		"intro": {
+			"title": "量化光影",
+			"description": "量化光影（Quantified Cinematography）是一个收录(电影)摄影器材技术指标测试数据的平台，网页包含了易用的可视化视图。"
+		},
+		"administrator": {
+			"title": "管理员",
+			"user_management": {
+				"title": "用户管理",
+				"description": "管理用户账户、权限和系统设置。只有管理员可以访问此部分。",
+				"button": "管理用户"
+			}
+		},
+		"data_provider_lighting": {
+			"title": "数据提供方 - 灯光",
+			"recorded_lighting_products": {
+				"title": "已收录的灯光产品：{count}款",
+				"description": "本板块收录多位测试博主对多款灯光产品的全面测试，点击下方按钮查看所有灯，后方的卡片有详细的测试项目。",
+				"button": "管理灯光产品"
+			},
+			"lighting_accessories": {
+				"button": "管理灯光附件"
+			},
+			"spectrometer": {
+				"button": "管理分光光度计"
+			},
+			"data_upload": {
+				"title": "数据上传",
+				"description": "上传各种灯光测试的测试数据。",
+				"white_light_test": "白光测试数据",
+				"color_light_test": "彩光测试数据"
+			}
+		},
+		"lighting": {
+			"title": "灯光",
+			"products": {
+				"title": "已收录的灯光产品：{count}款",
+				"description": "本板块收录多位测试博主对多款灯光产品的全面测试，点击下方按钮查看所有灯，后方的卡片有详细的测试项目。",
+				"button": "浏览所有灯光产品"
+			},
+			"brightness": {
+				"title": "亮度测试",
+				"description": "浏览灯光产品不同色温的实际照度、亮度变化曲线。",
+				"buttons": {
+					"cct_illuminance": "设定色温 VS 照度(+附件)",
+					"brightness_illuminance": "设定亮度(%) VS 实际照度(lux)"
+				}
+			},
+			"white_light_quality": {
+				"title": "白光光品测试",
+				"description": "测试白光的光品质量，包括色温准确性、显色指标等。",
+				"buttons": {
+					"cct_vs_actual": "设定色温 VS 实际色温",
+					"cct_vs_duv": "设定色温 VS D'uv",
+					"brightness_vs_duv": "设定亮度 VS D'uv",
+					"cct_vs_color_rendering": "设定色温 VS 显色指标",
+					"spectrum": "光谱"
+				}
+			},
+			"color_light": {
+				"title": "彩光测试",
+				"description": "浏览灯光产品彩光的照度、饱和度等信息。",
+				"button": "RGB纯色 VS 照度"
+			}
+		}
+	}
 }

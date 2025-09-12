@@ -1,4 +1,97 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
-	"hello_world": "Hello, {name} from en!"
+	"hello_world": "Hello, {name} from en!",
+	"app": {
+		"title": "Quantified Cinematography",
+		"error": "Error: {message}",
+		"networkError": "Network error"
+	},
+	"navbar": {
+		"backToHome": "Home",
+		"backToManageUsers": "Manage Users"
+	},
+	"theme": {
+		"light": "Light Mode",
+		"dark": "Dark Mode",
+		"system": "Follow System"
+	},
+	"auth": {
+		"login": "Sign In",
+		"logout": "Sign Out",
+		"changePassword": "Change Password"
+	},
+	"permissions": {
+		"none": "None"
+	},
+	"permission_modal": {
+		"errors": {
+			"networkError": "Network error occurred"
+		}
+	},
+	"testing": {
+		"intro": {
+			"title": "Quantified Cinematography",
+			"description": "Quantified Cinematography is a platform that collects technical specification test data for film photography equipment, featuring easy-to-use visualizations."
+		},
+		"administrator": {
+			"title": "Administrator",
+			"user_management": {
+				"title": "User Management",
+				"description": "Manage user accounts, permissions, and system settings. Only administrators can access this section.",
+				"button": "Manage Users"
+			}
+		},
+		"data_provider_lighting": {
+			"title": "Data Provider - Lighting",
+			"recorded_lighting_products": {
+				"title": "Recorded Lighting Products: {count} models",
+				"description": "This section contains comprehensive testing from multiple test bloggers on various lighting products. Click the button below to view all lights, with detailed test projects in the following cards.",
+				"button": "Manage Lighting Products"
+			},
+			"lighting_accessories": {
+				"button": "Manage Lighting Accessories"
+			},
+			"spectrometer": {
+				"button": "Manage Spectrometer"
+			},
+			"data_upload": {
+				"title": "Data Upload",
+				"description": "Upload test data for various lighting tests.",
+				"white_light_test": "White Light Test Data",
+				"color_light_test": "Color Light Test Data"
+			}
+		},
+		"lighting": {
+			"title": "Lighting",
+			"products": {
+				"title": "Recorded Lighting Products: {count} models",
+				"description": "This section contains comprehensive testing from multiple test bloggers on various lighting products. Click the button below to view all lights, with detailed test projects in the following cards.",
+				"button": "Browse All Lighting Products"
+			},
+			"brightness": {
+				"title": "Brightness Testing",
+				"description": "Browse the actual illuminance and brightness change curves of lighting products at different color temperatures.",
+				"buttons": {
+					"cct_illuminance": "Set CCT VS Illuminance (+Accessories)",
+					"brightness_illuminance": "Set Brightness (%) VS Actual Illuminance (lux)"
+				}
+			},
+			"white_light_quality": {
+				"title": "White Light Quality Testing",
+				"description": "Test the quality of white light, including color temperature accuracy and color rendering metrics.",
+				"buttons": {
+					"cct_vs_actual": "Set CCT VS Actual CCT",
+					"cct_vs_duv": "Set CCT VS D'uv",
+					"brightness_vs_duv": "Set Brightness VS D'uv",
+					"cct_vs_color_rendering": "Set CCT VS Color Rendering",
+					"spectrum": "Spectrum"
+				}
+			},
+			"color_light": {
+				"title": "Color Light Testing",
+				"description": "Browse illuminance, saturation and other information of colored lighting products.",
+				"button": "RGB Pure Color VS Illuminance"
+			}
+		}
+	}
 }

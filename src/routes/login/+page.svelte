@@ -3,7 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { invalidateAll } from '$app/navigation';
 	import Icon from '@iconify/svelte';
-	import { _ } from 'svelte-i18n';
+	import * as m from '$lib/paraglide/messages.js';
 	
 	// 表单状态
 	let username = '';

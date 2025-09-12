@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { locale } from 'svelte-i18n';
 	import { onMount } from 'svelte';
 	import Icon from '@iconify/svelte';
-	import { _ } from 'svelte-i18n';
+	import * as m from '$lib/paraglide/messages.js';
 	import { page } from '$app/stores';
 	let currentUser: any = null;
 	$: currentUser = $page?.data?.user ?? null;
@@ -15,6 +14,9 @@
 	
 	// 主题模式状态
 	let currentTheme = 'system'; // 'light', 'dark', 'system'
+	
+	// 当前语言状态
+	let currentLanguage = 'en'; // 默认英语
 	
 	// 语言选项
 	const languageOptions = [
@@ -56,7 +58,7 @@
 	
 	// 获取当前主题的显示名称
 	function getThemeDisplayName(themeCode: string) {
-		return $_('theme.' + themeCode);
+		return m['theme.' + themeCode]();
 	}
 	
 	// 获取当前主题的图标
@@ -66,30 +68,32 @@
 	}
 	
 	// 响应式获取主题显示名称
-	$: currentThemeDisplayName = $_('theme.' + currentTheme);
+	$: currentThemeDisplayName = m['theme.' + currentTheme]();
 	
 	// 响应式获取所有主题选项的本地化名称
 	$: themeOptionsLocalized = themeOptions.map(theme => ({
 		...theme,
-		localizedName: $_('theme.' + theme.code)
+		localizedName: m['theme.' + theme.code]()
 	}));
 	
 	// 切换语言
 	function changeLanguage(langCode: string) {
-		locale.set(langCode);
 		// 保存语言设置到localStorage
 		localStorage.setItem('locale', langCode);
+		// 重新加载页面以应用新语言
+		window.location.reload();
 	}
 	
 	// 组件挂载时检查主题设置
 	onMount(() => {
 		try {
-			// 检查本地存储的主题设置
-			const savedTheme = localStorage.getItem('theme') || 'system';
-			const savedLocale = localStorage.getItem('locale') || 'en'; // 默认英语
-			
-			changeTheme(savedTheme);
-			locale.set(savedLocale); // 初始化语言
+		// 检查本地存储的主题设置
+		const savedTheme = localStorage.getItem('theme') || 'system';
+		const savedLocale = localStorage.getItem('locale') || 'en'; // 默认英语
+		
+		changeTheme(savedTheme);
+		// 设置当前语言
+		currentLanguage = savedLocale;
 			
 			// 监听系统主题变化
 			const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -116,7 +120,7 @@
 						class="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
 					>
 						<Icon icon="mdi:arrow-left" class="w-4 h-4" />
-						<span class="hidden sm:inline">{$_(backButtonText)}</span>
+						<span class="hidden sm:inline">{m[backButtonText]()}</span>
 					</a>
 				{/if}
 			</div>
@@ -125,7 +129,7 @@
 			{#if centerTitle}
 				<div class="flex justify-center items-center">
 					<h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 text-center">
-						{$_(centerTitle)}
+						{m[centerTitle]()}
 					</h1>
 				</div>
 			{/if}
@@ -148,10 +152,10 @@
 								class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
 								on:click={async () => { await fetch('/logout', { method: 'POST' }); location.reload(); }}
 							>
-								<Icon icon="mdi:logout" class="w-4 h-4 inline mr-2" /> {$_('auth.logout')}
+								<Icon icon="mdi:logout" class="w-4 h-4 inline mr-2" /> {m['auth.logout']()}
 							</button>
 							<a href="/user/change-password" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-								<Icon icon="mdi:key-variant" class="w-4 h-4 inline mr-2" /> {$_('auth.changePassword')}
+								<Icon icon="mdi:key-variant" class="w-4 h-4 inline mr-2" /> {m['auth.changePassword']()}
 							</a>
 						</div>
 					</div>
@@ -162,7 +166,7 @@
 						class="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-lg transition-colors duration-200"
 					>
 						<Icon icon="mdi:login" class="w-4 h-4" />
-						<span class="hidden sm:inline">{$_('auth.login')}</span>
+						<span class="hidden sm:inline">{m['auth.login']()}</span>
 					</a>
 				{/if}
 				
@@ -174,7 +178,7 @@
 					>
 						<Icon icon="mdi:translate" class="w-5 h-5" />
 						<span class="hidden sm:inline">
-							{languageOptions.find(lang => lang.code === $locale)?.name || 'Language'}
+							{languageOptions.find(lang => lang.code === currentLanguage)?.name || 'Language'}
 						</span>
 						<Icon icon="mdi:chevron-down" class="w-4 h-4" />
 					</button>

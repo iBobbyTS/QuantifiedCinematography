@@ -4,6 +4,7 @@
  * 用于多语言 URL 的去本地化处理
  * 确保路由在不同语言环境下正确工作
  */
+import type { Reroute } from '@sveltejs/kit';
 import { deLocalizeUrl } from '$lib/paraglide/runtime';
 
-export const reroute = (request) => deLocalizeUrl(request.url).pathname;
+export const reroute: Reroute = (request) => deLocalizeUrl(request.url).pathname;

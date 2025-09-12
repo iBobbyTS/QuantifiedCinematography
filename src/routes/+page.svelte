@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { _ } from 'svelte-i18n';
+	import * as m from '$lib/paraglide/messages.js';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import Navbar from '../lib/components/Navbar.svelte';
 	import Card from '../lib/components/Card.svelte';
-	import { UserPermissions, USER_PERMISSIONS } from '../lib/bitmask.js';
+	import { UserPermissions, USER_PERMISSIONS } from '../lib/permission/bitmask.js';
 	
 	// 产品数量状态
 	let productCount = 0;
@@ -21,7 +21,7 @@
 			// 模拟数据
 			productCount = 42;
 		} catch (error) {
-			console.error($_('app.networkError'), error);
+			console.error(m['app.networkError'](), error);
 			productCount = 0;
 		}
 	}
@@ -35,11 +35,11 @@
 	// 管理员卡片配置数据
 	$: adminCards = [
 		{
-			title: $_('testing.administrator.user_management.title'),
-			description: $_('testing.administrator.user_management.description'),
+			title: m['testing.administrator.user_management.title'](),
+			description: m['testing.administrator.user_management.description'](),
 			buttons: [
 				{
-					text: $_('testing.administrator.user_management.button'),
+					text: m['testing.administrator.user_management.button'](),
 					color: 'red',
 					onClick: () => goto('/admin/manage-users')
 				}
@@ -51,21 +51,21 @@
 	// 数据提供方灯光卡片配置数据
 	$: dataProviderLightingCards = [
 		{
-			title: $_('testing.data_provider_lighting.recorded_lighting_products.title').replace('{{count}}', productCount.toString()),
-			description: $_('testing.data_provider_lighting.recorded_lighting_products.description'),
+			title: m['testing.data_provider_lighting.recorded_lighting_products.title']({ count: productCount.toString() }),
+			description: m['testing.data_provider_lighting.recorded_lighting_products.description'](),
 			buttons: [
 				{
-					text: $_('testing.data_provider_lighting.recorded_lighting_products.button'),
+					text: m['testing.data_provider_lighting.recorded_lighting_products.button'](),
 					color: 'blue',
 					onClick: () => console.log('Manage Lighting Products')
 				},
 				{
-					text: $_('testing.data_provider_lighting.lighting_accessories.button'),
+					text: m['testing.data_provider_lighting.lighting_accessories.button'](),
 					color: 'blue',
 					onClick: () => console.log('Manage Lighting Accessories')
 				},
 				{
-					text: $_('testing.data_provider_lighting.spectrometer.button'),
+					text: m['testing.data_provider_lighting.spectrometer.button'](),
 					color: 'blue',
 					onClick: () => console.log('Manage Spectrometer')
 				}
@@ -73,16 +73,16 @@
 			color: 'blue'
 		},
 		{
-			title: $_('testing.data_provider_lighting.data_upload.title'),
-			description: $_('testing.data_provider_lighting.data_upload.description'),
+			title: m['testing.data_provider_lighting.data_upload.title'](),
+			description: m['testing.data_provider_lighting.data_upload.description'](),
 			buttons: [
 				{
-					text: $_('testing.data_provider_lighting.data_upload.white_light_test'),
+					text: m['testing.data_provider_lighting.data_upload.white_light_test'](),
 					color: 'blue',
 					onClick: () => console.log('White Light Test Data')
 				},
 				{
-					text: $_('testing.data_provider_lighting.data_upload.color_light_test'),
+					text: m['testing.data_provider_lighting.data_upload.color_light_test'](),
 					color: 'blue',
 					onClick: () => console.log('Color Light Test Data')
 				}
@@ -94,11 +94,11 @@
 	// 卡片配置数据
 	$: cards = [
 		{
-			title: $_('testing.lighting.products.title').replace('{{count}}', productCount.toString()),
-			description: $_('testing.lighting.products.description'),
+			title: m['testing.lighting.products.title']({ count: productCount.toString() }),
+			description: m['testing.lighting.products.description'](),
 			buttons: [
 				{
-					text: $_('testing.lighting.products.button'),
+					text: m['testing.lighting.products.button'](),
 					color: 'blue',
 					onClick: () => console.log('Browse all lighting products')
 				}
@@ -106,16 +106,16 @@
 			color: 'blue'
 		},
 		{
-			title: $_('testing.lighting.brightness.title'),
-			description: $_('testing.lighting.brightness.description'),
+			title: m['testing.lighting.brightness.title'](),
+			description: m['testing.lighting.brightness.description'](),
 			buttons: [
 				{
-					text: $_('testing.lighting.brightness.buttons.cct_illuminance'),
+					text: m['testing.lighting.brightness.buttons.cct_illuminance'](),
 					color: 'green',
 					onClick: () => console.log('CCT vs Illuminance')
 				},
 				{
-					text: $_('testing.lighting.brightness.buttons.brightness_illuminance'),
+					text: m['testing.lighting.brightness.buttons.brightness_illuminance'](),
 					color: 'green',
 					onClick: () => console.log('Brightness vs Illuminance')
 				}
@@ -123,31 +123,31 @@
 			color: 'green'
 		},
 		{
-			title: $_('testing.lighting.white_light_quality.title'),
-			description: $_('testing.lighting.white_light_quality.description'),
+			title: m['testing.lighting.white_light_quality.title'](),
+			description: m['testing.lighting.white_light_quality.description'](),
 			buttons: [
 				{
-					text: $_('testing.lighting.white_light_quality.buttons.cct_vs_actual'),
+					text: m['testing.lighting.white_light_quality.buttons.cct_vs_actual'](),
 					color: 'orange',
 					onClick: () => console.log('CCT vs Actual CCT')
 				},
 				{
-					text: $_('testing.lighting.white_light_quality.buttons.cct_vs_duv'),
+					text: m['testing.lighting.white_light_quality.buttons.cct_vs_duv'](),
 					color: 'orange',
 					onClick: () => console.log('CCT vs D\'uv')
 				},
 				{
-					text: $_('testing.lighting.white_light_quality.buttons.brightness_vs_duv'),
+					text: m['testing.lighting.white_light_quality.buttons.brightness_vs_duv'](),
 					color: 'orange',
 					onClick: () => console.log('Brightness vs D\'uv')
 				},
 				{
-					text: $_('testing.lighting.white_light_quality.buttons.cct_vs_color_rendering'),
+					text: m['testing.lighting.white_light_quality.buttons.cct_vs_color_rendering'](),
 					color: 'orange',
 					onClick: () => console.log('CCT vs Color Rendering')
 				},
 				{
-					text: $_('testing.lighting.white_light_quality.buttons.spectrum'),
+					text: m['testing.lighting.white_light_quality.buttons.spectrum'](),
 					color: 'orange',
 					onClick: () => console.log('Spectrum')
 				}
@@ -155,11 +155,11 @@
 			color: 'orange'
 		},
 		{
-			title: $_('testing.lighting.color_light.title'),
-			description: $_('testing.lighting.color_light.description'),
+			title: m['testing.lighting.color_light.title'](),
+			description: m['testing.lighting.color_light.description'](),
 			buttons: [
 				{
-					text: $_('testing.lighting.color_light.button'),
+					text: m['testing.lighting.color_light.button'](),
 					color: 'purple',
 					onClick: () => console.log('RGB Pure Color vs Illuminance')
 				}
@@ -175,7 +175,7 @@
 </script>
 
 <svelte:head>
-	<title>{$_('testing.intro.title')}</title>
+	<title>{m['testing.intro.title']()}</title>
 </svelte:head>
 
 <div class="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200 pt-16">
@@ -188,10 +188,10 @@
 		<div class="w-4/5 mx-auto mb-12 lg:w-4/5 xl:w-4/5">
 			<div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
 				<h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4 text-center">
-					{$_('testing.intro.title')}
+					{m['testing.intro.title']()}
 				</h1>
 				<p class="text-lg text-gray-600 dark:text-gray-400 text-center leading-relaxed">
-					{$_('testing.intro.description')}
+					{m['testing.intro.description']()}
 				</p>
 			</div>
 		</div>
@@ -200,7 +200,7 @@
 		{#if isAdministrator}
 			<div class="mb-12">
 				<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
-					{$_('testing.administrator.title')}
+					{m['testing.administrator.title']()}
 				</h2>
 				
 				<!-- Admin Cards Grid Container -->
@@ -221,7 +221,7 @@
 		{#if hasLightPermission}
 			<div class="mb-12">
 				<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
-					{$_('testing.data_provider_lighting.title')}
+					{m['testing.data_provider_lighting.title']()}
 				</h2>
 				
 				<!-- Data Provider Lighting Cards Grid Container -->
@@ -241,7 +241,7 @@
 		<!-- Lighting Section -->
 		<div class="mb-12">
 			<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
-				{$_('testing.lighting.title')}
+				{m['testing.lighting.title']()}
 			</h2>
 			
 			<!-- Cards Grid Container -->
