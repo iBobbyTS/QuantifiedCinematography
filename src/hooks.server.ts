@@ -6,7 +6,7 @@
  */
 import { sequence } from '@sveltejs/kit/hooks';
 import * as auth from '$lib/server/auth';
-import type { Handle } from '@sveltejs/kit';
+import type { Handle, HandleError } from '@sveltejs/kit';
 import { paraglideMiddleware } from '$lib/paraglide/server';
 
 const handleParaglide: Handle = ({ event, resolve }) =>
@@ -41,3 +41,18 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 };
 
 export const handle: Handle = sequence(handleParaglide, handleAuth);
+
+export const handleError: HandleError = ({ error, event }) => {
+	console.error('💥 未处理的服务器错误:', {
+		message: error instanceof Error ? error.message : 'Unknown error',
+		stack: error instanceof Error ? error.stack : 'No stack trace',
+		url: event.url.toString(),
+		method: event.request.method,
+		timestamp: new Date().toISOString()
+	});
+	
+	return {
+		message: 'Internal server error',
+		code: 'INTERNAL_ERROR'
+	};
+};

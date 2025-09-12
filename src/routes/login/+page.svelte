@@ -58,21 +58,61 @@
 			<form
 				class="space-y-6"
 				method="POST"
+				action="?/login"
 				use:enhance={() => {
 					return async ({ result }) => {
 						isLoading = false;
-						if (result.type === 'error') {
-							const raw = (result as any)?.error?.message || '';
+						console.log('🔍 登录结果:', result);
+						
+						if (result.type === 'failure') {
+							// 处理失败响应
+							console.log('❌ 登录失败:', result.data);
+							let message = '';
+							
+							if (Array.isArray(result.data)) {
+								// 如果data是数组，取最后一个元素作为错误消息
+								message = result.data[result.data.length - 1] || 'Unknown error';
+							} else if (typeof result.data === 'object' && result.data.message) {
+								// 如果data是对象，取message字段
+								message = result.data.message;
+							} else if (typeof result.data === 'string') {
+								// 如果data是字符串
+								message = result.data;
+							} else {
+								message = 'Unknown error';
+							}
+							
+							console.log('📝 提取的错误消息:', message);
+							
 							// map known backend messages to i18n keys
+							if (message.includes('用户不存在') || message.toLowerCase().includes('user not found') || message.toLowerCase().includes('incorrect username')) {
+								errorMessage = m['auth.errors.userNotFound']();
+							} else if (message.includes('密码错误') || message.toLowerCase().includes('incorrect password')) {
+								errorMessage = m['auth.errors.wrongPassword']();
+							} else if (message.toLowerCase().includes('invalid username')) {
+								errorMessage = '用户名格式不正确（3-31个字符，只能包含字母、数字、下划线和连字符）';
+							} else if (message.toLowerCase().includes('invalid password')) {
+								errorMessage = '密码格式不正确（6-255个字符）';
+							} else if (message.toLowerCase().includes('internal server error')) {
+								errorMessage = `${m['app.networkError']()}: ${message}`;
+							} else {
+								errorMessage = message || m['app.networkError']();
+							}
+						} else if (result.type === 'error') {
+							// 处理错误响应（旧格式）
+							const raw = (result as any)?.error?.message || '';
+							console.log('❌ 登录错误:', raw);
+							
 							if (raw.includes('用户不存在') || raw.toLowerCase().includes('user not found')) {
 								errorMessage = m['auth.errors.userNotFound']();
 							} else if (raw.includes('密码错误') || raw.toLowerCase().includes('incorrect password')) {
 								errorMessage = m['auth.errors.wrongPassword']();
 							} else {
-								errorMessage = raw || m['app.networkError']();
+								errorMessage = raw ? `${m['app.networkError']()}: ${raw}` : m['app.networkError']();
 							}
 						} else if (result.type === 'redirect') {
 							// 登录成功后，先刷新所有数据，然后跳转
+							console.log('✅ 登录成功，重定向到:', (result as any).location);
 							await invalidateAll();
 							goto((result as any).location);
 						} else {

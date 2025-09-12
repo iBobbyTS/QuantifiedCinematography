@@ -40,25 +40,43 @@ export async function seedDatabase() {
 				productTypeId: 1 // 假设productTypes表从1开始
 			}).onConflictDoNothing();
 
-			// 4. 插入管理员用户
-			console.log('👤 插入管理员用户...');
+			// 4. 插入/更新管理员用户
+			console.log('👤 插入/更新管理员用户...');
 			await tx.insert(user).values({
 				username: 'admin',
 				nickname: 'Administrator',
 				email: 'admin@quantifiedcinematography.com',
-				passwordHash: '$2b$12$77uo6iqUdnZnIeUrwkYsluXEfv.9JpkEyjwG1OhpXK.acD2nCHSc2', // admin123
+				passwordHash: '$argon2id$v=19$m=19456,t=2,p=1$auTKt9uLj5eF73sTrfx5Dw$5lyPDmnNI9tl7Fw6Tk95JOGb8AQsIVojz0iLS2C9NNY', // admin123
 				permission: 2147483647 // 所有权限: bits 0-30 全部设为1 (0x7FFFFFFF)
-			}).onConflictDoNothing();
+			}).onConflictDoUpdate({
+				target: user.username,
+				set: {
+					passwordHash: '$argon2id$v=19$m=19456,t=2,p=1$auTKt9uLj5eF73sTrfx5Dw$5lyPDmnNI9tl7Fw6Tk95JOGb8AQsIVojz0iLS2C9NNY',
+					nickname: 'Administrator',
+					email: 'admin@quantifiedcinematography.com',
+					permission: 2147483647,
+					updatedAt: new Date()
+				}
+			});
 
-			// 5. 插入测试用户
-			console.log('🧪 插入测试用户...');
+			// 5. 插入/更新测试用户
+			console.log('🧪 插入/更新测试用户...');
 			await tx.insert(user).values({
 				username: 'test',
 				nickname: 'Test User',
 				email: 'test@quantifiedcinematography.com',
-				passwordHash: '$2b$12$mBsOvQmuNAH2aZOo2GZmQeZK4tXosMmSGaBnoYTYiBG7A2PJmM6Eu', // test123
+				passwordHash: '$argon2id$v=19$m=19456,t=2,p=1$GSgjABD5aPBEV7XY9optTw$+MEEA56eqlCWBlE1FiE+ragyVfPN0Zz1bejuhKrpezE', // test123
 				permission: 1 // 只有LIGHT权限
-			}).onConflictDoNothing();
+			}).onConflictDoUpdate({
+				target: user.username,
+				set: {
+					passwordHash: '$argon2id$v=19$m=19456,t=2,p=1$GSgjABD5aPBEV7XY9optTw$+MEEA56eqlCWBlE1FiE+ragyVfPN0Zz1bejuhKrpezE',
+					nickname: 'Test User',
+					email: 'test@quantifiedcinematography.com',
+					permission: 1,
+					updatedAt: new Date()
+				}
+			});
 
 			// 6. 重置序列以确保未来插入从1开始
 			console.log('🔄 重置序列...');
