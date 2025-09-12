@@ -1,3 +1,12 @@
+/**
+ * Vite 配置文件
+ * 
+ * 这个文件配置了 Vite 构建工具的各种设置，包括：
+ * - 插件配置（SvelteKit、TailwindCSS、国际化等）
+ * - 开发服务器配置（文件监听、轮询等）
+ * - 测试配置（Vitest 单元测试和浏览器测试）
+ */
+
 import { paraglideVitePlugin } from '@inlang/paraglide-js';
 import devtoolsJson from 'vite-plugin-devtools-json';
 import tailwindcss from '@tailwindcss/vite';

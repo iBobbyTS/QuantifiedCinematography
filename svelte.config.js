@@ -1,3 +1,12 @@
+/**
+ * SvelteKit 配置文件
+ * 
+ * 这个文件配置了 SvelteKit 框架的各种设置，包括：
+ * - 预处理器配置（Vite 预处理器）
+ * - 适配器配置（自动检测部署环境）
+ * - 构建和开发相关设置
+ */
+
 import adapter from '@sveltejs/adapter-auto';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 

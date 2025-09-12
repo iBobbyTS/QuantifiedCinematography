@@ -1,2 +1,7 @@
+/*
+ * 全局样式文件
+ * 导入 Tailwind CSS 和 Typography 插件
+ * 为整个应用提供基础样式和排版样式
+ */
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';

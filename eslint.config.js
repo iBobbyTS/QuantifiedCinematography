@@ -1,3 +1,13 @@
+/**
+ * ESLint 代码质量检查配置文件
+ * 
+ * 这个文件配置了 ESLint 代码检查工具，包括：
+ * - JavaScript/TypeScript 代码规范检查
+ * - Svelte 组件代码检查
+ * - Prettier 代码格式化集成
+ * - 自定义规则和忽略文件配置
+ */
+
 import prettier from 'eslint-config-prettier';
 import { includeIgnoreFile } from '@eslint/compat';
 import js from '@eslint/js';
