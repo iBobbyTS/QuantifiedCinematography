@@ -3,6 +3,7 @@
 	import Icon from '@iconify/svelte';
 	import * as m from '$lib/paraglide/messages.js';
 	import { page } from '$app/stores';
+	import { setLocale, getLocale } from '$lib/paraglide/runtime.js';
 	let currentUser: any = null;
 	$: currentUser = $page?.data?.user ?? null;
 	
@@ -21,7 +22,7 @@
 	// 语言选项
 	const languageOptions = [
 		{ code: 'en', name: 'English', flag: '🇺🇸' },
-		{ code: 'zh-CN', name: '中文', flag: '🇨🇳' }
+		{ code: 'zh-cn', name: '中文', flag: '🇨🇳' }
 	];
 	
 	// 主题选项
@@ -78,10 +79,20 @@
 	
 	// 切换语言
 	function changeLanguage(langCode: string) {
-		// 保存语言设置到localStorage
-		localStorage.setItem('locale', langCode);
-		// 重新加载页面以应用新语言
-		window.location.reload();
+		console.log('🌐 切换语言到:', langCode);
+		console.log('🌐 当前语言:', getLocale());
+		
+		try {
+			// 使用ParaglideJS的setLocale函数
+			setLocale(langCode, { reload: true });
+			console.log('🌐 语言切换成功');
+		} catch (error) {
+			console.error('🌐 语言切换失败:', error);
+			// 如果ParaglideJS失败，回退到手动设置
+			localStorage.setItem('locale', langCode);
+			document.cookie = `PARAGLIDE_LOCALE=${langCode}; path=/; max-age=34560000`;
+			window.location.reload();
+		}
 	}
 	
 	// 组件挂载时检查主题设置
@@ -89,11 +100,17 @@
 		try {
 		// 检查本地存储的主题设置
 		const savedTheme = localStorage.getItem('theme') || 'system';
-		const savedLocale = localStorage.getItem('locale') || 'en'; // 默认英语
 		
 		changeTheme(savedTheme);
-		// 设置当前语言
-		currentLanguage = savedLocale;
+		
+		// 获取当前语言
+		try {
+			currentLanguage = getLocale();
+			console.log('🌐 组件挂载时获取到语言:', currentLanguage);
+		} catch (error) {
+			console.error('🌐 获取语言失败:', error);
+			currentLanguage = 'en'; // 默认英语
+		}
 			
 			// 监听系统主题变化
 			const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
