@@ -167,7 +167,24 @@
 						<div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
 							<button
 								class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-								on:click={async () => { await fetch('/logout', { method: 'POST' }); location.reload(); }}
+								on:click={async () => {
+									try {
+										console.log('🚪 开始登出...');
+										const response = await fetch('/logout', { method: 'POST' });
+										if (response.ok) {
+											console.log('✅ 登出成功，重定向到首页');
+											window.location.href = '/';
+										} else {
+											console.error('❌ 登出失败:', response.status);
+											// 即使登出失败，也重定向到首页
+											window.location.href = '/';
+										}
+									} catch (error) {
+										console.error('💥 登出过程中发生错误:', error);
+										// 即使发生错误，也重定向到首页
+										window.location.href = '/';
+									}
+								}}
 							>
 								<Icon icon="mdi:logout" class="w-4 h-4 inline mr-2" /> {m['auth.logout']()}
 							</button>
