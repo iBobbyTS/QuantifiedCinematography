@@ -24,6 +24,25 @@
 			"wrongPassword": "密码错误"
 		}
 	},
+	"user": {
+		"account": {
+			"title": "账户设置",
+			"settings": "设置",
+			"changePassword": "修改密码",
+			"changePasswordDescription": "更新您的账户密码",
+			"publicInfo": "公开信息",
+			"publicInfoDescription": "管理您的公开个人资料信息",
+			"publicInfoComingSoon": "即将推出",
+			"currentPassword": "当前密码",
+			"currentPasswordPlaceholder": "请输入当前密码",
+			"newPassword": "新密码",
+			"newPasswordPlaceholder": "请输入新密码",
+			"confirmPassword": "确认新密码",
+			"confirmPasswordPlaceholder": "请再次输入新密码",
+			"changingPassword": "正在修改密码...",
+			"passwordChangedSuccess": "密码修改成功"
+		}
+	},
 	"login": {
 		"title": "登录",
 		"subtitle": "登录您的账户",

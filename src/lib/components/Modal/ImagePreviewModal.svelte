@@ -22,10 +22,10 @@ function handleDownload() {
     <div class="modal-box relative flex flex-col items-center max-w-3xl w-full pt-4 pb-4 px-4">
       <!-- Top right button, placed at the top right of the modal, not overlapping the image -->
       <div class="absolute right-4 top-4 flex gap-2 z-10">
-        <button type="button" class="btn btn-sm btn-ghost" title="Download" on:click={handleDownload}>
+        <button type="button" class="btn btn-sm btn-ghost" title="Download" onclick={handleDownload}>
           <Icon icon="mdi:download" class="text-xl" />
         </button>
-        <button type="button" class="btn btn-sm btn-ghost" title="Close" on:click={onClose}>
+        <button type="button" class="btn btn-sm btn-ghost" title="Close" onclick={onClose}>
           <Icon icon="mdi:close" class="text-xl" />
         </button>
       </div>
@@ -33,7 +33,7 @@ function handleDownload() {
       <img src={imageUrl} alt={fileName} class="max-h-[70vh] object-contain rounded mt-12" />
     </div>
     <form class="modal-backdrop">
-      <button type="button" tabindex="-1" aria-label="Close" on:click={onClose}></button>
+      <button type="button" tabindex="-1" aria-label="Close" onclick={onClose}></button>
     </form>
   </div>
 {/if} 

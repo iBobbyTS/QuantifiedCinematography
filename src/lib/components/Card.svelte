@@ -55,7 +55,7 @@
 		{#each buttons as button}
 			<button 
 				class="w-full border-2 font-medium py-3 rounded-lg transition-all duration-200 {currentColor.border} {currentColor.text} {currentColor.hover}"
-				on:click={button.onClick}
+				onclick={button.onClick}
 			>
 				{button.text}
 			</button>

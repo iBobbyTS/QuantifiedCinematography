@@ -24,6 +24,25 @@
 			"wrongPassword": "Incorrect password"
 		}
 	},
+	"user": {
+		"account": {
+			"title": "Account Settings",
+			"settings": "Settings",
+			"changePassword": "Change Password",
+			"changePasswordDescription": "Update your account password",
+			"publicInfo": "Public Information",
+			"publicInfoDescription": "Manage your public profile information",
+			"publicInfoComingSoon": "Coming Soon",
+			"currentPassword": "Current Password",
+			"currentPasswordPlaceholder": "Enter your current password",
+			"newPassword": "New Password",
+			"newPasswordPlaceholder": "Enter your new password",
+			"confirmPassword": "Confirm New Password",
+			"confirmPasswordPlaceholder": "Confirm your new password",
+			"changingPassword": "Changing Password...",
+			"passwordChangedSuccess": "Password changed successfully"
+		}
+	},
 	"permissions": {
 		"none": "None"
 	},

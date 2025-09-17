@@ -154,9 +154,9 @@ export function revalidate() {
     bind:value={inputValue}
     {placeholder}
     {disabled}
-    on:input={handleInput}
-    on:focus={() => { if (!disabled && (results.length || showAddButton)) showDropdown = true; }}
-    on:blur={() => setTimeout(() => showDropdown = false, 200)}
+    oninput={handleInput}
+    onfocus={() => { if (!disabled && (results.length || showAddButton)) showDropdown = true; }}
+    onblur={() => setTimeout(() => showDropdown = false, 200)}
   />
   {#if showDropdown && (results.length > 0 || showAddButton || !loading)}
     <ul class="absolute left-0 right-0 bg-base-100 shadow-lg rounded-b z-50 max-h-80 overflow-auto border border-base-200">
@@ -164,7 +164,7 @@ export function revalidate() {
         <button
           type="button"
           class="w-full text-left px-4 py-2 cursor-pointer hover:bg-base-200"
-          on:click={() => handleSelect(item)}
+          onclick={() => handleSelect(item)}
         >
           <div class="font-bold text-base">{item.title}</div>
           <div class="flex text-xs text-gray-500 mt-1">
@@ -177,7 +177,7 @@ export function revalidate() {
         <button
           type="button"
           class="flex items-center w-full text-left px-4 py-2 cursor-pointer hover:bg-base-200 text-primary font-bold border-t border-base-200"
-          on:click={handleAddClick}
+          onclick={handleAddClick}
         >
           {#if addButtonIcon !== ""}
             <Icon icon={addButtonIcon} class="text-xl"/>

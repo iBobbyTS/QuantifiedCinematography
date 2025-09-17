@@ -163,7 +163,7 @@
 					<div class="relative">
 						<button
 							class="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
-							on:click={() => document.getElementById('userDropdown')?.classList.toggle('hidden')}
+							onclick={() => document.getElementById('userDropdown')?.classList.toggle('hidden')}
 						>
 							<Icon icon="mdi:account" class="w-5 h-5" />
 							<span class="hidden sm:inline">{currentUser.nickname}</span>
@@ -172,10 +172,10 @@
 						<div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
 							<button
 								class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-								on:click={async () => {
+								onclick={async () => {
 									try {
 										console.log('🚪 开始登出...');
-										const response = await fetch('/logout', { method: 'POST' });
+										const response = await fetch('/user/logout', { method: 'POST' });
 										if (response.ok) {
 											console.log('✅ 登出成功，重定向到首页');
 											window.location.href = '/';
@@ -193,15 +193,15 @@
 							>
 								<Icon icon="mdi:logout" class="w-4 h-4 inline mr-2" /> {m['auth.logout']()}
 							</button>
-							<a href="/user/change-password" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-								<Icon icon="mdi:key-variant" class="w-4 h-4 inline mr-2" /> {m['auth.changePassword']()}
+							<a href="/user/account" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+								<Icon icon="mdi:account-cog" class="w-4 h-4 inline mr-2" /> {m['user.account.title']()}
 							</a>
 						</div>
 					</div>
 					{:else if !hideLoginButton}
 					<!-- Login Button -->
 					<a
-						href="/login"
+						href="/user/login"
 						class="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-lg transition-colors duration-200"
 					>
 						<Icon icon="mdi:login" class="w-4 h-4" />
@@ -213,7 +213,7 @@
 				<div class="relative">
 					<button
 						class="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
-						on:click={() => document.getElementById('languageDropdown')?.classList.toggle('hidden')}
+						onclick={() => document.getElementById('languageDropdown')?.classList.toggle('hidden')}
 					>
 						<Icon icon="mdi:translate" class="w-5 h-5" />
 						<span class="hidden sm:inline">
@@ -230,7 +230,7 @@
 						{#each languageOptions as lang}
 							<button
 								class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2 transition-colors duration-200"
-								on:click={() => {
+								onclick={() => {
 									changeLanguage(lang.code);
 									document.getElementById('languageDropdown')?.classList.add('hidden');
 								}}
@@ -246,7 +246,7 @@
 				<div class="relative">
 					<button
 						class="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
-						on:click={() => document.getElementById('themeDropdown')?.classList.toggle('hidden')}
+						onclick={() => document.getElementById('themeDropdown')?.classList.toggle('hidden')}
 					>
 						<Icon icon={getCurrentThemeIcon()} class="w-5 h-5" />
 						<span class="hidden sm:inline">
@@ -263,7 +263,7 @@
 						{#each themeOptionsLocalized as theme}
 							<button
 								class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2 transition-colors duration-200"
-								on:click={() => {
+								onclick={() => {
 									changeTheme(theme.code);
 									document.getElementById('themeDropdown')?.classList.add('hidden');
 								}}
