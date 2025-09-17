@@ -195,8 +195,8 @@
 </svelte:head>
 
 <div class="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200 pt-16">
-	<!-- Navbar -->
-	<Navbar centerTitle={navbarCenterTitle} />
+		<!-- Navbar -->
+		<Navbar centerTitle={navbarCenterTitle} centerTitleSize="3xl" />
 	
 	<!-- Main Content -->
 	<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

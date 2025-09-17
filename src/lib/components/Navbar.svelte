@@ -9,6 +9,7 @@
 	
 	// Props
 	export let centerTitle: string = ''; // 本地化key，用于中间title
+	export let centerTitleSize: string = '2xl'; // 中间标题字体大小 (text-2xl, text-3xl, text-4xl等)
 	export let showBackButton: boolean = false; // 是否显示返回按钮
 	export let backButtonUrl: string = '/'; // 返回按钮的URL
 	export let backButtonText: string = 'navbar.backToHome'; // 返回按钮的文本key
@@ -147,7 +148,7 @@
 			<!-- 中间列始终占位，只有内容有无之分，避免右侧按钮漂移 -->
 			<div class="flex justify-center items-center">
 				{#if centerTitle}
-					<h1 class="text-3xl font-semibold text-gray-900 dark:text-gray-100 text-center">
+					<h1 class="text-{centerTitleSize} font-semibold text-gray-900 dark:text-gray-100 text-center">
 						{m[centerTitle]()}
 					</h1>
 				{:else}
