@@ -1,9 +1,10 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { db } from '$lib/server/db/index.js';
-import { users } from '$lib/server/db/schema.js';
+import { user } from '$lib/server/db/schema.js';
 import { UserPermissions, USER_PERMISSIONS } from '$lib/permission/bitmask.js';
-import { hashPassword, generatePassword } from '$lib/server/auth.js';
+import { hashPassword } from '$lib/password.js';
+import { generatePassword } from '$lib/password.js';
 import { eq } from 'drizzle-orm';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
@@ -30,7 +31,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		}
 
 		// 检查用户名是否已存在
-		const existingUser = await db.select().from(users).where(eq(users.username, username));
+		const existingUser = await db.select().from(user).where(eq(user.username, username));
 		if (existingUser.length > 0) {
 			throw error(400, { message: 'Username already exists' });
 		}
@@ -46,7 +47,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		const email = `${username}@quantifiedcinematography.com`;
 
 		// 创建新用户
-		await db.insert(users).values({
+		await db.insert(user).values({
 			username,
 			nickname,
 			email,

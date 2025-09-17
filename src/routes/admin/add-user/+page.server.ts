@@ -1,16 +1,16 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db/index.js';
-import { users } from '$lib/server/db/schema.js';
+import { user } from '$lib/server/db/schema.js';
 import { UserPermissions, USER_PERMISSIONS } from '$lib/permission/bitmask.js';
-import { hashPassword } from '$lib/server/auth.js';
+import { hashPassword } from '$lib/password.js';
 import { eq } from 'drizzle-orm';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	// 检查用户是否登录
-	if (!locals.user) {
-		throw redirect(302, '/login');
-	}
+		// 检查用户是否登录
+		if (!locals.user) {
+			throw redirect(302, '/user/login');
+		}
 
 	// 检查用户是否为管理员
 	if (!UserPermissions.hasPermission(locals.user.permission, USER_PERMISSIONS.ADMINISTRATOR)) {
@@ -24,7 +24,7 @@ export const actions: Actions = {
 	default: async ({ request, locals }) => {
 		// 检查用户是否登录
 		if (!locals.user) {
-			throw redirect(302, '/login');
+			throw redirect(302, '/user/login');
 		}
 
 		// 检查用户是否为管理员
@@ -54,13 +54,13 @@ export const actions: Actions = {
 
 		try {
 			// 检查用户名是否已存在
-			const existingUser = await db.select().from(users).where(eq(users.username, username));
+			const existingUser = await db.select().from(user).where(eq(user.username, username));
 			if (existingUser.length > 0) {
 				throw error(400, { message: 'Username already exists' });
 			}
 
 			// 检查邮箱是否已存在
-			const existingEmail = await db.select().from(users).where(eq(users.email, email));
+			const existingEmail = await db.select().from(user).where(eq(user.email, email));
 			if (existingEmail.length > 0) {
 				throw error(400, { message: 'Email already exists' });
 			}
@@ -69,7 +69,7 @@ export const actions: Actions = {
 			const passwordHash = await hashPassword(password);
 
 			// 创建新用户
-			await db.insert(users).values({
+			await db.insert(user).values({
 				username,
 				nickname,
 				email,

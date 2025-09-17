@@ -1,7 +1,7 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { db } from '$lib/server/db/index.js';
-import { users } from '$lib/server/db/schema.js';
+import { user } from '$lib/server/db/schema.js';
 import { UserPermissions, USER_PERMISSIONS } from '$lib/permission/bitmask.js';
 import { eq } from 'drizzle-orm';
 
@@ -25,18 +25,18 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		}
 
 		// 检查用户是否存在
-		const existingUser = await db.select().from(users).where(eq(users.id, userId));
+		const existingUser = await db.select().from(user).where(eq(user.id, userId));
 		if (existingUser.length === 0) {
 			throw error(404, { message: 'User not found' });
 		}
 
 		// 更新用户权限
-		await db.update(users)
+		await db.update(user)
 			.set({ 
 				permission: permissions,
 				updatedAt: new Date()
 			})
-			.where(eq(users.id, userId));
+			.where(eq(user.id, userId));
 
 		return json({ 
 			success: true, 

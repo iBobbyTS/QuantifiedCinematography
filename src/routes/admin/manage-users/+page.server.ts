@@ -1,13 +1,13 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { db } from '$lib/server/db/index.js';
-import { users } from '$lib/server/db/schema.js';
+import { user } from '$lib/server/db/schema.js';
 import { UserPermissions, USER_PERMISSIONS } from '$lib/permission/bitmask.js';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	// 检查用户是否登录
 	if (!locals.user) {
-		throw redirect(302, '/login');
+		throw redirect(302, '/user/login');
 	}
 
 	// 检查用户是否为管理员
@@ -18,14 +18,14 @@ export const load: PageServerLoad = async ({ locals }) => {
 	try {
 		// 获取所有用户（除了当前用户）
 		const allUsers = await db.select({
-			id: users.id,
-			username: users.username,
-			nickname: users.nickname,
-			email: users.email,
-			permission: users.permission,
-			createdAt: users.createdAt,
-			updatedAt: users.updatedAt
-		}).from(users).orderBy(users.createdAt);
+			id: user.id,
+			username: user.username,
+			nickname: user.nickname,
+			email: user.email,
+			permission: user.permission,
+			createdAt: user.createdAt,
+			updatedAt: user.updatedAt
+		}).from(user).orderBy(user.createdAt);
 
 		return {
 			users: allUsers

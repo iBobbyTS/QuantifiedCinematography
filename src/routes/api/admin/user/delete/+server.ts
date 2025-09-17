@@ -1,7 +1,8 @@
 import { json, error } from '@sveltejs/kit';
-import { db } from '$lib/db/config.js';
-import { users } from '$lib/db/schema.js';
+import { db } from '$lib/server/db/index.js';
+import { user } from '$lib/server/db/schema.js';
 import { eq } from 'drizzle-orm';
+import { UserPermissions, USER_PERMISSIONS } from '$lib/permission/bitmask.js';
 import type { RequestHandler } from './$types';
 
 export const DELETE: RequestHandler = async ({ request, locals }) => {
@@ -11,7 +12,7 @@ export const DELETE: RequestHandler = async ({ request, locals }) => {
 	}
 
 	// Check if user has administrator permission
-	if (!locals.user.permission || (locals.user.permission & 8) === 0) {
+	if (!UserPermissions.hasPermission(locals.user.permission, USER_PERMISSIONS.ADMINISTRATOR)) {
 		throw error(403, { message: 'Insufficient permissions' });
 	}
 
@@ -28,14 +29,14 @@ export const DELETE: RequestHandler = async ({ request, locals }) => {
 		}
 
 		// Check if user exists
-		const existingUser = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+		const existingUser = await db.select().from(user).where(eq(user.id, userId)).limit(1);
 		
 		if (existingUser.length === 0) {
 			throw error(404, { message: 'User not found' });
 		}
 
 		// Delete the user
-		await db.delete(users).where(eq(users.id, userId));
+		await db.delete(user).where(eq(user.id, userId));
 
 		return json({
 			message: 'User deleted successfully',
