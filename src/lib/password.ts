@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import { hash, verify } from '@node-rs/argon2';
 
 /**
  * 加密密码
@@ -6,18 +6,27 @@ import bcrypt from 'bcrypt';
  * @returns 加密后的密码哈希
  */
 export async function hashPassword(password: string): Promise<string> {
-	const saltRounds = 12;
-	return await bcrypt.hash(password, saltRounds);
+	return await hash(password, {
+		memoryCost: 19456,
+		timeCost: 2,
+		outputLen: 32,
+		parallelism: 1
+	});
 }
 
 /**
  * 验证密码
+ * @param passwordHash 加密后的密码哈希
  * @param password 明文密码
- * @param hash 加密后的密码哈希
  * @returns 是否匹配
  */
-export async function verifyPassword(password: string, hash: string): Promise<boolean> {
-	return await bcrypt.compare(password, hash);
+export async function verifyPassword(passwordHash: string, password: string): Promise<boolean> {
+	return await verify(passwordHash, password, {
+		memoryCost: 19456,
+		timeCost: 2,
+		outputLen: 32,
+		parallelism: 1
+	});
 }
 
 /**

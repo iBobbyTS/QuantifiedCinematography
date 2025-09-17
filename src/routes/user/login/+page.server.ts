@@ -4,7 +4,7 @@ import { db } from '$lib/server/db/index.js';
 import { user } from '$lib/server/db/schema.js';
 import { eq } from 'drizzle-orm';
 import * as auth from '$lib/server/auth.js';
-import { verify } from '@node-rs/argon2';
+import { verifyPassword } from '$lib/password.js';
 
 export const load: ServerLoad = async ({ locals }) => {
 	// 如果用户已经登录，重定向到首页
@@ -48,12 +48,7 @@ export const actions: Actions = {
 			}
 
 			console.log('🔐 验证密码...');
-			const validPassword = await verify(existingUser.passwordHash, password, {
-				memoryCost: 19456,
-				timeCost: 2,
-				outputLen: 32,
-				parallelism: 1
-			});
+			const validPassword = await verifyPassword(existingUser.passwordHash, password);
 			
 			if (!validPassword) {
 				console.log('❌ 密码验证失败');

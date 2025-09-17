@@ -2,6 +2,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { user, brands, productTypes, productSeries } from './schema.js';
 import { sql } from 'drizzle-orm';
+import { hashPassword } from '$lib/password.js';
 
 // 直接使用环境变量，不依赖SvelteKit
 const DATABASE_URL = process.env.DATABASE_URL;
@@ -18,6 +19,11 @@ export async function seedDatabase() {
 	console.log('🌱 开始初始化数据库种子数据...');
 
 	try {
+		// 生成密码哈希
+		console.log('🔐 生成密码哈希...');
+		const adminPasswordHash = await hashPassword('admin123');
+		const testPasswordHash = await hashPassword('test123');
+
 		// 使用事务确保数据一致性
 		await db.transaction(async (tx) => {
 			// 1. 插入基础产品类型
@@ -46,12 +52,12 @@ export async function seedDatabase() {
 				username: 'admin',
 				nickname: 'Administrator',
 				email: 'admin@quantifiedcinematography.com',
-				passwordHash: '$argon2id$v=19$m=19456,t=2,p=1$auTKt9uLj5eF73sTrfx5Dw$5lyPDmnNI9tl7Fw6Tk95JOGb8AQsIVojz0iLS2C9NNY', // admin123
+				passwordHash: adminPasswordHash,
 				permission: 2147483647 // 所有权限: bits 0-30 全部设为1 (0x7FFFFFFF)
 			}).onConflictDoUpdate({
 				target: user.username,
 				set: {
-					passwordHash: '$argon2id$v=19$m=19456,t=2,p=1$auTKt9uLj5eF73sTrfx5Dw$5lyPDmnNI9tl7Fw6Tk95JOGb8AQsIVojz0iLS2C9NNY',
+					passwordHash: adminPasswordHash,
 					nickname: 'Administrator',
 					email: 'admin@quantifiedcinematography.com',
 					permission: 2147483647,
@@ -65,12 +71,12 @@ export async function seedDatabase() {
 				username: 'test',
 				nickname: 'Test User',
 				email: 'test@quantifiedcinematography.com',
-				passwordHash: '$argon2id$v=19$m=19456,t=2,p=1$GSgjABD5aPBEV7XY9optTw$+MEEA56eqlCWBlE1FiE+ragyVfPN0Zz1bejuhKrpezE', // test123
+				passwordHash: testPasswordHash,
 				permission: 1 // 只有LIGHT权限
 			}).onConflictDoUpdate({
 				target: user.username,
 				set: {
-					passwordHash: '$argon2id$v=19$m=19456,t=2,p=1$GSgjABD5aPBEV7XY9optTw$+MEEA56eqlCWBlE1FiE+ragyVfPN0Zz1bejuhKrpezE',
+					passwordHash: testPasswordHash,
 					nickname: 'Test User',
 					email: 'test@quantifiedcinematography.com',
 					permission: 1,

@@ -1,8 +1,8 @@
-import { hash, verify } from '@node-rs/argon2';
 import { fail, redirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
+import { hashPassword, verifyPassword } from '$lib/password.js';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -61,24 +61,14 @@ export const actions: Actions = {
 			}
 
 			// 验证当前密码
-			const validCurrentPassword = await verify(user.passwordHash, currentPassword, {
-				memoryCost: 19456,
-				timeCost: 2,
-				outputLen: 32,
-				parallelism: 1
-			});
+			const validCurrentPassword = await verifyPassword(user.passwordHash, currentPassword);
 
 			if (!validCurrentPassword) {
 				return fail(400, { message: 'Current password is incorrect' });
 			}
 
 			// 生成新密码哈希
-			const newPasswordHash = await hash(newPassword, {
-				memoryCost: 19456,
-				timeCost: 2,
-				outputLen: 32,
-				parallelism: 1
-			});
+			const newPasswordHash = await hashPassword(newPassword);
 
 			// 更新密码
 			await db
