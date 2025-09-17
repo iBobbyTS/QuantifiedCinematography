@@ -184,7 +184,7 @@
 
 	// 禁用用户
 	function disableUser(userId: string) {
-		if (confirm(m['testing.administrator.manage_users.confirmations.disable_user']())) {
+		if (confirm(m['administrator.manage_users.confirmations.disable_user']())) {
 			// TODO: 实现禁用用户逻辑
 		}
 	}
@@ -389,7 +389,7 @@
 					</button>
 				</div>
 				<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-					{m[PERMISSION_I18N_KEYS.modal.userInfo]().replace('{nickname}', selectedUser.nickname).replace('{username}', selectedUser.username)}
+					{m[PERMISSION_I18N_KEYS.modal.userInfo]({ nickname: selectedUser.nickname, username: selectedUser.username })}
 				</p>
 			</div>
 
@@ -462,7 +462,7 @@
 <ConfirmModal
 	bind:isOpen={showDeleteConfirm}
 	title={m['administrator.manage_users.confirmations.delete_user_title']()}
-	message={userToDelete ? m['administrator.manage_users.confirmations.delete_user_message']().replace('{username}', userToDelete.username).replace('{nickname}', userToDelete.nickname) : ''}
+	message={userToDelete ? m['administrator.manage_users.confirmations.delete_user_message']({ username: userToDelete.username, nickname: userToDelete.nickname }) : ''}
 	confirmText={m['administrator.manage_users.confirmations.delete_confirm']()}
 	cancelText={m['administrator.manage_users.confirmations.delete_cancel']()}
 	confirmButtonColor="bg-red-600 hover:bg-red-700"

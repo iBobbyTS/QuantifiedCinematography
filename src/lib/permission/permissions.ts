@@ -8,7 +8,7 @@ export interface PermissionOption {
 }
 
 // 权限选项列表
-export const PERMISSION_OPTIONS: PermissionOption[] = [
+export const PERMISSION_OPTIONS = [
 	{
 		permission: USER_PERMISSIONS.LIGHT,
 		labelKey: 'administrator.manage_users.permission_modal.permission_options.light.label',
@@ -29,7 +29,7 @@ export const PERMISSION_OPTIONS: PermissionOption[] = [
 		labelKey: 'administrator.manage_users.permission_modal.permission_options.administrator.label',
 		descriptionKey: 'administrator.manage_users.permission_modal.permission_options.administrator.description'
 	}
-];
+] as const;
 
 // 权限相关的本地化键
 export const PERMISSION_I18N_KEYS = {
