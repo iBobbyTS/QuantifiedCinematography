@@ -6,6 +6,10 @@
 	import Navbar from '../lib/components/Navbar.svelte';
 	import Card from '../lib/components/Card.svelte';
 	import { UserPermissions, USER_PERMISSIONS } from '../lib/permission/bitmask.js';
+
+	// 根据 intro 标题是否可见，动态设置 Navbar 标题
+	let isIntroTitleVisible = true;
+	$: navbarCenterTitle = isIntroTitleVisible ? '' : 'app.title';
 	
 	// 产品数量状态
 	let productCount = 0;
@@ -171,6 +175,18 @@
 	// 组件挂载时加载产品数量
 	onMount(() => {
 		loadProductCount();
+
+		// 观察 intro 标题可见性
+		const el = document.getElementById('introTitle');
+		if (!el) return;
+		const observer = new IntersectionObserver(
+			(entries) => {
+				isIntroTitleVisible = entries[0]?.isIntersecting ?? true;
+			},
+			{ root: null, threshold: 0.01 }
+		);
+		observer.observe(el);
+		return () => observer.disconnect();
 	});
 </script>
 
@@ -180,14 +196,14 @@
 
 <div class="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200 pt-16">
 	<!-- Navbar -->
-	<Navbar centerTitle="app.title" />
+	<Navbar centerTitle={navbarCenterTitle} />
 	
 	<!-- Main Content -->
 	<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 		<!-- Introduction Card -->
 		<div class="w-4/5 mx-auto mb-12 lg:w-4/5 xl:w-4/5">
 			<div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
-				<h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4 text-center">
+				<h1 id="introTitle" class="text-3xl font-bold text-gray-900 dark:text-white mb-4 text-center">
 					{m['intro.title']()}
 				</h1>
 				<p class="text-lg text-gray-600 dark:text-gray-400 text-center leading-relaxed">

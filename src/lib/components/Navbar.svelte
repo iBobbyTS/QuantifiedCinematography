@@ -144,13 +144,17 @@
 			</div>
 			
 			<!-- Center - Dynamic Title (always centered) -->
-			{#if centerTitle}
-				<div class="flex justify-center items-center">
-					<h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 text-center">
+			<!-- 中间列始终占位，只有内容有无之分，避免右侧按钮漂移 -->
+			<div class="flex justify-center items-center">
+				{#if centerTitle}
+					<h1 class="text-3xl font-semibold text-gray-900 dark:text-gray-100 text-center">
 						{m[centerTitle]()}
 					</h1>
-				</div>
-			{/if}
+				{:else}
+					<!-- 占位元素，保持三列布局不变 -->
+					<span aria-hidden="true"></span>
+				{/if}
+			</div>
 			
 			<!-- Right align - Language and Theme controls -->
 			<div class="flex items-center justify-end space-x-4">
