@@ -12,6 +12,7 @@
 	export let showBackButton: boolean = false; // 是否显示返回按钮
 	export let backButtonUrl: string = '/'; // 返回按钮的URL
 	export let backButtonText: string = 'navbar.backToHome'; // 返回按钮的文本key
+	export let hideLoginButton: boolean = false; // 是否隐藏未登录时的登录按钮
 	
 	// 主题模式状态
 	let currentTheme = 'system'; // 'light', 'dark', 'system'
@@ -153,7 +154,7 @@
 			
 			<!-- Right align - Language and Theme controls -->
 			<div class="flex items-center justify-end space-x-4">
-				{#if currentUser}
+					{#if currentUser}
 					<!-- User Menu -->
 					<div class="relative">
 						<button
@@ -193,7 +194,7 @@
 							</a>
 						</div>
 					</div>
-				{:else}
+					{:else if !hideLoginButton}
 					<!-- Login Button -->
 					<a
 						href="/login"

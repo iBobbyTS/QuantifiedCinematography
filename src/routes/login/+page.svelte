@@ -4,6 +4,7 @@
 	import { invalidateAll } from '$app/navigation';
 	import Icon from '@iconify/svelte';
 	import * as m from '$lib/paraglide/messages.js';
+	import Navbar from '$lib/components/Navbar.svelte';
 	
 	// 表单状态
 	let username = '';
@@ -20,6 +21,14 @@
 		return errorMessage || '';
 	}
 </script>
+
+<Navbar
+	centerTitle="login.title"
+	showBackButton={true}
+	backButtonUrl="/"
+	backButtonText="navbar.backToHome"
+	hideLoginButton={true}
+/>
 
 <svelte:head>
 	<title>{m['login.title']()}</title>
