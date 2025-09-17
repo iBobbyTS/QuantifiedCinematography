@@ -35,11 +35,11 @@
 	// 管理员卡片配置数据
 	$: adminCards = [
 		{
-			title: m['testing.administrator.user_management.title'](),
-			description: m['testing.administrator.user_management.description'](),
+			title: m['administrator.user_management.title'](),
+			description: m['administrator.user_management.description'](),
 			buttons: [
 				{
-					text: m['testing.administrator.user_management.button'](),
+				text: m['administrator.user_management.button'](),
 					color: 'red',
 					onClick: () => goto('/admin/manage-users')
 				}
@@ -51,21 +51,21 @@
 	// 数据提供方灯光卡片配置数据
 	$: dataProviderLightingCards = [
 		{
-			title: m['testing.data_provider_lighting.recorded_lighting_products.title']({ count: productCount.toString() }),
-			description: m['testing.data_provider_lighting.recorded_lighting_products.description'](),
+			title: m['data_provider_lighting.recorded_lighting_products.title']({ count: productCount.toString() }),
+			description: m['data_provider_lighting.recorded_lighting_products.description'](),
 			buttons: [
 				{
-					text: m['testing.data_provider_lighting.recorded_lighting_products.button'](),
+				text: m['data_provider_lighting.recorded_lighting_products.button'](),
 					color: 'blue',
 					onClick: () => console.log('Manage Lighting Products')
 				},
 				{
-					text: m['testing.data_provider_lighting.lighting_accessories.button'](),
+				text: m['data_provider_lighting.lighting_accessories.button'](),
 					color: 'blue',
 					onClick: () => console.log('Manage Lighting Accessories')
 				},
 				{
-					text: m['testing.data_provider_lighting.spectrometer.button'](),
+				text: m['data_provider_lighting.spectrometer.button'](),
 					color: 'blue',
 					onClick: () => console.log('Manage Spectrometer')
 				}
@@ -73,16 +73,16 @@
 			color: 'blue'
 		},
 		{
-			title: m['testing.data_provider_lighting.data_upload.title'](),
-			description: m['testing.data_provider_lighting.data_upload.description'](),
+			title: m['data_provider_lighting.data_upload.title'](),
+			description: m['data_provider_lighting.data_upload.description'](),
 			buttons: [
 				{
-					text: m['testing.data_provider_lighting.data_upload.white_light_test'](),
+				text: m['data_provider_lighting.data_upload.white_light_test'](),
 					color: 'blue',
 					onClick: () => console.log('White Light Test Data')
 				},
 				{
-					text: m['testing.data_provider_lighting.data_upload.color_light_test'](),
+				text: m['data_provider_lighting.data_upload.color_light_test'](),
 					color: 'blue',
 					onClick: () => console.log('Color Light Test Data')
 				}
@@ -94,11 +94,11 @@
 	// 卡片配置数据
 	$: cards = [
 		{
-			title: m['testing.lighting.products.title']({ count: productCount.toString() }),
-			description: m['testing.lighting.products.description'](),
+			title: m['lighting.products.title']({ count: productCount.toString() }),
+			description: m['lighting.products.description'](),
 			buttons: [
 				{
-					text: m['testing.lighting.products.button'](),
+				text: m['lighting.products.button'](),
 					color: 'blue',
 					onClick: () => console.log('Browse all lighting products')
 				}
@@ -106,16 +106,16 @@
 			color: 'blue'
 		},
 		{
-			title: m['testing.lighting.brightness.title'](),
-			description: m['testing.lighting.brightness.description'](),
+			title: m['lighting.brightness.title'](),
+			description: m['lighting.brightness.description'](),
 			buttons: [
 				{
-					text: m['testing.lighting.brightness.buttons.cct_illuminance'](),
+				text: m['lighting.brightness.buttons.cct_illuminance'](),
 					color: 'green',
 					onClick: () => console.log('CCT vs Illuminance')
 				},
 				{
-					text: m['testing.lighting.brightness.buttons.brightness_illuminance'](),
+				text: m['lighting.brightness.buttons.brightness_illuminance'](),
 					color: 'green',
 					onClick: () => console.log('Brightness vs Illuminance')
 				}
@@ -123,31 +123,31 @@
 			color: 'green'
 		},
 		{
-			title: m['testing.lighting.white_light_quality.title'](),
-			description: m['testing.lighting.white_light_quality.description'](),
+			title: m['lighting.white_light_quality.title'](),
+			description: m['lighting.white_light_quality.description'](),
 			buttons: [
 				{
-					text: m['testing.lighting.white_light_quality.buttons.cct_vs_actual'](),
+				text: m['lighting.white_light_quality.buttons.cct_vs_actual'](),
 					color: 'orange',
 					onClick: () => console.log('CCT vs Actual CCT')
 				},
 				{
-					text: m['testing.lighting.white_light_quality.buttons.cct_vs_duv'](),
+				text: m['lighting.white_light_quality.buttons.cct_vs_duv'](),
 					color: 'orange',
 					onClick: () => console.log('CCT vs D\'uv')
 				},
 				{
-					text: m['testing.lighting.white_light_quality.buttons.brightness_vs_duv'](),
+				text: m['lighting.white_light_quality.buttons.brightness_vs_duv'](),
 					color: 'orange',
 					onClick: () => console.log('Brightness vs D\'uv')
 				},
 				{
-					text: m['testing.lighting.white_light_quality.buttons.cct_vs_color_rendering'](),
+				text: m['lighting.white_light_quality.buttons.cct_vs_color_rendering'](),
 					color: 'orange',
 					onClick: () => console.log('CCT vs Color Rendering')
 				},
 				{
-					text: m['testing.lighting.white_light_quality.buttons.spectrum'](),
+				text: m['lighting.white_light_quality.buttons.spectrum'](),
 					color: 'orange',
 					onClick: () => console.log('Spectrum')
 				}
@@ -155,11 +155,11 @@
 			color: 'orange'
 		},
 		{
-			title: m['testing.lighting.color_light.title'](),
-			description: m['testing.lighting.color_light.description'](),
+			title: m['lighting.color_light.title'](),
+			description: m['lighting.color_light.description'](),
 			buttons: [
 				{
-					text: m['testing.lighting.color_light.button'](),
+				text: m['lighting.color_light.button'](),
 					color: 'purple',
 					onClick: () => console.log('RGB Pure Color vs Illuminance')
 				}
@@ -175,7 +175,7 @@
 </script>
 
 <svelte:head>
-	<title>{m['testing.intro.title']()}</title>
+	<title>{m['intro.title']()}</title>
 </svelte:head>
 
 <div class="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200 pt-16">
@@ -188,10 +188,10 @@
 		<div class="w-4/5 mx-auto mb-12 lg:w-4/5 xl:w-4/5">
 			<div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
 				<h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4 text-center">
-					{m['testing.intro.title']()}
+					{m['intro.title']()}
 				</h1>
 				<p class="text-lg text-gray-600 dark:text-gray-400 text-center leading-relaxed">
-					{m['testing.intro.description']()}
+					{m['intro.description']()}
 				</p>
 			</div>
 		</div>
@@ -200,7 +200,7 @@
 		{#if isAdministrator}
 			<div class="mb-12">
 				<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
-					{m['testing.administrator.title']()}
+					{m['administrator.title']()}
 				</h2>
 				
 				<!-- Admin Cards Grid Container -->
@@ -221,7 +221,7 @@
 		{#if hasLightPermission}
 			<div class="mb-12">
 				<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
-					{m['testing.data_provider_lighting.title']()}
+					{m['data_provider_lighting.title']()}
 				</h2>
 				
 				<!-- Data Provider Lighting Cards Grid Container -->
@@ -241,7 +241,7 @@
 		<!-- Lighting Section -->
 		<div class="mb-12">
 			<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
-				{m['testing.lighting.title']()}
+				{m['lighting.title']()}
 			</h2>
 			
 			<!-- Cards Grid Container -->

@@ -239,7 +239,7 @@
 </script>
 
 <svelte:head>
-	<title>{m['testing.administrator.manage_users.title']()} - {m['app.title']()}</title>
+	<title>{m['administrator.manage_users.title']()} - {m['app.title']()}</title>
 </svelte:head>
 
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">
@@ -252,10 +252,10 @@
 			<div class="flex items-center justify-between">
 				<div>
 					<h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-						{m['testing.administrator.manage_users.title']()}
+						{m['administrator.manage_users.title']()}
 					</h1>
 					<p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-						{m['testing.administrator.manage_users.subtitle']()}
+						{m['administrator.manage_users.subtitle']()}
 					</p>
 				</div>
 				<button
@@ -263,7 +263,7 @@
 					class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
 				>
 					<Icon icon="mdi:plus" class="w-4 h-4 mr-2" />
-					{m['testing.administrator.manage_users.add_user']()}
+					{m['administrator.manage_users.add_user']()}
 				</button>
 			</div>
 		</div>
@@ -276,19 +276,19 @@
 						<thead class="bg-gray-50 dark:bg-gray-700">
 							<tr>
 								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-									{m['testing.administrator.manage_users.table.username']()}
+									{m['administrator.manage_users.table.username']()}
 								</th>
 								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-									{m['testing.administrator.manage_users.table.nickname']()}
+									{m['administrator.manage_users.table.nickname']()}
 								</th>
 								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-									{m['testing.administrator.manage_users.table.email']()}
+									{m['administrator.manage_users.table.email']()}
 								</th>
 								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-									{m['testing.administrator.manage_users.table.permissions']()}
+									{m['administrator.manage_users.table.permissions']()}
 								</th>
 								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-									{m['testing.administrator.manage_users.table.actions']()}
+									{m['administrator.manage_users.table.actions']()}
 								</th>
 							</tr>
 						</thead>
@@ -318,14 +318,14 @@
 											<button
 												onclick={() => disableUser(user.id)}
 												class="p-2 text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300 transition-colors duration-200 rounded-md hover:bg-yellow-50 dark:hover:bg-yellow-900/20"
-												title={m['testing.administrator.manage_users.actions.disable_user']()}
+							title={m['administrator.manage_users.actions.disable_user']()}
 											>
 												<Icon icon="mdi:account-off" class="w-5 h-5" />
 											</button>
 											<button
 												onclick={() => openDeleteConfirm(user)}
 												class="p-2 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20"
-												title={m['testing.administrator.manage_users.actions.delete_user']()}
+							title={m['administrator.manage_users.actions.delete_user']()}
 											>
 												<Icon icon="mdi:delete" class="w-5 h-5" />
 											</button>
@@ -340,9 +340,9 @@
 				{#if users.length === 0}
 					<div class="text-center py-12">
 						<Icon icon="mdi:account-group" class="mx-auto h-12 w-12 text-gray-400" />
-						<h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">{m['testing.administrator.manage_users.empty_state.title']()}</h3>
+					<h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">{m['administrator.manage_users.empty_state.title']()}</h3>
 						<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-							{m['testing.administrator.manage_users.empty_state.description']()}
+						{m['administrator.manage_users.empty_state.description']()}
 						</p>
 						<div class="mt-6">
 							<button
@@ -350,7 +350,7 @@
 								class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
 							>
 								<Icon icon="mdi:plus" class="w-4 h-4 mr-2" />
-								{m['testing.administrator.manage_users.add_user']()}
+							{m['administrator.manage_users.add_user']()}
 							</button>
 						</div>
 					</div>
@@ -461,10 +461,10 @@
 <!-- Delete Confirmation Modal -->
 <ConfirmModal
 	bind:isOpen={showDeleteConfirm}
-	title={m['testing.administrator.manage_users.confirmations.delete_user_title']()}
-	message={userToDelete ? m['testing.administrator.manage_users.confirmations.delete_user_message']().replace('{username}', userToDelete.username).replace('{nickname}', userToDelete.nickname) : ''}
-	confirmText={m['testing.administrator.manage_users.confirmations.delete_confirm']()}
-	cancelText={m['testing.administrator.manage_users.confirmations.delete_cancel']()}
+	title={m['administrator.manage_users.confirmations.delete_user_title']()}
+	message={userToDelete ? m['administrator.manage_users.confirmations.delete_user_message']().replace('{username}', userToDelete.username).replace('{nickname}', userToDelete.nickname) : ''}
+	confirmText={m['administrator.manage_users.confirmations.delete_confirm']()}
+	cancelText={m['administrator.manage_users.confirmations.delete_cancel']()}
 	confirmButtonColor="bg-red-600 hover:bg-red-700"
 	iconName="mdi:delete-alert"
 	iconColor="text-red-500"

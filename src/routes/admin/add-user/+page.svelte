@@ -191,7 +191,7 @@
 </script>
 
 <svelte:head>
-	<title>{m['testing.administrator.manage_users.add_user_page.title']()} - Quantified Cinematography</title>
+	<title>{m['administrator.manage_users.add_user_page.title']()} - Quantified Cinematography</title>
 </svelte:head>
 
 <!-- Navbar -->
@@ -208,7 +208,7 @@
 		<div class="mb-8">
 			<div>
 				<h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-					{m['testing.administrator.manage_users.add_user_page.title']()}
+					{m['administrator.manage_users.add_user_page.title']()}
 				</h1>
 			</div>
 		</div>
@@ -240,7 +240,7 @@
 				>
 					<div>
 						<label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-							{m['testing.administrator.manage_users.add_user_page.form.username']()}
+							{m['administrator.manage_users.add_user_page.form.username']()}
 						</label>
 						<div class="mt-1">
 							<input
@@ -250,7 +250,7 @@
 								required
 								minlength="3"
 								class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm"
-								placeholder={m['testing.administrator.manage_users.add_user_page.form.username_placeholder']()}
+								placeholder={m['administrator.manage_users.add_user_page.form.username_placeholder']()}
 							/>
 						</div>
 					</div>
@@ -259,7 +259,7 @@
 					<div>
 						<fieldset>
 							<legend class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-								{m['testing.administrator.manage_users.add_user_page.form.permissions']()}
+							{m['administrator.manage_users.add_user_page.form.permissions']()}
 							</legend>
 							<div class="mt-1">
 								<div class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm dark:bg-gray-700">
@@ -302,7 +302,7 @@
 							onclick={() => goto('/admin/manage-users')}
 							class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
 						>
-							{m['testing.administrator.manage_users.add_user_page.buttons.cancel']()}
+					{m['administrator.manage_users.add_user_page.buttons.cancel']()}
 						</button>
 						<button
 							type="submit"
@@ -311,10 +311,10 @@
 						>
 							{#if isLoading}
 								<Icon icon="mdi:loading" class="animate-spin -ml-1 mr-3 h-5 w-5" />
-								{m['testing.administrator.manage_users.add_user_page.buttons.creating']()}
+							{m['administrator.manage_users.add_user_page.buttons.creating']()}
 							{:else}
 								<Icon icon="mdi:plus" class="-ml-1 mr-3 h-5 w-5" />
-								{m['testing.administrator.manage_users.add_user_page.buttons.create']()}
+							{m['administrator.manage_users.add_user_page.buttons.create']()}
 							{/if}
 						</button>
 					</div>

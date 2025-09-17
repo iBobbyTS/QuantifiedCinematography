@@ -12,6 +12,10 @@
 echo "Installing dependencies with bun..."
 bun install
 
+# Compile ParaglideJS messages
+echo "Compiling ParaglideJS messages..."
+bun run paraglide-js
+
 # Start the development server
 echo "Starting development server..."
 bun run dev --host 0.0.0.0 --port 5173
