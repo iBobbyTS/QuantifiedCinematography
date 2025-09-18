@@ -16,30 +16,25 @@ const db = drizzle(client, { schema: { user, brands, productTypes, productSeries
  * 这个脚本用于在数据库创建后插入初始数据
  */
 export async function seedDatabase() {
-	console.log('🌱 开始初始化数据库种子数据...');
 
 	try {
 		// 生成密码哈希
-		console.log('🔐 生成密码哈希...');
 		const adminPasswordHash = await hashPassword('admin123');
 		const testPasswordHash = await hashPassword('test123');
 
 		// 使用事务确保数据一致性
 		await db.transaction(async (tx) => {
 			// 1. 插入基础产品类型
-			console.log('📦 插入产品类型...');
 			await tx.insert(productTypes).values({
 				name: 'None'
 			}).onConflictDoNothing();
 
 			// 2. 插入基础品牌
-			console.log('🏷️ 插入品牌...');
 			await tx.insert(brands).values({
 				name: 'None'
 			}).onConflictDoNothing();
 
 			// 3. 插入基础产品系列
-			console.log('📋 插入产品系列...');
 			await tx.insert(productSeries).values({
 				name: 'None',
 				brandId: 1, // 假设brands表从1开始
@@ -47,7 +42,6 @@ export async function seedDatabase() {
 			}).onConflictDoNothing();
 
 			// 4. 插入/更新管理员用户
-			console.log('👤 插入/更新管理员用户...');
 			await tx.insert(user).values({
 				username: 'admin',
 				nickname: 'Administrator',
@@ -66,7 +60,6 @@ export async function seedDatabase() {
 			});
 
 			// 5. 插入/更新测试用户
-			console.log('🧪 插入/更新测试用户...');
 			await tx.insert(user).values({
 				username: 'test',
 				nickname: 'Test User',
@@ -85,13 +78,11 @@ export async function seedDatabase() {
 			});
 
 			// 6. 重置序列以确保未来插入从1开始
-			console.log('🔄 重置序列...');
 			await tx.execute(sql`SELECT setval('product_types_id_seq', 1, false)`);
 			await tx.execute(sql`SELECT setval('brands_id_seq', 1, false)`);
 			await tx.execute(sql`SELECT setval('product_series_id_seq', 1, false)`);
 		});
 
-		console.log('✅ 数据库种子数据初始化完成！');
 	} catch (error) {
 		console.error('❌ 数据库种子数据初始化失败:', error);
 		throw error;

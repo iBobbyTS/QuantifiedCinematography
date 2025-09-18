@@ -116,7 +116,6 @@
 								use:enhance={() => {
 									return async ({ result }) => {
 										isChangingPassword = false;
-										console.log('🔍 修改密码结果:', result);
 										
 										if (result.type === 'failure') {
 											let message = '';

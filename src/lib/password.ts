@@ -44,20 +44,3 @@ export function generatePassword(length: number = 12): string {
 	
 	return password;
 }
-
-/**
- * 生成测试密码哈希（用于开发环境）
- */
-export async function generateTestHashes() {
-	const testPasswords = [
-		'admin123',
-		'qcpassword',
-		'test123'
-	];
-	
-	console.log('🔐 生成测试密码哈希:');
-	for (const password of testPasswords) {
-		const hash = await hashPassword(password);
-		console.log(`密码: ${password} -> 哈希: ${hash}`);
-	}
-}

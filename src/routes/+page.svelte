@@ -60,18 +60,15 @@
 			buttons: [
 				{
 				text: m['data_provider_lighting.recorded_lighting_products.button'](),
-					color: 'blue',
-					onClick: () => console.log('Manage Lighting Products')
+					color: 'blue'
 				},
 				{
 				text: m['data_provider_lighting.lighting_accessories.button'](),
-					color: 'blue',
-					onClick: () => console.log('Manage Lighting Accessories')
+					color: 'blue'
 				},
 				{
 				text: m['data_provider_lighting.spectrometer.button'](),
-					color: 'blue',
-					onClick: () => console.log('Manage Spectrometer')
+					color: 'blue'
 				}
 			],
 			color: 'blue'
@@ -82,13 +79,11 @@
 			buttons: [
 				{
 				text: m['data_provider_lighting.data_upload.white_light_test'](),
-					color: 'blue',
-					onClick: () => console.log('White Light Test Data')
+					color: 'blue'
 				},
 				{
 				text: m['data_provider_lighting.data_upload.color_light_test'](),
-					color: 'blue',
-					onClick: () => console.log('Color Light Test Data')
+					color: 'blue'
 				}
 			],
 			color: 'blue'
@@ -103,8 +98,7 @@
 			buttons: [
 				{
 				text: m['lighting.products.button'](),
-					color: 'blue',
-					onClick: () => console.log('Browse all lighting products')
+					color: 'blue'
 				}
 			],
 			color: 'blue'
@@ -115,13 +109,11 @@
 			buttons: [
 				{
 				text: m['lighting.brightness.buttons.cct_illuminance'](),
-					color: 'green',
-					onClick: () => console.log('CCT vs Illuminance')
+					color: 'green'
 				},
 				{
 				text: m['lighting.brightness.buttons.brightness_illuminance'](),
-					color: 'green',
-					onClick: () => console.log('Brightness vs Illuminance')
+					color: 'green'
 				}
 			],
 			color: 'green'
@@ -132,28 +124,23 @@
 			buttons: [
 				{
 				text: m['lighting.white_light_quality.buttons.cct_vs_actual'](),
-					color: 'orange',
-					onClick: () => console.log('CCT vs Actual CCT')
+					color: 'orange'
 				},
 				{
 				text: m['lighting.white_light_quality.buttons.cct_vs_duv'](),
-					color: 'orange',
-					onClick: () => console.log('CCT vs D\'uv')
+					color: 'orange'
 				},
 				{
 				text: m['lighting.white_light_quality.buttons.brightness_vs_duv'](),
-					color: 'orange',
-					onClick: () => console.log('Brightness vs D\'uv')
+					color: 'orange'
 				},
 				{
 				text: m['lighting.white_light_quality.buttons.cct_vs_color_rendering'](),
 					color: 'orange',
-					onClick: () => console.log('CCT vs Color Rendering')
 				},
 				{
 				text: m['lighting.white_light_quality.buttons.spectrum'](),
-					color: 'orange',
-					onClick: () => console.log('Spectrum')
+					color: 'orange'
 				}
 			],
 			color: 'orange'
@@ -164,8 +151,7 @@
 			buttons: [
 				{
 				text: m['lighting.color_light.button'](),
-					color: 'purple',
-					onClick: () => console.log('RGB Pure Color vs Illuminance')
+					color: 'purple'
 				}
 			],
 			color: 'purple'

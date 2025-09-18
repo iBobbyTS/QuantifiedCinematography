@@ -87,13 +87,9 @@
 	
 	// 切换语言
 	function changeLanguage(langCode: string) {
-		console.log('🌐 切换语言到:', langCode);
-		console.log('🌐 当前语言:', getLocale());
-		
 		try {
 			// 使用ParaglideJS的setLocale函数
 			setLocale(langCode, { reload: true });
-			console.log('🌐 语言切换成功');
 		} catch (error) {
 			console.error('🌐 语言切换失败:', error);
 			// 如果ParaglideJS失败，回退到手动设置
@@ -205,10 +201,8 @@
 								class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
 								onclick={async () => {
 									try {
-										console.log('🚪 开始登出...');
 										const response = await fetch('/user/logout', { method: 'POST' });
 										if (response.ok) {
-											console.log('✅ 登出成功，重定向到首页');
 											window.location.href = '/';
 										} else {
 											console.error('❌ 登出失败:', response.status);

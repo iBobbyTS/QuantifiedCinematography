@@ -8,15 +8,11 @@ if (!env.DATABASE_URL) {
 	throw new Error('DATABASE_URL is not set');
 }
 
-console.log('🔗 初始化数据库连接...', { 
-	url: env.DATABASE_URL ? 'provided' : 'missing',
-	hasSchema: !!schema 
-});
+
 
 let client: postgres.Sql;
 try {
 	client = postgres(env.DATABASE_URL);
-	console.log('✅ 数据库连接初始化成功');
 } catch (error) {
 	console.error('❌ 数据库连接初始化失败:', error);
 	throw error;

@@ -79,7 +79,6 @@ export const actions: Actions = {
 				})
 				.where(eq(table.user.id, locals.user.id));
 
-			console.log('✅ 密码修改成功，用户ID:', locals.user.id);
 			return { success: true };
 
 		} catch (error) {

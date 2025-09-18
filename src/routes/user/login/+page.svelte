@@ -71,11 +71,9 @@
 				use:enhance={() => {
 					return async ({ result }) => {
 						isLoading = false;
-						console.log('🔍 登录结果:', result);
 						
 						if (result.type === 'failure') {
 							// 处理失败响应
-							console.log('❌ 登录失败:', result.data);
 							let message = '';
 							
 							if (Array.isArray(result.data)) {
@@ -90,8 +88,6 @@
 							} else {
 								message = 'Unknown error';
 							}
-							
-							console.log('📝 提取的错误消息:', message);
 							
 							// map known backend messages to i18n keys
 							if (message.includes('用户不存在') || message.toLowerCase().includes('user not found') || message.toLowerCase().includes('incorrect username')) {
@@ -110,7 +106,6 @@
 						} else if (result.type === 'error') {
 							// 处理错误响应（旧格式）
 							const raw = (result as any)?.error?.message || '';
-							console.log('❌ 登录错误:', raw);
 							
 							if (raw.includes('用户不存在') || raw.toLowerCase().includes('user not found')) {
 								errorMessage = m['auth.errors.userNotFound']();
@@ -121,7 +116,6 @@
 							}
 						} else if (result.type === 'redirect') {
 							// 登录成功后，先刷新所有数据，然后跳转
-							console.log('✅ 登录成功，重定向到:', (result as any).location);
 							await invalidateAll();
 							goto((result as any).location);
 						} else {
