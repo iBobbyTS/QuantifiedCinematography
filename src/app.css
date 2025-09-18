@@ -5,3 +5,6 @@
  */
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
+
+/* Tailwind CSS v4 深色模式配置 */
+@custom-variant dark (&:where(.dark, .dark *));

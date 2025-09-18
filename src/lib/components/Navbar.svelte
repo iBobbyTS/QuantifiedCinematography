@@ -34,10 +34,8 @@
 		{ code: 'system', name: 'system', icon: 'mdi:monitor' }
 	];
 	
-	// 切换主题
-	function changeTheme(theme: string) {
-		currentTheme = theme;
-		
+	// 应用主题（不保存到 localStorage）
+	function applyTheme(theme: string, saveToStorage: boolean = false) {
 		// 移除所有主题类
 		document.documentElement.classList.remove('light', 'dark');
 		
@@ -55,8 +53,16 @@
 			document.documentElement.classList.add(theme);
 		}
 		
-		// 保存到本地存储
-		localStorage.setItem('theme', theme);
+		// 根据参数决定是否保存到本地存储
+		if (saveToStorage) {
+			localStorage.setItem('theme', theme);
+		}
+	}
+
+	// 切换主题（用户主动操作）
+	function changeTheme(theme: string) {
+		currentTheme = theme;
+		applyTheme(theme, true);
 	}
 	
 	// 获取当前主题的显示名称
@@ -100,28 +106,39 @@
 	// 组件挂载时检查主题设置
 	onMount(() => {
 		try {
-		// 检查本地存储的主题设置
-		const savedTheme = localStorage.getItem('theme') || 'system';
-		
-		changeTheme(savedTheme);
-		
-		// 获取当前语言
-		try {
-			currentLanguage = getLocale();
-			console.log('🌐 组件挂载时获取到语言:', currentLanguage);
-		} catch (error) {
-			console.error('🌐 获取语言失败:', error);
-			currentLanguage = 'en'; // 默认英语
-		}
+			// 检查本地存储的主题设置
+			const savedTheme = localStorage.getItem('theme') || 'system';
+			
+			// 设置 currentTheme
+			currentTheme = savedTheme;
+			
+			// 检查当前 DOM 是否已经有主题类，如果有则不重新应用
+			const hasThemeClass = document.documentElement.classList.contains('dark') || 
+								  document.documentElement.classList.contains('light');
+			
+			if (!hasThemeClass) {
+				// 只有在没有主题类时才应用主题
+				applyTheme(savedTheme, false);
+			}
+			
+			// 获取当前语言
+			try {
+				currentLanguage = getLocale();
+			} catch (error) {
+				console.error('🌐 获取语言失败:', error);
+				currentLanguage = 'en'; // 默认英语
+			}
 			
 			// 监听系统主题变化
 			const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 			
 			mediaQuery.addEventListener('change', (e) => {
+				// 只有在当前主题确实是 'system' 时才响应系统变化
 				if (currentTheme === 'system') {
-					changeTheme('system');
+					applyTheme('system', false); // 不保存到 localStorage
 				}
 			});
+
 		} catch (error) {
 			console.error('❌ Failed to check theme:', error);
 		}
