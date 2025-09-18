@@ -40,7 +40,30 @@
 			"confirmPassword": "Confirm New Password",
 			"confirmPasswordPlaceholder": "Confirm your new password",
 			"changingPassword": "Changing Password...",
-			"passwordChangedSuccess": "Password changed successfully"
+			"passwordChangedSuccess": "Password changed successfully",
+			"publicInfoTitle": "Public Information Management",
+			"publicInfoSubtitle": "Add your social media and contact information to let other users know about you",
+			"addPlatform": "Add Platform",
+			"platform": "Platform",
+			"link": "Link",
+			"linkPlaceholder": "Enter link address",
+			"remove": "Remove",
+			"updateInfo": "Update Information",
+			"updatingInfo": "Updating...",
+			"infoUpdatedSuccess": "Information updated successfully",
+			"platforms": {
+				"bilibili": "Bilibili",
+				"zhihu": "Zhihu",
+				"douyin": "TikTok",
+				"youtube": "YouTube",
+				"facebook": "Facebook",
+				"instagram": "Instagram",
+				"email": "Email"
+			},
+			"socialMedia": "Social Media",
+			"add": "Add",
+			"update": "Update",
+			"allPlatformsAdded": "All platforms added"
 		}
 	},
 	"permissions": {

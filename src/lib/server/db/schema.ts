@@ -7,6 +7,7 @@ export const colorTypeEnum = pgEnum('color_type', ['Single', 'Bi', 'Color']);
 export const lightEngineEnum = pgEnum('light_engine', ['W', 'Bi', 'Bi+RGB', 'RGBWW', 'RGBACL', 'BLAIR', 'BLAIR-CG']);
 export const formFactorEnum = pgEnum('form_factor', ['Point Source', 'Panel', 'Mat', 'Bulb', 'Tube']);
 export const sizeEnum = pgEnum('size', ['Tiny', 'Small', 'Medium', 'Large']);
+export const platformTypeEnum = pgEnum('platform_type', ['bilibili', 'zhihu', 'douyin', 'youtube', 'facebook', 'instagram', 'email']);
 
 
 // Users table
@@ -32,6 +33,19 @@ export const session = pgTable('session', {
 		.references(() => user.id),
 	expiresAt: timestamp('expires_at', { withTimezone: true, mode: 'date' }).notNull()
 });
+
+// User public info table
+export const userPublicInfo = pgTable('user_public_info', {
+	id: serial('id').primaryKey(),
+	userId: uuid('user_id').references(() => user.id).notNull(),
+	platform: platformTypeEnum('platform').notNull(),
+	link: text('link').notNull(), // varchar(1024) equivalent
+	createdAt: timestamp('created_at').defaultNow(),
+	updatedAt: timestamp('updated_at').defaultNow(),
+}, (table) => [
+	index('user_public_info_user_id_idx').on(table.userId),
+	index('user_public_info_platform_idx').on(table.platform),
+]);
 
 // Brand table
 export const brands = pgTable('brands', {
@@ -147,6 +161,7 @@ export const brands = pgTable('brands', {
   // Define relations
   export const usersRelations = relations(user, ({ many }) => ({
 	benchmarkLightWhite: many(benchmarkLightWhite),
+	userPublicInfo: many(userPublicInfo),
   }));
   
   export const brandsRelations = relations(brands, ({ many }) => ({
@@ -200,9 +215,18 @@ export const brands = pgTable('brands', {
 	}),
   }));
   
+  export const userPublicInfoRelations = relations(userPublicInfo, ({ one }) => ({
+	user: one(user, {
+	  fields: [userPublicInfo.userId],
+	  references: [user.id],
+	}),
+  }));
+  
   // Export types for use in the application
   export type User = typeof user.$inferSelect;
   export type NewUser = typeof user.$inferInsert;
+  export type UserPublicInfo = typeof userPublicInfo.$inferSelect;
+  export type NewUserPublicInfo = typeof userPublicInfo.$inferInsert;
   export type Brand = typeof brands.$inferSelect;
   export type NewBrand = typeof brands.$inferInsert;
   export type ProductType = typeof productTypes.$inferSelect;

@@ -24,7 +24,7 @@
 			"wrongPassword": "密码错误"
 		}
 	},
-	"user": {
+		"user": {
 		"account": {
 			"title": "账户设置",
 			"settings": "设置",
@@ -40,7 +40,30 @@
 			"confirmPassword": "确认新密码",
 			"confirmPasswordPlaceholder": "请再次输入新密码",
 			"changingPassword": "正在修改密码...",
-			"passwordChangedSuccess": "密码修改成功"
+			"passwordChangedSuccess": "密码修改成功",
+			"publicInfoTitle": "公开信息管理",
+			"publicInfoSubtitle": "添加您的社交媒体和联系方式，让其他用户了解您",
+			"addPlatform": "添加平台",
+			"platform": "平台",
+			"link": "链接",
+			"linkPlaceholder": "请输入链接地址",
+			"remove": "删除",
+			"updateInfo": "更新信息",
+			"updatingInfo": "正在更新...",
+			"infoUpdatedSuccess": "信息更新成功",
+			"platforms": {
+				"bilibili": "哔哩哔哩",
+				"zhihu": "知乎",
+				"douyin": "抖音",
+				"youtube": "YouTube",
+				"facebook": "Facebook",
+				"instagram": "Instagram",
+				"email": "邮箱"
+			},
+			"socialMedia": "社交媒体",
+			"add": "添加",
+			"update": "更新",
+			"allPlatformsAdded": "已添加所有平台"
 		}
 	},
 	"login": {
@@ -153,7 +176,7 @@
 		}
 	},
 	"data_provider_lighting": {
-		"title": "数据提供方 - 灯光",
+		"title": "数据上传 - 灯光",
 		"recorded_lighting_products": {
 			"title": "已收录的灯光产品：{count}款",
 			"description": "本板块收录多位测试博主对多款灯光产品的全面测试，点击下方按钮查看所有灯，后方的卡片有详细的测试项目。",
@@ -163,7 +186,7 @@
 			"button": "管理灯光附件"
 		},
 		"spectrometer": {
-			"button": "管理分光光度计"
+			"button": "管理光谱仪"
 		},
 		"data_upload": {
 			"title": "数据上传",
