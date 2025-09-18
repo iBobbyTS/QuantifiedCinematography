@@ -196,7 +196,7 @@
 
 <!-- Navbar -->
 <Navbar 
-	centerTitle="testing.administrator.manage_users.add_user_page.title" 
+centerTitle="administrator.manage_users.add_user_page.title" 
 	showBackButton={true} 
 	backButtonUrl="/admin/manage-users"
 	backButtonText="navbar.backToManageUsers"
