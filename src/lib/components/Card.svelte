@@ -14,27 +14,27 @@
 		blue: {
 			border: 'border-blue-800 dark:border-blue-400',
 			text: 'text-blue-800 dark:text-blue-400',
-			hover: 'hover:bg-blue-800 hover:text-white dark:hover:bg-blue-400 dark:hover:text-gray-900'
+			hover: 'hover:bg-blue-600 hover:border-blue-500 hover:text-white dark:hover:bg-blue-400 dark:hover:border-blue-500 dark:hover:text-gray-900'
 		},
 		green: {
 			border: 'border-green-800 dark:border-green-400',
 			text: 'text-green-800 dark:text-green-400',
-			hover: 'hover:bg-green-600 hover:border-green-600 hover:text-white dark:hover:bg-green-400 dark:hover:text-gray-900'
+			hover: 'hover:bg-green-600 hover:border-green-500 hover:text-white dark:hover:bg-green-400 dark:hover:border-green-500 dark:hover:text-gray-900'
 		},
 		orange: {
 			border: 'border-orange-600 dark:border-orange-400',
 			text: 'text-orange-600 dark:text-orange-400',
-			hover: 'hover:bg-orange-600 hover:text-white dark:hover:bg-orange-400 dark:hover:text-gray-900'
+			hover: 'hover:bg-orange-500 hover:border-orange-400 hover:text-white dark:hover:bg-orange-400 dark:hover:border-orange-500 dark:hover:text-gray-900'
 		},
 		purple: {
 			border: 'border-purple-600 dark:border-purple-400',
 			text: 'text-purple-600 dark:text-purple-400',
-			hover: 'hover:bg-purple-600 hover:text-white dark:hover:bg-purple-400 dark:hover:text-gray-900'
+			hover: 'hover:bg-purple-500 hover:border-purple-400 hover:text-white dark:hover:bg-purple-400 dark:hover:border-purple-500 dark:hover:text-gray-900'
 		},
 		red: {
 			border: 'border-red-600 dark:border-red-400',
 			text: 'text-red-600 dark:text-red-400',
-			hover: 'hover:bg-red-600 hover:text-white dark:hover:bg-red-400 dark:hover:text-gray-900'
+			hover: 'hover:bg-red-500 hover:border-red-400 hover:text-white dark:hover:bg-red-400 dark:hover:border-red-500 dark:hover:text-gray-900'
 		}
 	};
 	
