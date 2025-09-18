@@ -131,8 +131,21 @@
 <nav class="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700">
 	<div class="mx-auto px-4 sm:px-6 lg:px-8">
 		<div class="grid grid-cols-3 items-center h-16">
-			<!-- Left side - Back button or empty space -->
-			<div class="flex items-center">
+			<!-- Left side - Logo and Back button -->
+			<div class="flex items-center space-x-3">
+				<!-- Website Logo -->
+				<a
+					href="/"
+					class="flex items-center hover:opacity-80 transition-opacity duration-200"
+					title={m['navbar.backToHome']()}
+				>
+					<img 
+						src="/favicon.svg" 
+						alt="Quantified Cinematography" 
+						class="w-8 h-8"
+					/>
+				</a>
+				
 				{#if showBackButton}
 					<a
 						href={backButtonUrl}
