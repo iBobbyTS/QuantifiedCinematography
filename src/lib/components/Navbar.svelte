@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import Icon from '@iconify/svelte';
-	import * as m from '$lib/paraglide/messages.js';
-	import { page } from '$app/stores';
-	import { setLocale, getLocale } from '$lib/paraglide/runtime.js';
+    import { onMount } from 'svelte';
+    import Icon from '@iconify/svelte';
+    import * as m from '$lib/paraglide/messages.js';
+    import { page } from '$app/stores';
+    import { setLocale, getLocale } from '$lib/paraglide/runtime.js';
+    import Dropdown from '$lib/components/Dropdown.svelte';
 	let currentUser: any = null;
 	$: currentUser = $page?.data?.user ?? null;
 	
@@ -187,42 +188,29 @@
 			<div class="flex items-center justify-end space-x-4">
 					{#if currentUser}
 					<!-- User Menu -->
-					<div class="relative">
-						<button
-							class="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
-							onclick={() => document.getElementById('userDropdown')?.classList.toggle('hidden')}
-						>
-							<Icon icon="mdi:account" class="w-5 h-5" />
-							<span class="hidden sm:inline">{currentUser.nickname}</span>
-							<Icon icon="mdi:chevron-down" class="w-4 h-4" />
-						</button>
-						<div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
-							<button
-								class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-								onclick={async () => {
-									try {
-										const response = await fetch('/user/logout', { method: 'POST' });
-										if (response.ok) {
-											window.location.href = '/';
-										} else {
-											console.error('❌ 登出失败:', response.status);
-											// 即使登出失败，也重定向到首页
-											window.location.href = '/';
-										}
-									} catch (error) {
-										console.error('💥 登出过程中发生错误:', error);
-										// 即使发生错误，也重定向到首页
-										window.location.href = '/';
-									}
-								}}
-							>
-								<Icon icon="mdi:logout" class="w-4 h-4 inline mr-2" /> {m['auth.logout']()}
-							</button>
-							<a href="/user/account" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-								<Icon icon="mdi:account-cog" class="w-4 h-4 inline mr-2" /> {m['user.account.title']()}
-							</a>
-						</div>
-					</div>
+            <div class="min-w-[8rem]">
+                <Dropdown
+                    placeholder={currentUser.nickname}
+                    options={[
+                        { value: 'account', label: m['user.account.title'](), icon: 'mdi:account-cog' },
+                        { value: 'logout', label: m['auth.logout'](), icon: 'mdi:logout' }
+                    ]}
+                    widthClass="w-40"
+                    on:change={async (e) => {
+                        const v = e.detail as string;
+                        if (v === 'account') {
+                            window.location.href = '/user/account';
+                        } else if (v === 'logout') {
+                            try {
+                                const response = await fetch('/user/logout', { method: 'POST' });
+                                window.location.href = '/';
+                            } catch {
+                                window.location.href = '/';
+                            }
+                        }
+                    }}
+                />
+            </div>
 					{:else if !hideLoginButton}
 					<!-- Login Button -->
 					<a
@@ -235,70 +223,24 @@
 				{/if}
 				
 				<!-- Language Selector -->
-				<div class="relative">
-					<button
-						class="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
-						onclick={() => document.getElementById('languageDropdown')?.classList.toggle('hidden')}
-					>
-						<Icon icon="mdi:translate" class="w-5 h-5" />
-						<span class="hidden sm:inline">
-							{languageOptions.find(lang => lang.code === currentLanguage)?.name || 'Language'}
-						</span>
-						<Icon icon="mdi:chevron-down" class="w-4 h-4" />
-					</button>
-					
-					<!-- Language Dropdown -->
-					<div
-						id="languageDropdown"
-						class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
-					>
-						{#each languageOptions as lang}
-							<button
-								class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2 transition-colors duration-200"
-								onclick={() => {
-									changeLanguage(lang.code);
-									document.getElementById('languageDropdown')?.classList.add('hidden');
-								}}
-							>
-								<span class="text-lg">{lang.flag}</span>
-								<span>{lang.name}</span>
-							</button>
-						{/each}
-					</div>
-				</div>
+            <div class="min-w-[10rem]">
+                <Dropdown
+                    placeholder={languageOptions.find(lang => lang.code === currentLanguage)?.name || 'Language'}
+                    options={languageOptions.map((lang) => ({ value: lang.code, label: `${lang.flag} ${lang.name}` }))}
+                    widthClass="w-48"
+                    on:change={(e) => changeLanguage(e.detail as string)}
+                />
+            </div>
 				
 				<!-- Theme Selector -->
-				<div class="relative">
-					<button
-						class="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
-						onclick={() => document.getElementById('themeDropdown')?.classList.toggle('hidden')}
-					>
-						<Icon icon={getCurrentThemeIcon()} class="w-5 h-5" />
-						<span class="hidden sm:inline">
-							{currentThemeDisplayName}
-						</span>
-						<Icon icon="mdi:chevron-down" class="w-4 h-4" />
-					</button>
-					
-					<!-- Theme Dropdown -->
-					<div
-						id="themeDropdown"
-						class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
-					>
-						{#each themeOptionsLocalized as theme}
-							<button
-								class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2 transition-colors duration-200"
-								onclick={() => {
-									changeTheme(theme.code);
-									document.getElementById('themeDropdown')?.classList.add('hidden');
-								}}
-							>
-								<Icon icon={theme.icon} />
-								<span>{theme.localizedName}</span>
-							</button>
-						{/each}
-					</div>
-				</div>
+            <div class="min-w-[10rem]">
+                <Dropdown
+                    placeholder={currentThemeDisplayName}
+                    options={themeOptionsLocalized.map((t) => ({ value: t.code, label: t.localizedName, icon: t.icon }))}
+                    widthClass="w-48"
+                    on:change={(e) => changeTheme(e.detail as string)}
+                />
+            </div>
 			</div>
 		</div>
 	</div>
