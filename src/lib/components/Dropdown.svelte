@@ -38,11 +38,15 @@
   }
 
   onMount(() => {
-    document.addEventListener('click', handleDocumentClick);
+    if (typeof document !== 'undefined') {
+      document.addEventListener('click', handleDocumentClick);
+    }
   });
 
   onDestroy(() => {
-    document.removeEventListener('click', handleDocumentClick);
+    if (typeof document !== 'undefined') {
+      document.removeEventListener('click', handleDocumentClick);
+    }
   });
 
   $: selectedLabel = options.find(o => o.value === value)?.label || placeholder;
