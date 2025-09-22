@@ -62,7 +62,8 @@
 			},
 			"socialMedia": "社交媒体",
 			"add": "添加",
-			"update": "更新",
+            "update": "更新",
+            "updatedCount": "已更新 {count} 个",
 			"allPlatformsAdded": "已添加所有平台"
 		}
 	},

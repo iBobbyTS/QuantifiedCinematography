@@ -1,4 +1,4 @@
-import { fail, redirect } from '@sveltejs/kit';
+import { json, fail, redirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
@@ -10,9 +10,16 @@ export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {
 		return redirect(302, '/user/login');
 	}
-	
+
+	// 读取用户公开信息
+	const rows = await db
+		.select({ platform: table.userPublicInfo.platform, link: table.userPublicInfo.link })
+		.from(table.userPublicInfo)
+		.where(eq(table.userPublicInfo.userId, locals.user.id));
+
 	return {
-		user: locals.user
+		user: locals.user,
+		publicInfo: rows.map((r) => ({ platform: r.platform, link: r.link }))
 	};
 };
 
@@ -84,6 +91,48 @@ export const actions: Actions = {
 		} catch (error) {
 			console.error('❌ 修改密码时发生错误:', error);
 			return fail(500, { message: 'Internal server error. Please try again later.' });
+		}
+	}
+,
+    updatePublicInfo: async ({ request, locals }) => {
+		// 需要登录
+		if (!locals.user) {
+			return fail(401, { message: 'Unauthorized' });
+		}
+
+		try {
+			const form = await request.formData();
+			const itemsField = form.get('items');
+			let items: any[] = [];
+			if (typeof itemsField === 'string') {
+				try { items = JSON.parse(itemsField); } catch { return fail(400, { message: 'Invalid items payload' }); }
+			} else if (itemsField instanceof Blob) {
+				const text = await itemsField.text();
+				try { items = JSON.parse(text); } catch { return fail(400, { message: 'Invalid items payload' }); }
+			} else {
+				return fail(400, { message: 'Missing items' });
+			}
+
+			// 允许的平台集合
+			const allowed = new Set(table.platformTypeEnum.enumValues);
+			const normalized = items
+				.map((it: any) => ({
+					platform: String(it.platform),
+					link: String(it.link || '').trim()
+				}))
+				.filter((it: any) => allowed.has(it.platform) && it.link.length > 0);
+
+			// 覆盖保存：先删再插
+			await db.delete(table.userPublicInfo).where(eq(table.userPublicInfo.userId, locals.user.id));
+			if (normalized.length > 0) {
+				await db.insert(table.userPublicInfo).values(
+					normalized.map((it: any) => ({ userId: locals.user.id, platform: it.platform as any, link: it.link }))
+				);
+			}
+			return normalized.length;
+		} catch (error) {
+			console.error('❌ 保存信息失败:', error);
+			return fail(500, { message: 'Internal server error' });
 		}
 	}
 };

@@ -62,7 +62,8 @@
 			},
 			"socialMedia": "Social Media",
 			"add": "Add",
-			"update": "Update",
+            "update": "Update",
+            "updatedCount": "Updated {count}",
 			"allPlatformsAdded": "All platforms added"
 		}
 	},

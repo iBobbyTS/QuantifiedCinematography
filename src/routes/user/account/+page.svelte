@@ -6,6 +6,7 @@
 	import Icon from '@iconify/svelte';
     import { enhance } from '$app/forms';
     import Dropdown from '$lib/components/Dropdown.svelte';
+    export let data: { publicInfo?: { platform: string; link: string }[] };
 
 	// 当前选中的页面
 	let currentPage = 'change-password';
@@ -23,6 +24,8 @@
 	let publicInfoItems: PublicInfoItem[] = [];
 	let isUpdatingInfo = false;
 	let infoMessage = '';
+	let updateError = '';
+	let updateCount: number | null = null;
 
 	// 页面选项
 	const pageOptions = [
@@ -61,6 +64,10 @@
             const hash = (window.location.hash || '').replace('#', '').trim();
             if (hash && allowedPages.includes(hash)) {
                 currentPage = hash;
+            }
+            // 初始化公开信息（仅在首渲染且数据存在时）
+            if (Array.isArray(data?.publicInfo) && data.publicInfo.length > 0) {
+                publicInfoItems = data.publicInfo.map((row, idx) => ({ id: Date.now() + idx, platform: row.platform, link: row.link }));
             }
             isPageReady = true;
 
@@ -145,23 +152,44 @@
 		
 		isUpdatingInfo = true;
 		infoMessage = '';
+		updateError = '';
+		updateCount = null;
 		
 		try {
-			// 这里应该调用API来保存数据
-			// const response = await fetch('/api/user/public-info', {
-			// 	method: 'POST',
-			// 	headers: { 'Content-Type': 'application/json' },
-			// 	body: JSON.stringify({ items: validItems })
-			// });
-			
-			// 模拟API调用
-			await new Promise(resolve => setTimeout(resolve, 1000));
-			
-			// 只保留有效的条目
+			// 使用同目录的 action，通过 fetch POST 到 ?/updatePublicInfo
+			const fd = new FormData();
+			fd.set('items', JSON.stringify(validItems.map(i => ({ platform: i.platform, link: i.link }))));
+			const response = await fetch('?/updatePublicInfo', {
+				method: 'POST',
+				body: fd
+			});
+			if (!response.ok) {
+				let serverMsg = '';
+				try {
+					const data = await response.json();
+					serverMsg = (data && (data.error?.message || data.message)) || '';
+				} catch {}
+				throw new Error(serverMsg || `HTTP ${response.status} ${response.statusText}`);
+			}
+			// 解析 SvelteKit action envelope，data 可能是 number 或字符串
+			let count: number | null = null;
+			try {
+				const envelope = await response.json();
+				let payload = envelope?.data;
+				if (typeof payload === 'string') {
+					try { payload = JSON.parse(payload); } catch {}
+				}
+				if (typeof payload === 'number') {
+					count = payload;
+				} else if (payload && typeof payload.count === 'number') {
+					count = payload.count;
+				}
+			} catch {}
 			publicInfoItems = validItems;
-			infoMessage = m['user.account.infoUpdatedSuccess']();
+			updateCount = typeof count === 'number' ? count : validItems.length;
 		} catch (error) {
-			infoMessage = m['app.networkError']();
+			const msg = (error as any)?.message ? String((error as any).message) : '';
+			updateError = msg ? `${m['app.networkError']()} (${msg})` : m['app.networkError']();
 		} finally {
 			isUpdatingInfo = false;
 		}
@@ -419,12 +447,17 @@
 								</div>
 							{/if}
 
-							<!-- 更新按钮 -->
-							<div class="flex justify-end">
+							<!-- 更新按钮和错误显示 -->
+							<div class="flex justify-end items-center gap-4">
+								{#if updateError}
+									<p class="text-sm text-red-600 dark:text-red-400">{updateError}</p>
+								{:else if updateCount !== null}
+									<p class="text-sm text-emerald-600 dark:text-emerald-400">{m['user.account.updatedCount']({ count: String(updateCount) })}</p>
+								{/if}
 								<button
 									onclick={updatePublicInfo}
 									disabled={isUpdatingInfo || publicInfoItems.length === 0}
-									class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-500 hover:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-green-500 dark:hover:bg-green-400 dark:hover:border-green-500"
+									class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-500 hover:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-green-500 dark:hover:bg-green-400 dark:hover:border-green-500 inline-flex items-center gap-2"
 								>
 									{#if isUpdatingInfo}
 										<Icon icon="mdi:loading" class="animate-spin -ml-1 mr-2 h-4 w-4" />
