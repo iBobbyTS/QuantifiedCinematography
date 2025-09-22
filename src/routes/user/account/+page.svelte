@@ -4,7 +4,8 @@
 	import * as m from '$lib/paraglide/messages.js';
 	import Navbar from '$lib/components/Navbar.svelte';
 	import Icon from '@iconify/svelte';
-	import { enhance } from '$app/forms';
+    import { enhance } from '$app/forms';
+    import Dropdown from '$lib/components/Dropdown.svelte';
 
 	// 当前选中的页面
 	let currentPage = 'change-password';
@@ -68,25 +69,17 @@
 		!publicInfoItems.some(item => item.platform === platform.value)
 	);
 
-	// Outside click handler for dropdowns
-	function handleDocumentClick(event: MouseEvent) {
-		for (const item of publicInfoItems) {
-			const container = document.querySelector(`[data-dd-id="${item.id}"]`) as HTMLElement | null;
-			if (!container) continue;
-			if (!container.contains(event.target as Node)) {
-				const dd = document.getElementById(`platformDropdown-${item.id}`) as HTMLElement | null;
-				if (dd && !dd.classList.contains('hidden')) {
-					dd.classList.add('hidden');
-				}
-			}
-		}
-	}
-	onMount(() => {
-		document.addEventListener('click', handleDocumentClick);
-	});
-	onDestroy(() => {
-		document.removeEventListener('click', handleDocumentClick);
-	});
+    // Per-item options: include current selection so label renders, but prevent selecting duplicates
+    function getOptionsForItem(item: { platform: string }) {
+        const base = availablePlatforms.slice();
+        if (item.platform && !base.some(p => p.value === item.platform)) {
+            const cur = platformOptions.find(p => p.value === item.platform);
+            if (cur) base.unshift(cur);
+        }
+        return base;
+    }
+
+    // 外部点击已在 Dropdown 组件内部处理，这里不再添加全局监听，避免 SSR 报错
 
 	// 添加新的平台信息行
 	function addPlatformInfo() {
@@ -356,42 +349,16 @@
 								<div class="space-y-3 mb-6">
 									{#each publicInfoItems as item, index}
 										<div class="flex items-center space-x-4 p-4 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
-											<!-- 平台选择下拉框 -->
-											<div class="flex-shrink-0 w-32">
-												<div class="relative" data-dd-id={item.id}>
-													<button
-														class="w-full px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200 flex items-center justify-between"
-														onclick={() => {
-															const dropdown = document.getElementById(`platformDropdown-${item.id}`);
-															dropdown?.classList.toggle('hidden');
-														}}
-													>
-														<span class="text-left">
-															{platformOptions.find(p => p.value === item.platform)?.label || m['user.account.platform']()}
-														</span>
-														<Icon icon="mdi:chevron-down" class="w-4 h-4" />
-													</button>
-													
-													<!-- Platform Dropdown -->
-													<div
-														id="platformDropdown-{item.id}"
-														class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
-													>
-														{#each availablePlatforms as platform}
-															<button
-																class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2 transition-colors duration-200"
-																onclick={() => {
-																	item.platform = platform.value;
-																	document.getElementById(`platformDropdown-${item.id}`)?.classList.add('hidden');
-																}}
-															>
-																<Icon icon={platform.icon} class="w-4 h-4" />
-																<span>{platform.label}</span>
-															</button>
-														{/each}
-													</div>
-												</div>
-											</div>
+                                            <!-- 平台选择（复用组件） -->
+                                            <div class="flex-shrink-0">
+                                                <Dropdown
+                                                    value={item.platform}
+                                                    options={getOptionsForItem(item)}
+                                                    placeholder={m['user.account.platform']()}
+                                                    widthClass="w-32"
+                                                    on:change={(e) => { item.platform = e.detail; }}
+                                                />
+                                            </div>
 											
 											<!-- 链接输入框 -->
 											<div class="flex-1 min-w-0">
