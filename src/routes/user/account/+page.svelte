@@ -9,6 +9,7 @@
 
 	// 当前选中的页面
 	let currentPage = 'change-password';
+	let isPageReady = false;
 
 	// 修改密码表单状态
 	let currentPassword = '';
@@ -36,11 +37,44 @@
 		}
 	];
 
-	// 切换页面
-	function switchPage(pageId: string) {
-		currentPage = pageId;
-		passwordMessage = '';
-	}
+    // 允许的页面列表
+    const allowedPages = ['change-password', 'public-info'];
+
+    // 切换页面（并写入 URL hash）
+    function switchPage(pageId: string) {
+        currentPage = pageId;
+        passwordMessage = '';
+        // 在客户端更新 URL 的 hash，避免 SSR 引用 window
+        if (typeof window !== 'undefined') {
+            const newHash = `#${pageId}`;
+            if (window.location.hash !== newHash) {
+                // 使用 replaceState 避免产生额外历史记录
+                window.history.replaceState(null, '', newHash);
+            }
+        }
+    }
+
+    // 从 URL hash 初始化当前页面，并监听 hash 变化
+    onMount(() => {
+        try {
+            const hash = (window.location.hash || '').replace('#', '').trim();
+            if (hash && allowedPages.includes(hash)) {
+                currentPage = hash;
+            }
+            isPageReady = true;
+
+            const onHashChange = () => {
+                const h = (window.location.hash || '').replace('#', '').trim();
+                if (h && allowedPages.includes(h)) {
+                    currentPage = h;
+                }
+            };
+            window.addEventListener('hashchange', onHashChange);
+            onDestroy(() => window.removeEventListener('hashchange', onHashChange));
+        } catch {
+            isPageReady = true;
+        }
+    });
 
 	// 修改密码处理
 	function handleChangePassword() {
@@ -146,6 +180,7 @@
 	<!-- Navbar -->
 	<Navbar centerTitle="user.account.title" showBackButton={true} backButtonUrl="/" />
 	
+	{#if isPageReady}
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 		<div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
 			<!-- 左侧导航 -->
@@ -405,4 +440,12 @@
 			</div>
 		</div>
 	</div>
+	{:else}
+	<!-- 初始锚点未确定前占位，避免闪烁 -->
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+			<div class="h-24 animate-pulse bg-gray-100 dark:bg-gray-700 rounded" />
+		</div>
+	</div>
+	{/if}
 </div>
