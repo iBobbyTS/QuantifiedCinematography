@@ -19,7 +19,8 @@
 	let passwordMessage = '';
 
 	// 公开信息状态
-	let publicInfoItems = [];
+	type PublicInfoItem = { id: number; platform: string; link: string };
+	let publicInfoItems: PublicInfoItem[] = [];
 	let isUpdatingInfo = false;
 	let infoMessage = '';
 
