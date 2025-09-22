@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import { page } from '$app/stores';
 	import * as m from '$lib/paraglide/messages.js';
 	import Navbar from '$lib/components/Navbar.svelte';
@@ -67,6 +67,26 @@
 	$: availablePlatforms = platformOptions.filter(platform => 
 		!publicInfoItems.some(item => item.platform === platform.value)
 	);
+
+	// Outside click handler for dropdowns
+	function handleDocumentClick(event: MouseEvent) {
+		for (const item of publicInfoItems) {
+			const container = document.querySelector(`[data-dd-id="${item.id}"]`) as HTMLElement | null;
+			if (!container) continue;
+			if (!container.contains(event.target as Node)) {
+				const dd = document.getElementById(`platformDropdown-${item.id}`) as HTMLElement | null;
+				if (dd && !dd.classList.contains('hidden')) {
+					dd.classList.add('hidden');
+				}
+			}
+		}
+	}
+	onMount(() => {
+		document.addEventListener('click', handleDocumentClick);
+	});
+	onDestroy(() => {
+		document.removeEventListener('click', handleDocumentClick);
+	});
 
 	// 添加新的平台信息行
 	function addPlatformInfo() {
@@ -338,7 +358,7 @@
 										<div class="flex items-center space-x-4 p-4 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
 											<!-- 平台选择下拉框 -->
 											<div class="flex-shrink-0 w-32">
-												<div class="relative">
+												<div class="relative" data-dd-id={item.id}>
 													<button
 														class="w-full px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200 flex items-center justify-between"
 														onclick={() => {
