@@ -444,7 +444,7 @@
 	<!-- 初始锚点未确定前占位，避免闪烁 -->
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-			<div class="h-24 animate-pulse bg-gray-100 dark:bg-gray-700 rounded" />
+			<div class="h-24 animate-pulse bg-gray-100 dark:bg-gray-700 rounded"></div>
 		</div>
 	</div>
 	{/if}
