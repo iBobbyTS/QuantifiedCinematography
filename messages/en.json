@@ -62,8 +62,8 @@
 			},
 			"socialMedia": "Social Media",
 			"add": "Add",
-            "update": "Update",
-            "updatedCount": "Updated {count}",
+			"update": "Update",
+			"updatedCount": "Updated {count}",
 			"allPlatformsAdded": "All platforms added"
 		}
 	},
@@ -180,6 +180,16 @@
 				"errors": {
 					"failed_to_update": "Failed to update permissions",
 					"network_error": "Network error occurred"
+				}
+			},
+			"notifications": {
+				"delete_success": {
+					"title": "User Deleted Successfully",
+					"message": "User '{username}' has been deleted."
+				},
+				"delete_failure": {
+					"title": "Failed to Delete User",
+					"message": "User '{username}' could not be deleted. Error: {error}"
 				}
 			}
 		}

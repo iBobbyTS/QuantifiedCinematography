@@ -37,7 +37,9 @@
 	// Toast 通知状态
 	let showSuccessToast = $state(false);
 	let showErrorToast = $state(false);
+	let toastTitle = $state('');
 	let toastMessage = $state('');
+	let deletedUsername = $state('');
 
 	// 检查编辑对象是否是当前用户
 	let isEditingCurrentUser = $derived(selectedUser && $page.data.user && selectedUser.id === $page.data.user.id);
@@ -237,8 +239,14 @@
 					if (userIndex !== -1) {
 						users.splice(userIndex, 1);
 					}
+					
+					// 在关闭确认弹窗前保存用户名
+					const deletedUsername = userToDelete.username;
 					closeDeleteConfirm();
+					
 					// 显示成功 Toast
+					toastTitle = m['administrator.manage_users.notifications.delete_success.title']();
+					toastMessage = m['administrator.manage_users.notifications.delete_success.message']({ username: deletedUsername });
 					showSuccessToast = true;
 					return;
 				}
@@ -250,12 +258,22 @@
 				msg = data?.message || msg;
 			} catch {}
 			// 显示错误 Toast 而不是 alert
-			toastMessage = msg;
+			const failedUsername = userToDelete?.username || 'Unknown';
+			toastTitle = m['administrator.manage_users.notifications.delete_failure.title']();
+			toastMessage = m['administrator.manage_users.notifications.delete_failure.message']({ 
+				username: failedUsername, 
+				error: msg 
+			});
 			showErrorToast = true;
 		} catch (error) {
 			console.error('Error deleting user:', error);
 			// 显示网络错误 Toast 而不是 alert
-			toastMessage = 'Network error occurred while deleting user';
+			const networkFailedUsername = userToDelete?.username || 'Unknown';
+			toastTitle = m['administrator.manage_users.notifications.delete_failure.title']();
+			toastMessage = m['administrator.manage_users.notifications.delete_failure.message']({ 
+				username: networkFailedUsername, 
+				error: 'Network error occurred while deleting user' 
+			});
 			showErrorToast = true;
 		} finally {
 			isDeleting = false;
@@ -265,11 +283,15 @@
 	// 处理成功 Toast
 	function handleSuccessToastClose() {
 		showSuccessToast = false;
+		toastTitle = '';
+		toastMessage = '';
+		deletedUsername = '';
 	}
 
 	// 处理错误 Toast
 	function handleErrorToastClose() {
 		showErrorToast = false;
+		toastTitle = '';
 		toastMessage = '';
 	}
 </script>
@@ -511,8 +533,8 @@
 <!-- Success Toast -->
 <Toast
 	bind:isVisible={showSuccessToast}
-	title="删除成功"
-	message="用户已成功删除"
+	title={toastTitle}
+	message={toastMessage}
 	iconName="mdi:check-circle"
 	iconColor="text-green-500"
 	duration={3000}
@@ -522,7 +544,7 @@
 <!-- Error Toast -->
 <Toast
 	bind:isVisible={showErrorToast}
-	title="删除失败"
+	title={toastTitle}
 	message={toastMessage}
 	iconName="mdi:alert-circle"
 	iconColor="text-red-500"
