@@ -185,10 +185,10 @@
 			</div>
 			
 			<!-- Right align - Language and Theme controls -->
-			<div class="flex items-center justify-end space-x-4">
+			<div class="flex items-center justify-end space-x-2">
 					{#if currentUser}
 					<!-- User Menu -->
-            <div class="min-w-[8rem]">
+            <div class="min-w-40">
                 <Dropdown
                     placeholder={currentUser.nickname}
                     options={[
@@ -215,7 +215,7 @@
 					<!-- Login Button -->
 					<a
 						href="/user/login"
-						class="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-lg transition-colors duration-200"
+						class="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-lg transition-colors duration-200"
 					>
 						<Icon icon="mdi:login" class="w-4 h-4" />
 						<span class="hidden sm:inline">{m['auth.login']()}</span>
@@ -223,21 +223,21 @@
 				{/if}
 				
 				<!-- Language Selector -->
-            <div class="min-w-[10rem]">
+            <div class="w-28">
                 <Dropdown
                     placeholder={languageOptions.find(lang => lang.code === currentLanguage)?.name || 'Language'}
                     options={languageOptions.map((lang) => ({ value: lang.code, label: `${lang.flag} ${lang.name}` }))}
-                    widthClass="w-48"
+                    widthClass="w-28"
                     on:change={(e) => changeLanguage(e.detail as string)}
                 />
             </div>
 				
 				<!-- Theme Selector -->
-            <div class="min-w-[10rem]">
+            <div class="w-36">
                 <Dropdown
                     placeholder={currentThemeDisplayName}
                     options={themeOptionsLocalized.map((t) => ({ value: t.code, label: t.localizedName, icon: t.icon }))}
-                    widthClass="w-48"
+                    widthClass="w-36"
                     on:change={(e) => changeTheme(e.detail as string)}
                 />
             </div>
@@ -246,9 +246,3 @@
 	</div>
 </nav>
 
-<style>
-	/* 确保下拉菜单在深色模式下正确显示 */
-	#languageDropdown, #themeDropdown {
-		backdrop-filter: blur(10px);
-	}
-</style>
