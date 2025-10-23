@@ -17,7 +17,7 @@
 	interface ToastData {
 		id: string;
 		title: string;
-		message: string;
+		message?: string;
 		iconName: string;
 		iconColor: string;
 		duration: number;

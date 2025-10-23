@@ -4,7 +4,8 @@
 	"app": {
 		"title": "量化光影",
 		"error": "错误：{message}",
-		"networkError": "网络错误"
+		"networkError": "网络错误",
+		"copy": "复制"
 	},
 	"navbar": {
 		"backToHome": "主页",
@@ -113,7 +114,19 @@
 					"creating": "创建中..."
 				},
 				"errors": {
-					"failed_to_create": "创建用户失败"
+					"failed_to_create": "创建用户失败",
+					"username_exists": "用户名已存在",
+					"network_error": "网络错误"
+				},
+				"success_modal": {
+					"title": "用户创建成功",
+					"description": "用户 '{username}' 已成功创建。",
+					"password_label": "生成的密码：",
+					"password_warning": "请安全保存此密码，密码不会再次显示。",
+					"buttons": {
+						"continue_adding": "继续添加用户",
+						"return_to_management": "返回用户管理"
+					}
 				}
 			},
 			"table": {
@@ -182,6 +195,10 @@
 				"delete_failure": {
 					"title": "删除用户失败",
 					"message": "用户\"{username}\"未成功删除，错误原因：{error}"
+				},
+				"cannot_delete_self": {
+					"title": "无法删除自己的账户",
+					"message": "您无法删除自己的账户。"
 				}
 			}
 		}

@@ -4,11 +4,12 @@
 	import Icon from '@iconify/svelte';
 	import * as m from '$lib/paraglide/messages.js';
 	import Navbar from '$lib/components/Navbar.svelte';
+	import ToastManager from '$lib/components/Toast/ToastManager.svelte';
 	import { USER_PERMISSIONS, UserPermissions } from '$lib/permission/bitmask.js';
 	import { PERMISSION_OPTIONS, PERMISSION_I18N_KEYS } from '$lib/permission/permissions.js';
 
-	let errorMessage = '';
 	let isLoading = false;
+	let toastManager: ToastManager;
 	let showPermissionModal = false;
 	let selectedPermissions = 0;
 	let showPasswordModal = false;
@@ -40,7 +41,6 @@
 
 	async function handleSubmit() {
 		isLoading = true;
-		errorMessage = '';
 
 		try {
 			const response = await fetch('/api/admin/user/create', {
@@ -61,11 +61,37 @@
 				showPasswordModal = true;
 			} else {
 				const errorData = await response.json();
-				errorMessage = errorData.message || 'Failed to create user';
+				const errorMessage = errorData.message || 'Failed to create user';
+				
+				// 根据错误类型显示不同的Toast
+				if (errorMessage.toLowerCase().includes('username already exists') || 
+					errorMessage.toLowerCase().includes('username exists')) {
+					toastManager.showToast({
+						title: m['administrator.manage_users.add_user_page.errors.username_exists'](),
+						iconName: 'mdi:alert-circle',
+						iconColor: 'text-red-500',
+						duration: 5000,
+						showCountdown: true
+					});
+				} else {
+					toastManager.showToast({
+						title: m['administrator.manage_users.add_user_page.errors.failed_to_create'](),
+						iconName: 'mdi:alert-circle',
+						iconColor: 'text-red-500',
+						duration: 5000,
+						showCountdown: true
+					});
+				}
 			}
 		} catch (error) {
 			console.error('Error creating user:', error);
-			errorMessage = 'Network error occurred';
+			toastManager.showToast({
+				title: m['administrator.manage_users.add_user_page.errors.network_error'](),
+				iconName: 'mdi:alert-circle',
+				iconColor: 'text-red-500',
+				duration: 5000,
+				showCountdown: true
+			});
 		} finally {
 			isLoading = false;
 		}
@@ -216,20 +242,6 @@
 		<!-- Add User Form -->
 		<div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg">
 			<div class="px-4 py-5 sm:p-6">
-				{#if errorMessage}
-					<div class="rounded-md bg-red-50 dark:bg-red-900/20 p-4 mb-6">
-						<div class="flex">
-							<div class="flex-shrink-0">
-								<Icon icon="mdi:alert-circle" class="h-5 w-5 text-red-400" />
-							</div>
-							<div class="ml-3">
-								<p class="text-sm text-red-800 dark:text-red-200">
-									{errorMessage}
-								</p>
-							</div>
-						</div>
-					</div>
-				{/if}
 
 				<form
 					class="space-y-6"
@@ -353,7 +365,7 @@
 					</button>
 				</div>
 				<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-					{m[PERMISSION_I18N_KEYS.modal.userInfo]().replace('{nickname}', permissionModalUser.nickname).replace('{username}', permissionModalUser.username)}
+					{m[PERMISSION_I18N_KEYS.modal.userInfo]({ nickname: permissionModalUser.nickname, username: permissionModalUser.username })}
 				</p>
 			</div>
 
@@ -439,7 +451,7 @@
 			<!-- Header -->
 			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
 				<h3 id="password-modal-title" class="text-lg font-medium text-gray-900 dark:text-white">
-					User Created Successfully
+					{m['administrator.manage_users.add_user_page.success_modal.title']()}
 				</h3>
 			</div>
 
@@ -447,16 +459,16 @@
 			<div class="px-6 py-4">
 				<div class="mb-4">
 					<p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
-						User <strong>{createdUsername}</strong> has been created successfully.
+						{m['administrator.manage_users.add_user_page.success_modal.description']({ username: createdUsername })}
 					</p>
 					<p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-						Please copy the generated password and share it with the user:
+						{m['administrator.manage_users.add_user_page.success_modal.password_warning']()}
 					</p>
 				</div>
 
 				<div class="mb-4">
 					<label for="generated-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-						Generated Password:
+						{m['administrator.manage_users.add_user_page.success_modal.password_label']()}
 					</label>
 					<div class="flex">
 						<input
@@ -471,7 +483,7 @@
 							onclick={copyPassword}
 							class="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-500 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium dark:bg-blue-500 dark:hover:bg-blue-400 dark:hover:border-blue-500"
 						>
-							Copy
+							{m['app.copy']()}
 						</button>
 					</div>
 				</div>
@@ -480,7 +492,7 @@
 					<div class="flex">
 						<Icon icon="mdi:alert" class="h-5 w-5 text-yellow-400" />
 						<p class="ml-2 text-sm text-yellow-800 dark:text-yellow-200">
-							Please save this password securely. It will not be shown again.
+							{m['administrator.manage_users.add_user_page.success_modal.password_warning']()}
 						</p>
 					</div>
 				</div>
@@ -492,7 +504,7 @@
 					onclick={closePasswordModal}
 					class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-600 dark:hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
 				>
-					Continue Adding Users
+					{m['administrator.manage_users.add_user_page.success_modal.buttons.continue_adding']()}
 				</button>
 				<button
 					onclick={() => {
@@ -501,9 +513,12 @@
 					}}
 					class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-400 dark:hover:border-blue-500"
 				>
-					Return to User Management
+					{m['administrator.manage_users.add_user_page.success_modal.buttons.return_to_management']()}
 				</button>
 			</div>
 		</div>
 	</div>
 {/if}
+
+<!-- Toast Manager -->
+<ToastManager bind:this={toastManager} />
