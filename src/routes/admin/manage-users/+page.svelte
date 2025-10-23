@@ -8,7 +8,7 @@
 	import { USER_PERMISSIONS, UserPermissions } from '$lib/permission/bitmask.js';
 	import { PERMISSION_OPTIONS, PERMISSION_I18N_KEYS } from '$lib/permission/permissions.js';
 	import ConfirmModal from '$lib/components/Modal/ConfirmModal.svelte';
-	import Toast from '$lib/components/Toast.svelte';
+	import ToastManager from '$lib/components/ToastManager.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -34,12 +34,8 @@
 	let userToDelete: any = $state(null);
 	let isDeleting = $state(false);
 	
-	// Toast 通知状态
-	let showSuccessToast = $state(false);
-	let showErrorToast = $state(false);
-	let toastTitle = $state('');
-	let toastMessage = $state('');
-	let deletedUsername = $state('');
+	// Toast 管理器引用
+	let toastManager: ToastManager;
 
 	// 检查编辑对象是否是当前用户
 	let isEditingCurrentUser = $derived(selectedUser && $page.data.user && selectedUser.id === $page.data.user.id);
@@ -245,9 +241,14 @@
 					closeDeleteConfirm();
 					
 					// 显示成功 Toast
-					toastTitle = m['administrator.manage_users.notifications.delete_success.title']();
-					toastMessage = m['administrator.manage_users.notifications.delete_success.message']({ username: deletedUsername });
-					showSuccessToast = true;
+					toastManager.showToast({
+						title: m['administrator.manage_users.notifications.delete_success.title'](),
+						message: m['administrator.manage_users.notifications.delete_success.message']({ username: deletedUsername }),
+						iconName: 'mdi:check-circle',
+						iconColor: 'text-green-500',
+						duration: 3000,
+						showCountdown: true
+					});
 					return;
 				}
 			}
@@ -259,41 +260,37 @@
 			} catch {}
 			// 显示错误 Toast 而不是 alert
 			const failedUsername = userToDelete?.username || 'Unknown';
-			toastTitle = m['administrator.manage_users.notifications.delete_failure.title']();
-			toastMessage = m['administrator.manage_users.notifications.delete_failure.message']({ 
-				username: failedUsername, 
-				error: msg 
+			toastManager.showToast({
+				title: m['administrator.manage_users.notifications.delete_failure.title'](),
+				message: m['administrator.manage_users.notifications.delete_failure.message']({ 
+					username: failedUsername, 
+					error: msg 
+				}),
+				iconName: 'mdi:alert-circle',
+				iconColor: 'text-red-500',
+				duration: 5000,
+				showCountdown: true
 			});
-			showErrorToast = true;
 		} catch (error) {
 			console.error('Error deleting user:', error);
 			// 显示网络错误 Toast 而不是 alert
 			const networkFailedUsername = userToDelete?.username || 'Unknown';
-			toastTitle = m['administrator.manage_users.notifications.delete_failure.title']();
-			toastMessage = m['administrator.manage_users.notifications.delete_failure.message']({ 
-				username: networkFailedUsername, 
-				error: 'Network error occurred while deleting user' 
+			toastManager.showToast({
+				title: m['administrator.manage_users.notifications.delete_failure.title'](),
+				message: m['administrator.manage_users.notifications.delete_failure.message']({ 
+					username: networkFailedUsername, 
+					error: 'Network error occurred while deleting user' 
+				}),
+				iconName: 'mdi:alert-circle',
+				iconColor: 'text-red-500',
+				duration: 5000,
+				showCountdown: true
 			});
-			showErrorToast = true;
 		} finally {
 			isDeleting = false;
 		}
 	}
 
-	// 处理成功 Toast
-	function handleSuccessToastClose() {
-		showSuccessToast = false;
-		toastTitle = '';
-		toastMessage = '';
-		deletedUsername = '';
-	}
-
-	// 处理错误 Toast
-	function handleErrorToastClose() {
-		showErrorToast = false;
-		toastTitle = '';
-		toastMessage = '';
-	}
 </script>
 
 <svelte:head>
@@ -530,24 +527,5 @@
 	on:cancel={closeDeleteConfirm}
 />
 
-<!-- Success Toast -->
-<Toast
-	bind:isVisible={showSuccessToast}
-	title={toastTitle}
-	message={toastMessage}
-	iconName="mdi:check-circle"
-	iconColor="text-green-500"
-	duration={3000}
-	onClose={handleSuccessToastClose}
-/>
-
-<!-- Error Toast -->
-<Toast
-	bind:isVisible={showErrorToast}
-	title={toastTitle}
-	message={toastMessage}
-	iconName="mdi:alert-circle"
-	iconColor="text-red-500"
-	duration={5000}
-	onClose={handleErrorToastClose}
-/>
+<!-- Toast Manager -->
+<ToastManager bind:this={toastManager} />

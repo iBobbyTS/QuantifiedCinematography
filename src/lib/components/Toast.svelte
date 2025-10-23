@@ -13,7 +13,6 @@
 	import Icon from '@iconify/svelte';
 
 	let {
-		isVisible = $bindable(),
 		title = 'Notification',
 		message = '',
 		iconName = 'mdi:information',
@@ -22,7 +21,6 @@
 		showCountdown = true,
 		onClose = () => {}
 	} = $props<{
-		isVisible: boolean;
 		title?: string;
 		message?: string;
 		iconName?: string;
@@ -71,17 +69,13 @@
 			clearInterval(progressTimer);
 			progressTimer = null;
 		}
-		isVisible = false;
 		onClose();
 	}
 
-
-	// 监听 isVisible 变化
-	$effect(() => {
-		if (isVisible) {
-			progress = 100;
-			startCountdown();
-		}
+	// 组件挂载时自动开始倒计时
+	onMount(() => {
+		progress = 100;
+		startCountdown();
 	});
 
 	// 组件销毁时清理定时器
@@ -91,49 +85,47 @@
 	});
 </script>
 
-{#if isVisible}
-	<div class="fixed bottom-4 right-4 z-50 max-w-sm w-full">
-		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-			<!-- Progress bar -->
-			{#if showCountdown}
-				<div class="h-1 bg-gray-200 dark:bg-gray-700">
-					<div 
-						class="h-full bg-blue-500 transition-all duration-50 ease-linear"
-						style="width: {progress}%"
-					></div>
-				</div>
-			{/if}
-
-			<!-- Toast content -->
-			<div class="p-4">
-				<div class="flex items-start space-x-3">
-					<!-- Icon -->
-					<div class="flex-shrink-0">
-						<Icon icon={iconName} class="w-6 h-6 {iconColor}" />
-					</div>
-
-					<!-- Content -->
-					<div class="flex-1 min-w-0">
-						<h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-							{title}
-						</h3>
-						{#if message}
-							<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-								{message}
-							</p>
-						{/if}
-					</div>
-
-					<!-- Close button -->
-					<button
-						onclick={closeToast}
-						class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
-					>
-						<Icon icon="mdi:close" class="w-5 h-5" />
-					</button>
-				</div>
-
+<div class="max-w-sm w-full">
+	<div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+		<!-- Progress bar -->
+		{#if showCountdown}
+			<div class="h-1 bg-gray-200 dark:bg-gray-700">
+				<div 
+					class="h-full bg-blue-500 transition-all duration-50 ease-linear"
+					style="width: {progress}%"
+				></div>
 			</div>
+		{/if}
+
+		<!-- Toast content -->
+		<div class="p-4">
+			<div class="flex items-start space-x-3">
+				<!-- Icon -->
+				<div class="flex-shrink-0">
+					<Icon icon={iconName} class="w-6 h-6 {iconColor}" />
+				</div>
+
+				<!-- Content -->
+				<div class="flex-1 min-w-0">
+					<h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+						{title}
+					</h3>
+					{#if message}
+						<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+							{message}
+						</p>
+					{/if}
+				</div>
+
+				<!-- Close button -->
+				<button
+					onclick={closeToast}
+					class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
+				>
+					<Icon icon="mdi:close" class="w-5 h-5" />
+				</button>
+			</div>
+
 		</div>
 	</div>
-{/if}
+</div>
