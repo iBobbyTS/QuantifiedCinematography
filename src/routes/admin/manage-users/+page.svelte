@@ -208,27 +208,37 @@
 		isDeleting = true;
 
 		try {
-			const response = await fetch('/api/admin/user/delete', {
-				method: 'DELETE',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					userId: userToDelete.id
-				})
+			const fd = new FormData();
+			fd.set('userId', String(userToDelete.id));
+			const response = await fetch('?/deleteUser', {
+				method: 'POST',
+				body: fd
 			});
 
 			if (response.ok) {
-				// 从用户列表中移除已删除的用户
-				const userIndex = users.findIndex(u => u.id === userToDelete.id);
-				if (userIndex !== -1) {
-					users.splice(userIndex, 1);
+				// 解析 action envelope
+				let ok = true;
+				try {
+					const envelope = await response.json();
+					if (envelope?.type === 'failure') ok = false;
+					else if (envelope?.type === 'success') ok = true;
+				} catch {}
+				if (ok) {
+					const userIndex = users.findIndex(u => u.id === userToDelete.id);
+					if (userIndex !== -1) {
+						users.splice(userIndex, 1);
+					}
+					closeDeleteConfirm();
+					return;
 				}
-				closeDeleteConfirm();
-			} else {
-				const errorData = await response.json();
-				alert(errorData.message || 'Failed to delete user');
 			}
+			// 非 2xx 或 envelope 标记失败
+			let msg = 'Failed to delete user';
+			try {
+				const data = await response.json();
+				msg = data?.message || msg;
+			} catch {}
+			alert(msg);
 		} catch (error) {
 			console.error('Error deleting user:', error);
 			alert('Network error occurred while deleting user');
