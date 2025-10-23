@@ -8,7 +8,7 @@
 	import { USER_PERMISSIONS, UserPermissions } from '$lib/permission/bitmask.js';
 	import { PERMISSION_OPTIONS, PERMISSION_I18N_KEYS } from '$lib/permission/permissions.js';
 	import ConfirmModal from '$lib/components/Modal/ConfirmModal.svelte';
-	import ToastManager from '$lib/components/ToastManager.svelte';
+	import ToastManager from '$lib/components/Toast/ToastManager.svelte';
 
 	let { data }: { data: PageData } = $props();
 
