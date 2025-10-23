@@ -146,7 +146,9 @@
 			},
 			"actions": {
 				"disable_user": "Disable User",
-				"delete_user": "Delete User"
+				"delete_user": "Delete User",
+				"cannot_disable_self": "Cannot disable your own account",
+				"cannot_delete_self": "Cannot delete your own account"
 			},
 			"confirmations": {
 				"disable_user": "Are you sure you want to disable this user?",

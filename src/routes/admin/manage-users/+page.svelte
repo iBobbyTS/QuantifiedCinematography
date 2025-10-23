@@ -40,6 +40,11 @@
 	// 检查编辑对象是否是当前用户
 	let isEditingCurrentUser = $derived(selectedUser && $page.data.user && selectedUser.id === $page.data.user.id);
 
+	// 检查指定用户是否是当前用户
+	function isCurrentUser(userId: string): boolean {
+		return $page.data.user && userId === $page.data.user.id;
+	}
+
 	// 响应式声明：当 originalPermissions 变化时重新初始化
 	$effect(() => {
 		if (originalPermissions !== undefined && !isPermissionModalInitialized) {
@@ -225,11 +230,34 @@
 			if (response.ok) {
 				// 解析 action envelope
 				let ok = true;
+				let errorMessage = 'Failed to delete user';
 				try {
 					const envelope = await response.json();
-					if (envelope?.type === 'failure') ok = false;
-					else if (envelope?.type === 'success') ok = true;
+					if (envelope?.type === 'failure') {
+						ok = false;
+						// SvelteKit fail() 返回的错误消息在 data 字段中
+						if (envelope.data && typeof envelope.data === 'object' && envelope.data.message) {
+							errorMessage = envelope.data.message;
+						} else if (Array.isArray(envelope.data) && envelope.data.length > 0) {
+							// 处理数组格式的错误消息
+							errorMessage = envelope.data[envelope.data.length - 1];
+						} else if (typeof envelope.data === 'string') {
+							// 处理字符串化的JSON数组格式
+							try {
+								const parsedData = JSON.parse(envelope.data);
+								if (Array.isArray(parsedData) && parsedData.length > 0) {
+									errorMessage = parsedData[parsedData.length - 1];
+								}
+							} catch (e) {
+								// 如果解析失败，使用原始字符串
+								errorMessage = envelope.data;
+							}
+						}
+					} else if (envelope?.type === 'success') {
+						ok = true;
+					}
 				} catch {}
+				
 				if (ok) {
 					const userIndex = users.findIndex(u => u.id === userToDelete.id);
 					if (userIndex !== -1) {
@@ -250,9 +278,24 @@
 						showCountdown: true
 					});
 					return;
+				} else {
+					// 处理 SvelteKit 服务器动作失败
+					const failedUsername = userToDelete?.username || 'Unknown';
+					toastManager.showToast({
+						title: m['administrator.manage_users.notifications.delete_failure.title'](),
+						message: m['administrator.manage_users.notifications.delete_failure.message']({ 
+							username: failedUsername, 
+							error: errorMessage 
+						}),
+						iconName: 'mdi:alert-circle',
+						iconColor: 'text-red-500',
+						duration: 5000,
+						showCountdown: true
+					});
+					return;
 				}
 			}
-			// 非 2xx 或 envelope 标记失败
+			// 非 2xx 响应
 			let msg = 'Failed to delete user';
 			try {
 				const data = await response.json();
@@ -372,15 +415,17 @@
 										<div class="flex space-x-4">
 											<button
 												onclick={() => disableUser(user.id)}
-												class="p-2 text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300 transition-colors duration-200 rounded-md hover:bg-yellow-50 dark:hover:bg-yellow-900/20"
-							title={m['administrator.manage_users.actions.disable_user']()}
+												disabled={isCurrentUser(user.id)}
+												class="p-2 text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300 transition-colors duration-200 rounded-md hover:bg-yellow-50 dark:hover:bg-yellow-900/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-yellow-600 dark:disabled:hover:text-yellow-400"
+												title={isCurrentUser(user.id) ? m['administrator.manage_users.actions.cannot_disable_self']() : m['administrator.manage_users.actions.disable_user']()}
 											>
 												<Icon icon="mdi:account-off" class="w-5 h-5" />
 											</button>
 											<button
 												onclick={() => openDeleteConfirm(user)}
-												class="p-2 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20"
-							title={m['administrator.manage_users.actions.delete_user']()}
+												disabled={isCurrentUser(user.id)}
+												class="p-2 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-red-600 dark:disabled:hover:text-red-400"
+												title={isCurrentUser(user.id) ? m['administrator.manage_users.actions.cannot_delete_self']() : m['administrator.manage_users.actions.delete_user']()}
 											>
 												<Icon icon="mdi:delete" class="w-5 h-5" />
 											</button>

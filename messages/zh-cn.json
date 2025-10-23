@@ -138,7 +138,9 @@
 			},
 			"actions": {
 				"disable_user": "禁用用户",
-				"delete_user": "删除用户"
+				"delete_user": "删除用户",
+				"cannot_disable_self": "无法禁用自己的账户",
+				"cannot_delete_self": "无法删除自己的账户"
 			},
 			"confirmations": {
 				"disable_user": "确定要禁用此用户吗？",
