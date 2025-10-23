@@ -10,47 +10,51 @@
 	import ConfirmModal from '$lib/components/Modal/ConfirmModal.svelte';
 	import Toast from '$lib/components/Toast.svelte';
 
-	export let data: PageData;
+	let { data }: { data: PageData } = $props();
 
-	// 用户数据
-	$: users = data.users;
+	// 用户数据 - 创建可修改的本地副本
+	let users = $state(data.users);
+	
+	// 当 data.users 变化时更新本地副本
+	$effect(() => {
+		users = [...data.users];
+	});
 
 	// 弹窗状态
-	let showPermissionModal = false;
-	let selectedUser: any = null;
-	let originalPermissions: number = 0;
-	let currentPermissions: number = 0;
-	let isPermissionModalLoading = false;
-	let permissionModalErrorMessage = '';
-	let hasPermissionChanges = false;
-	let isPermissionModalInitialized = false;
+	let showPermissionModal = $state(false);
+	let selectedUser: any = $state(null);
+	let originalPermissions: number = $state(0);
+	let currentPermissions: number = $state(0);
+	let isPermissionModalLoading = $state(false);
+	let permissionModalErrorMessage = $state('');
+	let isPermissionModalInitialized = $state(false);
 
 	// 删除确认弹窗状态
-	let showDeleteConfirm = false;
-	let userToDelete: any = null;
-	let isDeleting = false;
+	let showDeleteConfirm = $state(false);
+	let userToDelete: any = $state(null);
+	let isDeleting = $state(false);
 	
 	// Toast 通知状态
-	let showSuccessToast = false;
-	let showErrorToast = false;
-	let toastMessage = '';
+	let showSuccessToast = $state(false);
+	let showErrorToast = $state(false);
+	let toastMessage = $state('');
 
 	// 检查编辑对象是否是当前用户
-	$: isEditingCurrentUser = selectedUser && $page.data.user && selectedUser.id === $page.data.user.id;
+	let isEditingCurrentUser = $derived(selectedUser && $page.data.user && selectedUser.id === $page.data.user.id);
 
 	// 响应式声明：当 originalPermissions 变化时重新初始化
-	$: if (originalPermissions !== undefined && !isPermissionModalInitialized) {
-		currentPermissions = originalPermissions;
-		isPermissionModalInitialized = true;
-	}
+	$effect(() => {
+		if (originalPermissions !== undefined && !isPermissionModalInitialized) {
+			currentPermissions = originalPermissions;
+			isPermissionModalInitialized = true;
+		}
+	});
 
 	// 检查权限是否有变化
-	$: {
-		hasPermissionChanges = currentPermissions !== originalPermissions;
-	}
+	let hasPermissionChanges = $derived(currentPermissions !== originalPermissions);
 
 	// 权限显示函数 - 使用国际化函数，响应语言变化
-	$: getPermissionText = (permission: number): string => {
+	function getPermissionText(permission: number): string {
 		const permissionNames: string[] = [];
 		
 		if (UserPermissions.hasLightPermission(permission)) {
@@ -67,7 +71,7 @@
 		}
 		
 		return permissionNames.length > 0 ? permissionNames.join(', ') : m[PERMISSION_I18N_KEYS.permissions.none]();
-	};
+	}
 
 	// 添加用户
 	function addUser() {
@@ -121,7 +125,6 @@
 		
 		// 更新权限并立即计算变化状态
 		currentPermissions = newPermissions;
-		hasPermissionChanges = currentPermissions !== originalPermissions;
 	}
 
 	// 提交权限修改
