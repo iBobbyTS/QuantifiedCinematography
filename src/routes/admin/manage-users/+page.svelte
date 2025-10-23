@@ -8,6 +8,7 @@
 	import { USER_PERMISSIONS, UserPermissions } from '$lib/permission/bitmask.js';
 	import { PERMISSION_OPTIONS, PERMISSION_I18N_KEYS } from '$lib/permission/permissions.js';
 	import ConfirmModal from '$lib/components/Modal/ConfirmModal.svelte';
+	import Toast from '$lib/components/Toast.svelte';
 
 	export let data: PageData;
 
@@ -28,6 +29,11 @@
 	let showDeleteConfirm = false;
 	let userToDelete: any = null;
 	let isDeleting = false;
+	
+	// Toast 通知状态
+	let showSuccessToast = false;
+	let showErrorToast = false;
+	let toastMessage = '';
 
 	// 检查编辑对象是否是当前用户
 	$: isEditingCurrentUser = selectedUser && $page.data.user && selectedUser.id === $page.data.user.id;
@@ -229,6 +235,8 @@
 						users.splice(userIndex, 1);
 					}
 					closeDeleteConfirm();
+					// 显示成功 Toast
+					showSuccessToast = true;
 					return;
 				}
 			}
@@ -238,13 +246,28 @@
 				const data = await response.json();
 				msg = data?.message || msg;
 			} catch {}
-			alert(msg);
+			// 显示错误 Toast 而不是 alert
+			toastMessage = msg;
+			showErrorToast = true;
 		} catch (error) {
 			console.error('Error deleting user:', error);
-			alert('Network error occurred while deleting user');
+			// 显示网络错误 Toast 而不是 alert
+			toastMessage = 'Network error occurred while deleting user';
+			showErrorToast = true;
 		} finally {
 			isDeleting = false;
 		}
+	}
+
+	// 处理成功 Toast
+	function handleSuccessToastClose() {
+		showSuccessToast = false;
+	}
+
+	// 处理错误 Toast
+	function handleErrorToastClose() {
+		showErrorToast = false;
+		toastMessage = '';
 	}
 </script>
 
@@ -480,4 +503,26 @@
 	iconColor="text-red-500"
 	on:confirm={confirmDeleteUser}
 	on:cancel={closeDeleteConfirm}
+/>
+
+<!-- Success Toast -->
+<Toast
+	bind:isVisible={showSuccessToast}
+	title="删除成功"
+	message="用户已成功删除"
+	iconName="mdi:check-circle"
+	iconColor="text-green-500"
+	duration={3000}
+	onClose={handleSuccessToastClose}
+/>
+
+<!-- Error Toast -->
+<Toast
+	bind:isVisible={showErrorToast}
+	title="删除失败"
+	message={toastMessage}
+	iconName="mdi:alert-circle"
+	iconColor="text-red-500"
+	duration={5000}
+	onClose={handleErrorToastClose}
 />
