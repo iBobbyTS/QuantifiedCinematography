@@ -140,7 +140,9 @@
 				"disable_user": "禁用用户",
 				"delete_user": "删除用户",
 				"cannot_disable_self": "无法禁用自己的账户",
-				"cannot_delete_self": "无法删除自己的账户"
+				"cannot_delete_self": "无法删除自己的账户",
+				"enable_user": "启用用户",
+				"reset_password": "重置密码"
 			},
 			"confirmations": {
 				"disable_user": "确定要禁用此用户吗？",
@@ -148,7 +150,12 @@
 				"delete_user_title": "删除用户",
 				"delete_user_message": "确定要删除用户 '{username}' ({nickname}) 吗？这将永久删除该用户及其所有上传的数据。此操作无法撤销。",
 				"delete_confirm": "删除用户",
-				"delete_cancel": "取消"
+				"delete_cancel": "取消",
+				"reset_password_title": "重置密码",
+				"reset_password_message": "确定要重置用户 '{username}' ({nickname}) 的密码吗？这将生成一个新密码，用户需要使用新密码登录。",
+				"reset_password_confirm": "重置密码",
+				"reset_password_confirm_loading": "重置中...",
+				"reset_password_cancel": "取消"
 			},
 			"empty_state": {
 				"title": "暂无用户",
@@ -201,6 +208,27 @@
 				"cannot_delete_self": {
 					"title": "无法删除自己的账户",
 					"message": "您无法删除自己的账户。"
+				},
+				"disable_success": {
+					"title": "用户状态已更新",
+					"message": "用户\"{username}\"已{action}。"
+				},
+				"disable_failure": {
+					"title": "更新用户状态失败",
+					"message": "用户\"{username}\"状态未成功更新，错误原因：{error}"
+				},
+				"reset_password_failure": {
+					"title": "重置密码失败",
+					"message": "用户\"{username}\"的密码重置失败，错误原因：{error}"
+				}
+			},
+			"password_modal": {
+				"title": "密码重置成功",
+				"description": "已为用户\"{username}\"生成新密码。",
+				"password_label": "新密码：",
+				"password_warning": "请安全保存此密码，将不会再次显示。",
+				"buttons": {
+					"close": "关闭"
 				}
 			}
 		}

@@ -148,7 +148,9 @@
 				"disable_user": "Disable User",
 				"delete_user": "Delete User",
 				"cannot_disable_self": "Cannot disable your own account",
-				"cannot_delete_self": "Cannot delete your own account"
+				"cannot_delete_self": "Cannot delete your own account",
+				"enable_user": "Enable User",
+				"reset_password": "Reset Password"
 			},
 			"confirmations": {
 				"disable_user": "Are you sure you want to disable this user?",
@@ -156,7 +158,12 @@
 				"delete_user_title": "Delete User",
 				"delete_user_message": "Are you sure you want to delete user '{username}' ({nickname})? This will permanently remove the user and all their uploaded data. This action cannot be undone.",
 				"delete_confirm": "Delete User",
-				"delete_cancel": "Cancel"
+				"delete_cancel": "Cancel",
+				"reset_password_title": "Reset Password",
+				"reset_password_message": "Are you sure you want to reset the password for user '{username}' ({nickname})? This will generate a new password and the user will need to use it to log in.",
+				"reset_password_confirm": "Reset Password",
+				"reset_password_confirm_loading": "Resetting...",
+				"reset_password_cancel": "Cancel"
 			},
 			"empty_state": {
 				"title": "No users",
@@ -209,6 +216,27 @@
 				"cannot_delete_self": {
 					"title": "Cannot Delete Own Account",
 					"message": "You cannot delete your own account."
+				},
+				"disable_success": {
+					"title": "User Status Updated",
+					"message": "User '{username}' has been {action}."
+				},
+				"disable_failure": {
+					"title": "Failed to Update User Status",
+					"message": "User '{username}' status could not be updated. Error: {error}"
+				},
+				"reset_password_failure": {
+					"title": "Failed to Reset Password",
+					"message": "Password for user '{username}' could not be reset. Error: {error}"
+				}
+			},
+			"password_modal": {
+				"title": "Password Reset Successfully",
+				"description": "A new password has been generated for user '{username}'.",
+				"password_label": "New Password:",
+				"password_warning": "Please save this password securely. It will not be shown again.",
+				"buttons": {
+					"close": "Close"
 				}
 			}
 		}

@@ -34,6 +34,16 @@
 	let userToDelete: any = $state(null);
 	let isDeleting = $state(false);
 	
+	// 重置密码确认弹窗状态
+	let showResetPasswordConfirm = $state(false);
+	let userToResetPassword: any = $state(null);
+	let isResettingPassword = $state(false);
+	
+	// 密码显示弹窗状态
+	let showPasswordModal = $state(false);
+	let generatedPassword = $state('');
+	let resetUsername = $state('');
+	
 	// Toast 管理器引用
 	let toastManager: ToastManager;
 
@@ -195,9 +205,121 @@
 	}
 
 	// 禁用用户
-	function disableUser(userId: string) {
+	async function disableUser(user: any) {
+		const isCurrentlyDisabled = user.disabled === 1;
+		const actionText = isCurrentlyDisabled ? 'enable' : 'disable';
+		
 		if (confirm(m['administrator.manage_users.confirmations.disable_user']())) {
-			// TODO: 实现禁用用户逻辑
+			try {
+				const fd = new FormData();
+				fd.set('userId', user.id);
+				fd.set('disabled', (!isCurrentlyDisabled).toString());
+				
+				const response = await fetch('?/disableUser', {
+					method: 'POST',
+					body: fd
+				});
+
+				if (response.ok) {
+					// 解析 action envelope
+					let ok = true;
+					let errorMessage = `Failed to ${actionText} user`;
+					try {
+						const envelope = await response.json();
+						if (envelope?.type === 'failure') {
+							ok = false;
+							// SvelteKit fail() 返回的错误消息在 data 字段中
+							if (envelope.data && typeof envelope.data === 'object' && envelope.data.message) {
+								errorMessage = envelope.data.message;
+							} else if (Array.isArray(envelope.data) && envelope.data.length > 0) {
+								// 处理数组格式的错误消息
+								errorMessage = envelope.data[envelope.data.length - 1];
+							} else if (typeof envelope.data === 'string') {
+								// 处理字符串化的JSON数组格式
+								try {
+									const parsedData = JSON.parse(envelope.data);
+									if (Array.isArray(parsedData) && parsedData.length > 0) {
+										errorMessage = parsedData[parsedData.length - 1];
+									}
+								} catch (e) {
+									// 如果解析失败，使用原始字符串
+									errorMessage = envelope.data;
+								}
+							}
+						} else if (envelope?.type === 'success') {
+							ok = true;
+						}
+					} catch {}
+					
+					if (ok) {
+						// 更新本地用户状态
+						const userIndex = users.findIndex(u => u.id === user.id);
+						if (userIndex !== -1) {
+							users[userIndex].disabled = isCurrentlyDisabled ? 0 : 1;
+						}
+						
+						// 显示成功 Toast
+						toastManager.showToast({
+							title: m['administrator.manage_users.notifications.disable_success.title'](),
+							message: m['administrator.manage_users.notifications.disable_success.message']({ 
+								username: user.username,
+								action: isCurrentlyDisabled ? 'enabled' : 'disabled'
+							}),
+							iconName: 'mdi:check-circle',
+							iconColor: 'text-green-500',
+							duration: 3000,
+							showCountdown: true
+						});
+						return;
+					} else {
+						// 处理 SvelteKit 服务器动作失败
+						toastManager.showToast({
+							title: m['administrator.manage_users.notifications.disable_failure.title'](),
+							message: m['administrator.manage_users.notifications.disable_failure.message']({ 
+								username: user.username, 
+								error: errorMessage 
+							}),
+							iconName: 'mdi:alert-circle',
+							iconColor: 'text-red-500',
+							duration: 5000,
+							showCountdown: true
+						});
+						return;
+					}
+				}
+				// 非 2xx 响应
+				let msg = `Failed to ${actionText} user`;
+				try {
+					const data = await response.json();
+					msg = data?.message || msg;
+				} catch {}
+				// 显示错误 Toast
+				toastManager.showToast({
+					title: m['administrator.manage_users.notifications.disable_failure.title'](),
+					message: m['administrator.manage_users.notifications.disable_failure.message']({ 
+						username: user.username, 
+						error: msg 
+					}),
+					iconName: 'mdi:alert-circle',
+					iconColor: 'text-red-500',
+					duration: 5000,
+					showCountdown: true
+				});
+			} catch (error) {
+				console.error('Error updating user disable status:', error);
+				// 显示网络错误 Toast
+				toastManager.showToast({
+					title: m['administrator.manage_users.notifications.disable_failure.title'](),
+					message: m['administrator.manage_users.notifications.disable_failure.message']({ 
+						username: user.username, 
+						error: 'Network error occurred while updating user status' 
+					}),
+					iconName: 'mdi:alert-circle',
+					iconColor: 'text-red-500',
+					duration: 5000,
+					showCountdown: true
+				});
+			}
 		}
 	}
 
@@ -211,6 +333,91 @@
 	function closeDeleteConfirm() {
 		showDeleteConfirm = false;
 		userToDelete = null;
+	}
+
+	// 打开重置密码确认弹窗
+	function openResetPasswordConfirm(user: any) {
+		userToResetPassword = user;
+		showResetPasswordConfirm = true;
+	}
+
+	// 关闭重置密码确认弹窗
+	function closeResetPasswordConfirm() {
+		showResetPasswordConfirm = false;
+		userToResetPassword = null;
+	}
+
+	// 关闭密码显示弹窗
+	function closePasswordModal() {
+		showPasswordModal = false;
+		generatedPassword = '';
+		resetUsername = '';
+	}
+
+	// 复制密码
+	function copyPassword() {
+		navigator.clipboard.writeText(generatedPassword);
+	}
+
+	// 确认重置密码
+	async function confirmResetPassword() {
+		if (!userToResetPassword) return;
+
+		isResettingPassword = true;
+
+		try {
+			const response = await fetch('/api/admin/user/reset-password', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					userId: userToResetPassword.id
+				})
+			});
+
+			if (response.ok) {
+				const data = await response.json();
+				generatedPassword = data.password;
+				resetUsername = userToResetPassword.username;
+				
+				// 关闭确认弹窗，打开密码显示弹窗
+				closeResetPasswordConfirm();
+				showPasswordModal = true;
+			} else {
+				const errorData = await response.json();
+				const errorMessage = errorData.message || 'Failed to reset password';
+				
+				// 显示错误 Toast
+				toastManager.showToast({
+					title: m['administrator.manage_users.notifications.reset_password_failure.title'](),
+					message: m['administrator.manage_users.notifications.reset_password_failure.message']({ 
+						username: userToResetPassword.username, 
+						error: errorMessage 
+					}),
+					iconName: 'mdi:alert-circle',
+					iconColor: 'text-red-500',
+					duration: 5000,
+					showCountdown: true
+				});
+			}
+		} catch (error) {
+			console.error('Error resetting password:', error);
+			// 显示网络错误 Toast
+			toastManager.showToast({
+				title: m['administrator.manage_users.notifications.reset_password_failure.title'](),
+				message: m['administrator.manage_users.notifications.reset_password_failure.message']({ 
+					username: userToResetPassword.username, 
+					error: 'Network error occurred while resetting password' 
+				}),
+				iconName: 'mdi:alert-circle',
+				iconColor: 'text-red-500',
+				duration: 5000,
+				showCountdown: true
+			});
+		} finally {
+			isResettingPassword = false;
+		}
 	}
 
 	// 确认删除用户
@@ -386,6 +593,9 @@
 									{m['administrator.manage_users.table.permissions']()}
 								</th>
 								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+									Status
+								</th>
+								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
 									{m['administrator.manage_users.table.actions']()}
 								</th>
 							</tr>
@@ -411,15 +621,25 @@
 											<Icon icon="mdi:pencil" class="w-3 h-3 ml-1" />
 										</button>
 									</td>
+									<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+										<button
+											onclick={() => disableUser(user)}
+											disabled={isCurrentUser(user.id)}
+											class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 {user.disabled === 1 ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800' : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800'}"
+											title={isCurrentUser(user.id) ? m['administrator.manage_users.actions.cannot_disable_self']() : (user.disabled === 1 ? m['administrator.manage_users.actions.enable_user']() : m['administrator.manage_users.actions.disable_user']())}
+										>
+											<Icon icon={user.disabled === 1 ? "mdi:account-off" : "mdi:account-check"} class="w-3 h-3 mr-1" />
+											{user.disabled === 1 ? 'Disabled' : 'Enabled'}
+										</button>
+									</td>
 									<td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-										<div class="flex space-x-4">
+										<div class="flex space-x-2">
 											<button
-												onclick={() => disableUser(user.id)}
-												disabled={isCurrentUser(user.id)}
-												class="p-2 text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300 transition-colors duration-200 rounded-md hover:bg-yellow-50 dark:hover:bg-yellow-900/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-yellow-600 dark:disabled:hover:text-yellow-400"
-												title={isCurrentUser(user.id) ? m['administrator.manage_users.actions.cannot_disable_self']() : m['administrator.manage_users.actions.disable_user']()}
+												onclick={() => openResetPasswordConfirm(user)}
+												class="p-2 text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20"
+												title={m['administrator.manage_users.actions.reset_password']()}
 											>
-												<Icon icon="mdi:account-off" class="w-5 h-5" />
+												<Icon icon="mdi:key" class="w-5 h-5" />
 											</button>
 											<button
 												onclick={() => openDeleteConfirm(user)}
@@ -571,6 +791,140 @@
 	on:confirm={confirmDeleteUser}
 	on:cancel={closeDeleteConfirm}
 />
+
+<!-- Reset Password Confirmation Modal -->
+{#if showResetPasswordConfirm && userToResetPassword}
+	<!-- Modal Backdrop -->
+	<div 
+		class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+		onclick={(e) => e.target === e.currentTarget && closeResetPasswordConfirm()}
+		onkeydown={(e) => e.key === 'Escape' && closeResetPasswordConfirm()}
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby="reset-password-modal-title"
+		tabindex="-1"
+	>
+		<!-- Modal Content -->
+		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full border border-gray-200 dark:border-gray-700">
+			<!-- Header -->
+			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+				<div class="flex items-center space-x-3">
+					<Icon icon="mdi:key" class="w-6 h-6 text-blue-500" />
+					<h3 id="reset-password-modal-title" class="text-lg font-medium text-gray-900 dark:text-white">
+						{m['administrator.manage_users.confirmations.reset_password_title']()}
+					</h3>
+				</div>
+			</div>
+
+			<!-- Body -->
+			<div class="px-6 py-4">
+				<p class="text-sm text-gray-600 dark:text-gray-400">
+					{m['administrator.manage_users.confirmations.reset_password_message']({ username: userToResetPassword.username, nickname: userToResetPassword.nickname })}
+				</p>
+			</div>
+
+			<!-- Footer -->
+			<div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+				<button
+					onclick={closeResetPasswordConfirm}
+					disabled={isResettingPassword}
+					class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-600 dark:hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+				>
+					{m['administrator.manage_users.confirmations.reset_password_cancel']()}
+				</button>
+				<button
+					onclick={confirmResetPassword}
+					disabled={isResettingPassword}
+					class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-blue-500 dark:hover:bg-blue-400 dark:hover:border-blue-500"
+				>
+					{#if isResettingPassword}
+						<Icon icon="mdi:loading" class="animate-spin -ml-1 mr-2 h-4 w-4" />
+						{m['administrator.manage_users.confirmations.reset_password_confirm_loading']()}
+					{:else}
+						{m['administrator.manage_users.confirmations.reset_password_confirm']()}
+					{/if}
+				</button>
+			</div>
+		</div>
+	</div>
+{/if}
+
+<!-- Password Display Modal -->
+{#if showPasswordModal}
+	<!-- Modal Backdrop -->
+	<div 
+		class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+		onclick={(e) => e.target === e.currentTarget && closePasswordModal()}
+		onkeydown={(e) => e.key === 'Escape' && closePasswordModal()}
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby="password-modal-title"
+		tabindex="-1"
+	>
+		<!-- Modal Content -->
+		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full border border-gray-200 dark:border-gray-700">
+			<!-- Header -->
+			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+				<h3 id="password-modal-title" class="text-lg font-medium text-gray-900 dark:text-white">
+					{m['administrator.manage_users.password_modal.title']()}
+				</h3>
+			</div>
+
+			<!-- Body -->
+			<div class="px-6 py-4">
+				<div class="mb-4">
+					<p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+						{m['administrator.manage_users.password_modal.description']({ username: resetUsername })}
+					</p>
+					<p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+						{m['administrator.manage_users.password_modal.password_warning']()}
+					</p>
+				</div>
+
+				<div class="mb-4">
+					<label for="generated-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+						{m['administrator.manage_users.password_modal.password_label']()}
+					</label>
+					<div class="flex">
+						<input
+							id="generated-password"
+							type="text"
+							value={generatedPassword}
+							readonly
+							class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-l-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm font-mono"
+						/>
+						<button
+							type="button"
+							onclick={copyPassword}
+							class="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-500 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium dark:bg-blue-500 dark:hover:bg-blue-400 dark:hover:border-blue-500"
+						>
+							{m['app.copy']()}
+						</button>
+					</div>
+				</div>
+
+				<div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-3">
+					<div class="flex">
+						<Icon icon="mdi:alert" class="h-5 w-5 text-yellow-400" />
+						<p class="ml-2 text-sm text-yellow-800 dark:text-yellow-200">
+							{m['administrator.manage_users.password_modal.password_warning']()}
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+				<button
+					onclick={closePasswordModal}
+					class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-400 dark:hover:border-blue-500"
+				>
+					{m['administrator.manage_users.password_modal.buttons.close']()}
+				</button>
+			</div>
+		</div>
+	</div>
+{/if}
 
 <!-- Toast Manager -->
 <ToastManager bind:this={toastManager} />

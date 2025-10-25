@@ -7,6 +7,7 @@ export interface PageData extends BasePageData {
 		nickname: string;
 		email: string;
 		permission: number;
+		disabled: number;
 		createdAt: Date;
 		updatedAt: Date;
 	}>;

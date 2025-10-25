@@ -18,12 +18,14 @@ export const user = pgTable('users', {
 	email: text('email').notNull().unique(), // Company Email
 	passwordHash: text('password_hash').notNull(), // argon2id
 	permission: integer('permission').notNull(), // Bitmask: bit 0=Light, bit 1=Camera, bit 2=Lens
+	disabled: integer('disabled').notNull().default(0), // 0=enabled, 1=disabled
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at').defaultNow(),
   }, (table) => [
 	index('users_username_idx').on(table.username),
 	index('users_email_idx').on(table.email),
 	index('users_permission_idx').on(table.permission),
+	index('users_disabled_idx').on(table.disabled),
   ]);
 
 export const session = pgTable('session', {
