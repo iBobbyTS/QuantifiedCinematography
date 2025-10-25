@@ -126,10 +126,10 @@ export const actions: Actions = {
 			if (!locals.user) {
 				throw error(401, { message: 'Unauthorized' });
 			}
-			await db.delete(table.userPublicInfo).where(eq(table.userPublicInfo.userId, locals.user.id));
+			await db.delete(table.userPublicInfo).where(eq(table.userPublicInfo.userId, locals.user!.id));
 			if (normalized.length > 0) {
 				await db.insert(table.userPublicInfo).values(
-					normalized.map((it: any) => ({ userId: locals.user.id, platform: it.platform as any, link: it.link }))
+					normalized.map((it: any) => ({ userId: locals.user!.id, platform: it.platform as any, link: it.link }))
 				);
 			}
 			return normalized.length;
