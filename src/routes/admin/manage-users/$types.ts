@@ -1,6 +1,4 @@
-import type { PageData as BasePageData } from './$types';
-
-export interface PageData extends BasePageData {
+export interface PageData {
 	users: Array<{
 		id: string;
 		username: string;
