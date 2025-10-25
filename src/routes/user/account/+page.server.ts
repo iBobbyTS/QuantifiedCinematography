@@ -1,4 +1,4 @@
-import { json, fail, redirect } from '@sveltejs/kit';
+import { fail, redirect, error } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
@@ -123,6 +123,9 @@ export const actions: Actions = {
 				.filter((it: any) => allowed.has(it.platform) && it.link.length > 0);
 
 			// 覆盖保存：先删再插
+			if (!locals.user) {
+				throw error(401, { message: 'Unauthorized' });
+			}
 			await db.delete(table.userPublicInfo).where(eq(table.userPublicInfo.userId, locals.user.id));
 			if (normalized.length > 0) {
 				await db.insert(table.userPublicInfo).values(

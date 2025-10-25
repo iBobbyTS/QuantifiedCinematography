@@ -1,11 +1,11 @@
 import { error, redirect, fail } from '@sveltejs/kit';
-import type { PageServerLoad, Actions } from '@sveltejs/kit';
+import type { ServerLoad, Actions } from '@sveltejs/kit';
 import { db } from '$lib/server/db/index.js';
 import { user } from '$lib/server/db/schema.js';
 import { UserPermissions, USER_PERMISSIONS } from '$lib/permission/bitmask.js';
 import { eq } from 'drizzle-orm';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: ServerLoad = async ({ locals }) => {
 	// 检查用户是否登录
 	if (!locals.user) {
 		throw redirect(302, '/user/login');

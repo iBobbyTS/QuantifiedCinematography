@@ -7,7 +7,7 @@ export const POST: RequestHandler = async ({ locals, cookies }) => {
 		await auth.invalidateSession(locals.session.id);
 	}
 	
-	auth.deleteSessionTokenCookie({ cookies });
+	auth.deleteSessionTokenCookie({ cookies } as any);
 	
 	return new Response(null, { status: 204 });
 };

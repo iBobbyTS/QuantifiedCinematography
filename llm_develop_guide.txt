@@ -1,0 +1,36 @@
+# SvelteKit + TypeScript 开发指南
+
+## 类型导入
+- 使用 `ServerLoad` 而不是 `PageServerLoad`
+- 使用 `Actions` 而不是 `PageActions`
+- 不要导入 `HandleError`，直接定义函数类型
+- 使用 `typeof table.session.$inferInsert` 而不是 `table.Session`
+
+## API vs Server Actions
+- API端点：使用 `error()` 抛出错误，返回 `json()`
+- Server Actions：使用 `fail()` 返回错误，直接返回对象
+- API端点：`throw error(401, { message: 'Unauthorized' })`
+- Server Actions：`return fail(401, { message: 'Unauthorized' })`
+
+## 空值检查
+- 始终检查 `locals.user` 是否为空
+- 使用 `if (!locals.user) { throw error(401, { message: 'Unauthorized' }); }`
+
+## 函数参数类型
+- 避免隐式 `any` 类型
+- 明确指定参数类型：`({ error, event }: { error: unknown; event: any })`
+
+## 导入语句
+- 确保导入所有使用的函数：`import { error, fail, redirect } from '@sveltejs/kit'`
+
+## 组件属性
+- 避免使用不存在的组件属性如 `onchange`
+- 使用正确的事件处理方式
+
+## 类型引用
+- 避免递归类型引用
+- 使用具体的类型而不是泛型
+
+## 语言类型
+- 使用联合类型而不是字符串：`"en" | "zh-cn"`
+- 避免动态字符串索引类型
