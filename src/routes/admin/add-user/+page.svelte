@@ -43,45 +43,121 @@
 		isLoading = true;
 
 		try {
-			const response = await fetch('/api/admin/user/create', {
+			const formData = new FormData();
+			formData.set('username', (document.getElementById('username') as HTMLInputElement)?.value || '');
+			formData.set('permissions', selectedPermissions.toString());
+
+			const response = await fetch('?/createUser', {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					username: (document.getElementById('username') as HTMLInputElement)?.value,
-					permissions: selectedPermissions
-				})
+				body: formData
 			});
 
 			if (response.ok) {
-				const data = await response.json();
-				generatedPassword = data.password;
-				createdUsername = data.username;
-				showPasswordModal = true;
-			} else {
-				const errorData = await response.json();
-				const errorMessage = errorData.message || 'Failed to create user';
-				
-				// 根据错误类型显示不同的Toast
-				if (errorMessage.toLowerCase().includes('username already exists') || 
-					errorMessage.toLowerCase().includes('username exists')) {
-					toastManager.showToast({
-						title: m['administrator.manage_users.add_user_page.errors.username_exists'](),
-						iconName: 'mdi:alert-circle',
-						iconColor: 'text-red-500',
-						duration: 5000,
-						showCountdown: true
-					});
-				} else {
-					toastManager.showToast({
-						title: m['administrator.manage_users.add_user_page.errors.failed_to_create'](),
-						iconName: 'mdi:alert-circle',
-						iconColor: 'text-red-500',
-						duration: 5000,
-						showCountdown: true
-					});
+				// 解析 action envelope
+				let success = false;
+				let errorMessage = 'Failed to create user';
+				try {
+					const envelope = await response.json();
+					console.log('Server action response:', envelope);
+					
+					if (envelope?.type === 'failure') {
+						success = false;
+						// SvelteKit fail() 返回的错误消息在 data 字段中
+						if (envelope.data && typeof envelope.data === 'object' && envelope.data.message) {
+							errorMessage = envelope.data.message;
+						} else if (Array.isArray(envelope.data) && envelope.data.length > 0) {
+							// 处理数组格式的错误消息
+							errorMessage = envelope.data[envelope.data.length - 1];
+						} else if (typeof envelope.data === 'string') {
+							// 处理字符串化的JSON数组格式
+							try {
+								const parsedData = JSON.parse(envelope.data);
+								if (Array.isArray(parsedData) && parsedData.length > 0) {
+									errorMessage = parsedData[parsedData.length - 1];
+								}
+							} catch (e) {
+								// 如果解析失败，使用原始字符串
+								errorMessage = envelope.data;
+							}
+						}
+					} else if (envelope?.type === 'success') {
+						success = true;
+						// 处理SvelteKit server action的返回数据
+						let data = envelope.data;
+						
+						// 如果data是字符串，尝试解析JSON
+						if (typeof data === 'string') {
+							try {
+								data = JSON.parse(data);
+							} catch (e) {
+								console.error('Failed to parse data:', e);
+							}
+						}
+						
+						// 如果data是数组，取最后一个元素
+						if (Array.isArray(data)) {
+							// 从数组的最后一个元素获取结果
+							const result = data[data.length - 1];
+							if (result && typeof result === 'object') {
+								generatedPassword = result.password;
+								createdUsername = result.username;
+							} else {
+								// 如果最后一个元素不是对象，可能是字符串格式
+								// 尝试从数组中提取用户名和密码
+								// 根据响应格式: [{"success":1,"username":2,"password":3},true,"test6","SBBhdonEtUPW"]
+								if (data.length >= 4) {
+									createdUsername = data[2]; // 第三个元素是用户名
+									generatedPassword = data[3]; // 第四个元素是密码
+								}
+							}
+						} else if (data && typeof data === 'object') {
+							// 直接使用对象
+							generatedPassword = data.password;
+							createdUsername = data.username;
+						}
+					}
+				} catch (e) {
+					console.error('Error parsing response:', e);
 				}
+				
+				if (success) {
+					showPasswordModal = true;
+				} else {
+					// 根据错误类型显示不同的Toast
+					if (errorMessage.toLowerCase().includes('username already exists') || 
+						errorMessage.toLowerCase().includes('username exists')) {
+						toastManager.showToast({
+							title: m['administrator.manage_users.add_user_page.errors.username_exists'](),
+							iconName: 'mdi:alert-circle',
+							iconColor: 'text-red-500',
+							duration: 5000,
+							showCountdown: true
+						});
+					} else {
+						toastManager.showToast({
+							title: m['administrator.manage_users.add_user_page.errors.failed_to_create'](),
+							iconName: 'mdi:alert-circle',
+							iconColor: 'text-red-500',
+							duration: 5000,
+							showCountdown: true
+						});
+					}
+				}
+			} else {
+				// 非 2xx 响应
+				let msg = 'Failed to create user';
+				try {
+					const data = await response.json();
+					msg = data?.message || msg;
+				} catch {}
+				// 显示错误 Toast
+				toastManager.showToast({
+					title: m['administrator.manage_users.add_user_page.errors.failed_to_create'](),
+					iconName: 'mdi:alert-circle',
+					iconColor: 'text-red-500',
+					duration: 5000,
+					showCountdown: true
+				});
 			}
 		} catch (error) {
 			console.error('Error creating user:', error);
