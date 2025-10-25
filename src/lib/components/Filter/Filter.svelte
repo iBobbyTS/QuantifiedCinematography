@@ -42,7 +42,7 @@
         let hasChanged = false;
 
         // Ensure all filter keys from the prop have a corresponding entry in the state
-        filters.forEach((filter) => {
+        filters.forEach((filter: any) => {
             if (!(filter.key in newState)) {
                 hasChanged = true;
                 // Initialize with default value
@@ -62,7 +62,7 @@
         // One-time initialization from URL params after the first valid filters are received
         if (!isInitializedFromUrl && filters.length > 0) {
             const urlParams = $page.url.searchParams;
-            filters.forEach((filter) => {
+            filters.forEach((filter: any) => {
                 const paramValue = urlParams.get(filter.key);
                 if (paramValue) {
                     hasChanged = true;
@@ -93,7 +93,7 @@
     async function handleFilterChange(key: string, value: any) {
         const normalized = Array.isArray(value)
             ? [...value]
-            : value ?? (filters.find(f => f.key === key)?.type === 'checkbox' ? [] : '');
+            : value ?? (filters.find((f: any) => f.key === key)?.type === 'checkbox' ? [] : '');
         filterState[key] = normalized;
         await tick();
         if (autoApply) {
@@ -174,7 +174,7 @@
 								bind:value={filterState[filter.key]}
 								groupByCategory={filter.groupByCategory || false}
 								selectedCategories={filter.key === 'subcategory' ? (filterState.category || []) : []}
-								onchange={(e) => handleFilterChange(filter.key, e.detail)}
+								onchange={(e: any) => handleFilterChange(filter.key, e.detail)}
 							/>
 						{:else if filter.type === 'radio'}
 							<RadioFilter
@@ -182,13 +182,13 @@
 								options={filter.options || []}
 								bind:value={filterState[filter.key]}
 								groupName={filter.key}
-								onchange={(e) => handleFilterChange(filter.key, e.detail)}
+								onchange={(e: any) => handleFilterChange(filter.key, e.detail)}
 							/>
 						{:else if filter.type === 'dateRange'}
 							<DateRangeFilter
 								label=""
 								bind:value={filterState[filter.key]}
-								onchange={(e) => handleFilterChange(filter.key, e.detail)}
+								onchange={(e: any) => handleFilterChange(filter.key, e.detail)}
 							/>
 						{/if}
 					</div>

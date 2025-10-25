@@ -68,7 +68,7 @@
 	
 	// 获取当前主题的显示名称
 	function getThemeDisplayName(themeCode: string) {
-		return m['theme.' + themeCode]();
+		return (m as any)['theme.' + themeCode]();
 	}
 	
 	// 获取当前主题的图标
@@ -78,12 +78,12 @@
 	}
 	
 	// 响应式获取主题显示名称
-	$: currentThemeDisplayName = m['theme.' + currentTheme]();
+	$: currentThemeDisplayName = (m as any)['theme.' + currentTheme]();
 	
 	// 响应式获取所有主题选项的本地化名称
 	$: themeOptionsLocalized = themeOptions.map(theme => ({
 		...theme,
-		localizedName: m['theme.' + theme.code]()
+		localizedName: (m as any)['theme.' + theme.code]()
 	}));
 	
 	// 切换语言
@@ -166,7 +166,7 @@
 						class="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
 					>
 						<Icon icon="mdi:arrow-left" class="w-4 h-4" />
-						<span class="hidden sm:inline">{m[backButtonText]()}</span>
+						<span class="hidden sm:inline">{(m as any)[backButtonText]()}</span>
 					</a>
 				{/if}
 			</div>
@@ -176,7 +176,7 @@
 			<div class="flex justify-center items-center">
 				{#if centerTitle}
 					<h1 class="text-{centerTitleSize} font-semibold text-gray-900 dark:text-gray-100 text-center">
-						{m[centerTitle]()}
+						{(m as any)[centerTitle]()}
 					</h1>
 				{:else}
 					<!-- 占位元素，保持三列布局不变 -->

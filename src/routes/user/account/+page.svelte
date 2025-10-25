@@ -136,7 +136,7 @@
 	}
 
 	// 删除平台信息
-	function removePlatformInfo(id) {
+	function removePlatformInfo(id: any) {
 		publicInfoItems = publicInfoItems.filter(item => item.id !== id);
 	}
 
