@@ -188,7 +188,7 @@
 			<div class="flex items-center justify-end space-x-2">
 					{#if currentUser}
 					<!-- User Menu -->
-            <div class="min-w-40">
+            <div>
                 <Dropdown
                     placeholder={currentUser.nickname}
                     options={[
@@ -223,17 +223,17 @@
 				{/if}
 				
 				<!-- Language Selector -->
-            <div class="w-28">
+            <div>
                 <Dropdown
                     placeholder={languageOptions.find(lang => lang.code === currentLanguage)?.name || 'Language'}
                     options={languageOptions.map((lang) => ({ value: lang.code, label: `${lang.flag} ${lang.name}` }))}
-                    widthClass="w-28"
+                    widthClass="w-24"
                     on:change={(e) => changeLanguage(e.detail as string)}
                 />
             </div>
 				
 				<!-- Theme Selector -->
-            <div class="w-36">
+            <div>
                 <Dropdown
                     placeholder={currentThemeDisplayName}
                     options={themeOptionsLocalized.map((t) => ({ value: t.code, label: t.localizedName, icon: t.icon }))}
