@@ -90,7 +90,7 @@
 	function changeLanguage(langCode: string) {
 		try {
 			// 使用ParaglideJS的setLocale函数
-			setLocale(langCode, { reload: true });
+			setLocale(langCode as "en" | "zh-cn", { reload: true });
 		} catch (error) {
 			console.error('🌐 语言切换失败:', error);
 			// 如果ParaglideJS失败，回退到手动设置
