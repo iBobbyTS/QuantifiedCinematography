@@ -31,7 +31,7 @@ export async function validateSessionToken(token: string) {
 	const [result] = await db
 		.select({
 			// Adjust user table here to tweak returned data
-			user: { id: table.user.id, username: table.user.username, nickname: table.user.nickname, permission: table.user.permission },
+			user: { id: table.user.id, username: table.user.username, nickname: table.user.nickname, permission: table.user.permission, disabled: table.user.disabled },
 			session: table.session
 		})
 		.from(table.session)
@@ -42,6 +42,13 @@ export async function validateSessionToken(token: string) {
 		return { session: null, user: null };
 	}
 	const { session, user } = result;
+
+	// 检查用户是否被禁用
+	if (user.disabled === 1) {
+		// 如果用户被禁用，删除其所有session
+		await db.delete(table.session).where(eq(table.session.userId, user.id));
+		return { session: null, user: null };
+	}
 
 	const sessionExpired = Date.now() >= session.expiresAt.getTime();
 	if (sessionExpired) {

@@ -22,7 +22,8 @@
 		"changePassword": "Change Password",
 		"errors": {
 			"userNotFound": "User not found",
-			"wrongPassword": "Incorrect password"
+			"wrongPassword": "Incorrect password",
+			"accountDisabled": "Account is disabled"
 		}
 	},
 	"user": {

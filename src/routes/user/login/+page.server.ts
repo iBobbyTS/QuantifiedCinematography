@@ -46,6 +46,11 @@ export const actions: Actions = {
 				return fail(400, { message: 'Incorrect password' });
 			}
 
+			// 检查用户是否被禁用
+			if (existingUser.disabled === 1) {
+				return fail(403, { message: 'Account is disabled' });
+			}
+
 			const sessionToken = auth.generateSessionToken();
 			const session = await auth.createSession(sessionToken, existingUser.id);
 			auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);

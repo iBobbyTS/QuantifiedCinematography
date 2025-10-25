@@ -79,7 +79,7 @@
 							if (Array.isArray(result.data)) {
 								// 如果data是数组，取最后一个元素作为错误消息
 								message = result.data[result.data.length - 1] || 'Unknown error';
-							} else if (typeof result.data === 'object' && result.data.message) {
+							} else if (typeof result.data === 'object' && result.data && 'message' in result.data && typeof result.data.message === 'string') {
 								// 如果data是对象，取message字段
 								message = result.data.message;
 							} else if (typeof result.data === 'string') {
@@ -94,6 +94,8 @@
 								errorMessage = m['auth.errors.userNotFound']();
 							} else if (message.includes('密码错误') || message.toLowerCase().includes('incorrect password')) {
 								errorMessage = m['auth.errors.wrongPassword']();
+							} else if (message.toLowerCase().includes('account is disabled')) {
+								errorMessage = m['auth.errors.accountDisabled']();
 							} else if (message.toLowerCase().includes('invalid username')) {
 								errorMessage = '用户名格式不正确（3-31个字符，只能包含字母、数字、下划线和连字符）';
 							} else if (message.toLowerCase().includes('invalid password')) {
@@ -111,6 +113,8 @@
 								errorMessage = m['auth.errors.userNotFound']();
 							} else if (raw.includes('密码错误') || raw.toLowerCase().includes('incorrect password')) {
 								errorMessage = m['auth.errors.wrongPassword']();
+							} else if (raw.toLowerCase().includes('account is disabled')) {
+								errorMessage = m['auth.errors.accountDisabled']();
 							} else {
 								errorMessage = raw ? `${m['app.networkError']()}: ${raw}` : m['app.networkError']();
 							}
