@@ -1,5 +1,5 @@
 import { error, redirect, fail } from '@sveltejs/kit';
-import type { PageServerLoad, Actions } from './$types';
+import type { PageServerLoad, Actions } from '@sveltejs/kit';
 import { db } from '$lib/server/db/index.js';
 import { user } from '$lib/server/db/schema.js';
 import { UserPermissions, USER_PERMISSIONS } from '$lib/permission/bitmask.js';
@@ -123,6 +123,52 @@ export const actions: Actions = {
         } catch (err) {
             console.error('Error updating user disable status:', err);
             return fail(500, { message: 'Failed to update user status' });
+        }
+    },
+
+    changePermission: async ({ request, locals }) => {
+        // Must be logged in
+        if (!locals.user) {
+            return fail(401, { message: 'Unauthorized' });
+        }
+
+        // Must be admin
+        if (!UserPermissions.hasPermission(locals.user.permission, USER_PERMISSIONS.ADMINISTRATOR)) {
+            return fail(403, { message: 'Insufficient permissions' });
+        }
+
+        try {
+            const form = await request.formData();
+            const userId = String(form.get('userId') || '');
+            const permissions = parseInt(String(form.get('permissions') || '0'));
+
+            if (!userId) {
+                return fail(400, { message: 'User ID is required' });
+            }
+
+            if (typeof permissions !== 'number' || isNaN(permissions)) {
+                return fail(400, { message: 'Invalid permissions value' });
+            }
+
+            // Check existence
+            const existing = await db.select().from(user).where(eq(user.id, userId)).limit(1);
+            if (existing.length === 0) {
+                return fail(404, { message: 'User not found' });
+            }
+
+            // Update permissions
+            await db
+                .update(user)
+                .set({ 
+                    permission: permissions,
+                    updatedAt: new Date()
+                })
+                .where(eq(user.id, userId));
+
+            return { success: true, userId, permissions };
+        } catch (err) {
+            console.error('Error updating user permissions:', err);
+            return fail(500, { message: 'Failed to update user permissions' });
         }
     }
 };

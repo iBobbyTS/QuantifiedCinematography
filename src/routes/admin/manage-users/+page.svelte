@@ -148,27 +148,65 @@
 		permissionModalErrorMessage = '';
 
 		try {
-			const response = await fetch('/api/admin/user/change-permission', {
+			const formData = new FormData();
+			formData.set('userId', selectedUser.id);
+			formData.set('permissions', currentPermissions.toString());
+
+			const response = await fetch('?/changePermission', {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					userId: selectedUser.id,
-					permissions: currentPermissions
-				})
+				body: formData
 			});
 
 			if (response.ok) {
-				// 更新 users 数组中对应的用户权限
-				const userIndex = users.findIndex(u => u.id === selectedUser.id);
-				if (userIndex !== -1) {
-					users[userIndex].permission = currentPermissions;
+				// 解析 action envelope
+				let success = false;
+				let errorMessage = 'Failed to update permissions';
+				try {
+					const envelope = await response.json();
+					console.log('Change permission response:', envelope);
+					
+					if (envelope?.type === 'failure') {
+						success = false;
+						// 处理错误消息
+						if (envelope.data && typeof envelope.data === 'object' && envelope.data.message) {
+							errorMessage = envelope.data.message;
+						} else if (Array.isArray(envelope.data) && envelope.data.length > 0) {
+							errorMessage = envelope.data[envelope.data.length - 1];
+						} else if (typeof envelope.data === 'string') {
+							try {
+								const parsedData = JSON.parse(envelope.data);
+								if (Array.isArray(parsedData) && parsedData.length > 0) {
+									errorMessage = parsedData[parsedData.length - 1];
+								}
+							} catch (e) {
+								errorMessage = envelope.data;
+							}
+						}
+					} else if (envelope?.type === 'success') {
+						success = true;
+					}
+				} catch (e) {
+					console.error('Error parsing response:', e);
 				}
-				closePermissionModal();
+
+				if (success) {
+					// 更新 users 数组中对应的用户权限
+					const userIndex = users.findIndex(u => u.id === selectedUser.id);
+					if (userIndex !== -1) {
+						users[userIndex].permission = currentPermissions;
+					}
+					closePermissionModal();
+				} else {
+					permissionModalErrorMessage = errorMessage;
+				}
 			} else {
-				const errorData = await response.json();
-				permissionModalErrorMessage = errorData.message || m[PERMISSION_I18N_KEYS.modal.errors.failedToUpdate]();
+				// 非 2xx 响应
+				let msg = 'Failed to update permissions';
+				try {
+					const data = await response.json();
+					msg = data?.message || msg;
+				} catch {}
+				permissionModalErrorMessage = msg;
 			}
 		} catch (error) {
 			console.error('Error updating permissions:', error);
