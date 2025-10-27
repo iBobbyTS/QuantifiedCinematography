@@ -24,7 +24,7 @@
 	
 	// Set initial input value
 	let inputValue = initialUserName;
-	let dropdownSearchComponent: DropdownSearch;
+	let dropdownSearchComponent = $state<DropdownSearch | null>(null);
 
 	// Initialize component with initial values
 	$effect(() => {
