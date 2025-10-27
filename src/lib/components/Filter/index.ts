@@ -13,4 +13,3 @@ export { default as RadioFilter } from './RadioFilter.svelte';
 export { default as DateRangeFilter } from './DateRangeFilter.svelte';
 
 export * from './types.js';
-export * from './configs.js'; 
