@@ -26,7 +26,7 @@ export const user = pgTable('users', {
 	index('users_email_idx').on(table.email),
 	index('users_permission_idx').on(table.permission),
 	index('users_disabled_idx').on(table.disabled),
-  ]);
+]);
 
 export const session = pgTable('session', {
 	id: text('id').primaryKey(),
@@ -55,36 +55,36 @@ export const brands = pgTable('brands', {
 	name: text('name').notNull(), // English name of the brand
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at').defaultNow(),
-  }, (table) => [
+}, (table) => [
 	index('brands_name_idx').on(table.name),
-  ]);
+]);
   
   // Product type table
-  export const productTypes = pgTable('product_types', {
+export const productTypes = pgTable('product_types', {
 	id: serial('id').primaryKey(),
 	name: text('name').notNull(), // English name of the product type
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at').defaultNow(),
-  }, (table) => [
+}, (table) => [
 	index('product_types_name_idx').on(table.name),
-  ]);
+]);
   
   // Product series table
-  export const productSeries = pgTable('product_series', {
+export const productSeries = pgTable('product_series', {
 	id: serial('id').primaryKey(),
 	name: text('name').notNull(), // English name of the product series
 	brandId: integer('brand_id').references(() => brands.id).notNull(),
 	productTypeId: integer('product_type_id').references(() => productTypes.id).notNull(),
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at').defaultNow(),
-  }, (table) => [
+}, (table) => [
 	index('product_series_name_idx').on(table.name),
 	index('product_series_brand_id_idx').on(table.brandId),
 	index('product_series_product_type_id_idx').on(table.productTypeId),
-  ]);
+]);
   
   // Product light table (merged from products + product_light_info)
-  export const productLight = pgTable('product_light', {
+export const productLight = pgTable('product_light', {
 	id: serial('id').primaryKey(),
 	name: text('name').notNull(), // English name of the product
 	seriesId: integer('series_id').references(() => productSeries.id).notNull(),
@@ -100,17 +100,17 @@ export const brands = pgTable('brands', {
 	weight: real('weight'),
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at').defaultNow(),
-  }, (table) => [
+}, (table) => [
 	index('product_light_name_idx').on(table.name),
 	index('product_light_series_id_idx').on(table.seriesId),
 	index('product_light_color_type_idx').on(table.colorType),
 	index('product_light_light_engine_idx').on(table.lightEngine),
 	index('product_light_form_factor_idx').on(table.formFactor),
 	index('product_light_size_idx').on(table.size),
-  ]);
-  
-  // Product light accessory table (merged from products + product_light_accessary_info)
-  export const productLightAccessary = pgTable('product_light_accessary', {
+]);
+
+// Product light accessory table (merged from products + product_light_accessary_info)
+export const productLightAccessary = pgTable('product_light_accessary', {
 	id: serial('id').primaryKey(),
 	name: text('name').notNull(), // English name of the product
 	seriesId: integer('series_id').references(() => productSeries.id).notNull(),
@@ -119,17 +119,28 @@ export const brands = pgTable('brands', {
 	maxAngle: real('max_angle'), // maximum angle for fresnel
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at').defaultNow(),
-  }, (table) => [
+}, (table) => [
 	index('product_light_accessary_name_idx').on(table.name),
 	index('product_light_accessary_series_id_idx').on(table.seriesId),
 	index('product_light_accessary_accessary_type_idx').on(table.accessaryType),
-  ]);
+]);
   
-  // Benchmark light white table
-  export const benchmarkLightWhite = pgTable('benchmark_light_white', {
+  // Spectrometer table
+export const spectrometer = pgTable('spectrometer', {
+	id: serial('id').primaryKey(),
+	name: text('name').notNull(), // e.g., "Sekonic C-700U", "SpectraVal PULSE", "Integrated Sphere System"
+	createdAt: timestamp('created_at').defaultNow(),
+	updatedAt: timestamp('updated_at').defaultNow(),
+}, (table) => [
+	index('spectrometer_name_idx').on(table.name),
+]);
+
+// Benchmark light white table
+export const benchmarkLightWhite = pgTable('benchmark_light_white', {
 	id: serial('id').primaryKey(),
 	productId: integer('product_id').references(() => productLight.id).notNull(), // product_light.id
 	userId: uuid('user_id').references(() => user.id).notNull(), // user who performed the benchmark
+	spectrometerId: integer('spectrometer_id').references(() => spectrometer.id), // spectrometer used for measurement
 	setInt: real('set_int').notNull(), // Intensity (%)
 	setCct: integer('set_cct').notNull(), // CCT (K)
 	setGm: real('set_gm').notNull().default(0), // Tone +: G, -: M(%)
@@ -152,29 +163,30 @@ export const brands = pgTable('brands', {
 	tm30Rg: real('tm30_rg'), // TM30_RG Field
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at').defaultNow(),
-  }, (table) => [
+}, (table) => [
 	index('benchmark_light_white_product_id_idx').on(table.productId),
 	index('benchmark_light_white_user_id_idx').on(table.userId),
+	index('benchmark_light_white_spectrometer_id_idx').on(table.spectrometerId),
 	index('benchmark_light_white_set_cct_idx').on(table.setCct),
 	index('benchmark_light_white_set_int_idx').on(table.setInt),
 	index('benchmark_light_white_accessary_idx').on(table.accessary),
-  ]);
+]);
   
   // Define relations
-  export const usersRelations = relations(user, ({ many }) => ({
+export const usersRelations = relations(user, ({ many }) => ({
 	benchmarkLightWhite: many(benchmarkLightWhite),
 	userPublicInfo: many(userPublicInfo),
-  }));
+}));
   
-  export const brandsRelations = relations(brands, ({ many }) => ({
+export const brandsRelations = relations(brands, ({ many }) => ({
 	productSeries: many(productSeries),
-  }));
+}));
   
-  export const productTypesRelations = relations(productTypes, ({ many }) => ({
+export const productTypesRelations = relations(productTypes, ({ many }) => ({
 	productSeries: many(productSeries),
-  }));
+}));
   
-  export const productSeriesRelations = relations(productSeries, ({ one, many }) => ({
+export const productSeriesRelations = relations(productSeries, ({ one, many }) => ({
 	brand: one(brands, {
 	  fields: [productSeries.brandId],
 	  references: [brands.id],
@@ -185,24 +197,28 @@ export const brands = pgTable('brands', {
 	}),
 	productLights: many(productLight),
 	productLightAccessaries: many(productLightAccessary),
-  }));
+}));
   
-  export const productLightRelations = relations(productLight, ({ one, many }) => ({
+export const productLightRelations = relations(productLight, ({ one, many }) => ({
 	series: one(productSeries, {
 	  fields: [productLight.seriesId],
 	  references: [productSeries.id],
 	}),
 	benchmarkLightWhite: many(benchmarkLightWhite),
-  }));
+}));
   
-  export const productLightAccessaryRelations = relations(productLightAccessary, ({ one, many }) => ({
-	series: one(productSeries, {
-	  fields: [productLightAccessary.seriesId],
-	  references: [productSeries.id],
-	}),
-  }));
+export const productLightAccessaryRelations = relations(productLightAccessary, ({ one, many }) => ({
+series: one(productSeries, {
+	fields: [productLightAccessary.seriesId],
+	references: [productSeries.id],
+}),
+}));
   
-  export const benchmarkLightWhiteRelations = relations(benchmarkLightWhite, ({ one }) => ({
+export const spectrometerRelations = relations(spectrometer, ({ many }) => ({
+	benchmarkLightWhite: many(benchmarkLightWhite),
+}));
+
+export const benchmarkLightWhiteRelations = relations(benchmarkLightWhite, ({ one }) => ({
 	product: one(productLight, {
 	  fields: [benchmarkLightWhite.productId],
 	  references: [productLight.id],
@@ -211,34 +227,40 @@ export const brands = pgTable('brands', {
 	  fields: [benchmarkLightWhite.userId],
 	  references: [user.id],
 	}),
+	spectrometer: one(spectrometer, {
+	  fields: [benchmarkLightWhite.spectrometerId],
+	  references: [spectrometer.id],
+	}),
 	accessary: one(productLightAccessary, {
 	  fields: [benchmarkLightWhite.accessary],
 	  references: [productLightAccessary.id],
 	}),
-  }));
+}));
   
-  export const userPublicInfoRelations = relations(userPublicInfo, ({ one }) => ({
+export const userPublicInfoRelations = relations(userPublicInfo, ({ one }) => ({
 	user: one(user, {
 	  fields: [userPublicInfo.userId],
 	  references: [user.id],
 	}),
-  }));
+}));
   
-  // Export types for use in the application
-  export type User = typeof user.$inferSelect;
-  export type NewUser = typeof user.$inferInsert;
-  export type UserPublicInfo = typeof userPublicInfo.$inferSelect;
-  export type NewUserPublicInfo = typeof userPublicInfo.$inferInsert;
-  export type Brand = typeof brands.$inferSelect;
-  export type NewBrand = typeof brands.$inferInsert;
-  export type ProductType = typeof productTypes.$inferSelect;
-  export type NewProductType = typeof productTypes.$inferInsert;
-  export type ProductSeries = typeof productSeries.$inferSelect;
-  export type NewProductSeries = typeof productSeries.$inferInsert;
-  export type ProductLight = typeof productLight.$inferSelect;
-  export type NewProductLight = typeof productLight.$inferInsert;
-  export type ProductLightAccessary = typeof productLightAccessary.$inferSelect;
-  export type NewProductLightAccessary = typeof productLightAccessary.$inferInsert;
-  export type BenchmarkLightWhite = typeof benchmarkLightWhite.$inferSelect;
-  export type NewBenchmarkLightWhite = typeof benchmarkLightWhite.$inferInsert;
+// Export types for use in the application
+export type User = typeof user.$inferSelect;
+export type NewUser = typeof user.$inferInsert;
+export type UserPublicInfo = typeof userPublicInfo.$inferSelect;
+export type NewUserPublicInfo = typeof userPublicInfo.$inferInsert;
+export type Brand = typeof brands.$inferSelect;
+export type NewBrand = typeof brands.$inferInsert;
+export type ProductType = typeof productTypes.$inferSelect;
+export type NewProductType = typeof productTypes.$inferInsert;
+export type ProductSeries = typeof productSeries.$inferSelect;
+export type NewProductSeries = typeof productSeries.$inferInsert;
+export type ProductLight = typeof productLight.$inferSelect;
+export type NewProductLight = typeof productLight.$inferInsert;
+export type ProductLightAccessary = typeof productLightAccessary.$inferSelect;
+export type NewProductLightAccessary = typeof productLightAccessary.$inferInsert;
+export type Spectrometer = typeof spectrometer.$inferSelect;
+export type NewSpectrometer = typeof spectrometer.$inferInsert;
+export type BenchmarkLightWhite = typeof benchmarkLightWhite.$inferSelect;
+export type NewBenchmarkLightWhite = typeof benchmarkLightWhite.$inferInsert;
   
