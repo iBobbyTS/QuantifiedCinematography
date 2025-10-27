@@ -174,7 +174,7 @@
 								bind:value={filterState[filter.key]}
 								groupByCategory={filter.groupByCategory || false}
 								selectedCategories={filter.key === 'subcategory' ? (filterState.category || []) : []}
-								onchange={(e: any) => handleFilterChange(filter.key, e.detail)}
+								on:change={(e: any) => handleFilterChange(filter.key, e.detail)}
 							/>
 						{:else if filter.type === 'radio'}
 							<RadioFilter
@@ -182,13 +182,13 @@
 								options={filter.options || []}
 								bind:value={filterState[filter.key]}
 								groupName={filter.key}
-								onchange={(e: any) => handleFilterChange(filter.key, e.detail)}
+								on:change={(e: any) => handleFilterChange(filter.key, e.detail)}
 							/>
 						{:else if filter.type === 'dateRange'}
 							<DateRangeFilter
 								label=""
 								bind:value={filterState[filter.key]}
-								onchange={(e: any) => handleFilterChange(filter.key, e.detail)}
+								on:change={(e: any) => handleFilterChange(filter.key, e.detail)}
 							/>
 						{/if}
 					</div>

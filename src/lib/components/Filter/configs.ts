@@ -21,7 +21,7 @@ export const manageUserFilters: FilterConfig[] = [
 		label: 'Role',
 		type: 'checkbox',
 		options: Object.values(UserRole).filter(role => role !== UserRole.Deleted).map(role => ({
-			value: role,
+			value: role as string | number,
 			label: roleLabels[role]
 		})),
 		defaultValue: []
@@ -52,7 +52,7 @@ export const purchaseOrderFilters: FilterConfig[] = [
 		label: 'Order Status',
 		type: 'checkbox',
 		options: Object.values(OrderStatus).map(status => ({
-			value: status,
+			value: status as string | number,
 			label: orderStatusLabels[status]
 		})),
 		defaultValue: []

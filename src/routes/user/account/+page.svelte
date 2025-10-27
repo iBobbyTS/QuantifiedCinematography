@@ -276,7 +276,7 @@
 											
 											if (Array.isArray(result.data)) {
 												message = result.data[result.data.length - 1] || 'Unknown error';
-											} else if (typeof result.data === 'object' && result.data.message) {
+											} else if (typeof result.data === 'object' && result.data.message && typeof result.data.message === 'string') {
 												message = result.data.message;
 											} else if (typeof result.data === 'string') {
 												message = result.data;
