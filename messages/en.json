@@ -144,7 +144,9 @@
 				"email": "Email",
 				"permissions": "Permissions",
 				"actions": "Actions",
-				"status": "Status"
+				"status": "Status",
+				"enabled": "Enabled",
+				"disabled": "Disabled"
 			},
 			"actions": {
 				"disable_user": "Disable User",

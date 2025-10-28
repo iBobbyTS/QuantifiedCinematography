@@ -136,7 +136,9 @@
 				"email": "邮箱",
 				"permissions": "权限",
 				"actions": "操作",
-				"status": "状态"
+				"status": "状态",
+				"enabled": "启用",
+				"disabled": "禁用"
 			},
 			"actions": {
 				"disable_user": "禁用用户",

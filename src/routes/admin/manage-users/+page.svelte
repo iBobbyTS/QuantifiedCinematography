@@ -691,7 +691,7 @@
 											title={isCurrentUser(user.id) ? m['administrator.manage_users.actions.cannot_disable_self']() : (user.disabled === 1 ? m['administrator.manage_users.actions.enable_user']() : m['administrator.manage_users.actions.disable_user']())}
 										>
 											<Icon icon={user.disabled === 1 ? "mdi:account-off" : "mdi:account-check"} class="w-3 h-3 mr-1" />
-											{user.disabled === 1 ? 'Disabled' : 'Enabled'}
+											{user.disabled === 1 ? m['administrator.manage_users.table.disabled']() : m['administrator.manage_users.table.enabled']()}
 										</button>
 									</td>
 									<td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
