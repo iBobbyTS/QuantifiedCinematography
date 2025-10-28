@@ -206,6 +206,11 @@
 				"errors": {
 					"failed_to_update": "Failed to update permissions",
 					"network_error": "Network error occurred"
+				},
+				"filter": {
+					"match_mode": "Match Mode:",
+					"all": "All",
+					"any": "Any"
 				}
 			},
 			"notifications": {

@@ -4,6 +4,7 @@
  * 为整个应用提供基础样式和排版样式
  */
 @import 'tailwindcss';
+@plugin "daisyui";
 @plugin '@tailwindcss/typography';
 
 /* Tailwind CSS v4 深色模式配置 */

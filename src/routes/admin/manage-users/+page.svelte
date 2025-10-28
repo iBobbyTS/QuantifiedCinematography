@@ -26,7 +26,7 @@
 	// 过滤状态
 	let searchQuery = $state('');
 	let selectedStatuses = $state(['enabled', 'disabled']); // 默认全选
-	let selectedPermissions = $state(['none']); // 默认选择无权限
+	let selectedPermissions = $state<string[]>([]); // 默认全不选
 	let permissionMatchMode = $state<'any' | 'all'>('any'); // 权限匹配模式：'any' 或 'all'
 	let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -748,52 +748,100 @@
 		<!-- Filter Table -->
 		<div class="bg-white dark:bg-gray-800 shadow sm:rounded-md mb-4">
 			<div class="px-4 py-5 sm:p-6">
-				<h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">过滤条件</h3>
-				
-				<!-- 第一行：模糊搜索 -->
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-					<div class="flex items-center">
-						<label for="search-input" class="text-sm font-medium text-gray-700 dark:text-gray-300 mr-3 min-w-[120px]">
-							模糊搜索
-						</label>
-						<input
-							id="search-input"
-							type="text"
-							placeholder="用户名、昵称、邮箱"
-							class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-							oninput={handleSearchInput}
-						/>
-					</div>
-					<div></div>
-				</div>
-
-				<!-- 第二行：状态过滤 -->
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-					<div>
-						<CheckboxFilter
-							label="状态"
-							options={statusOptions}
-							bind:value={selectedStatuses}
-							on:change={handleStatusChange}
-						/>
-					</div>
-					<div></div>
-				</div>
-
-				<!-- 第三行：权限过滤 -->
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div>
-						<CheckboxFilter
-							label="权限"
-							options={permissionOptions}
-							bind:value={selectedPermissions}
-							showAllAnySwitch={true}
-							bind:matchMode={permissionMatchMode}
-							on:change={handlePermissionChange}
-							on:matchModeChange={handlePermissionMatchModeChange}
-						/>
-					</div>
-					<div></div>
+				<!-- 过滤条件表格 -->
+				<div class="overflow-hidden">
+					<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+						<tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+							<!-- 第一行：模糊搜索 -->
+							<tr>
+								<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-20">
+									模糊搜索
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap">
+									<input
+										id="search-input"
+										type="text"
+										placeholder="用户名、昵称、邮箱"
+										class="w-1/2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+										oninput={handleSearchInput}
+									/>
+								</td>
+							</tr>
+							
+							<!-- 第二行：状态过滤 -->
+							<tr>
+								<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-20">
+									状态
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap">
+									<div class="flex flex-wrap gap-3">
+										{#each statusOptions as option}
+											<label class="flex items-center gap-2 cursor-pointer">
+												<input
+													type="checkbox"
+													class="checkbox checkbox-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400"
+													bind:group={selectedStatuses}
+													value={option.value}
+													onchange={() => handleStatusChange({ detail: selectedStatuses } as CustomEvent)}
+												/>
+												<span class="text-sm text-gray-700 dark:text-gray-300">{option.label}</span>
+											</label>
+										{/each}
+									</div>
+								</td>
+							</tr>
+							
+							<!-- 第三行：权限过滤 -->
+							<tr>
+								<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-20">
+									权限
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap">
+									<div class="space-y-3">
+										<!-- All/Any 切换 -->
+										<div class="flex items-center gap-3">
+											<div class="btn-group">
+												<button
+													type="button"
+													class="btn btn-sm {permissionMatchMode === 'any' 
+														? 'btn-active bg-blue-600 dark:bg-blue-500 text-white dark:text-white border-blue-600 dark:border-blue-500 shadow-md dark:shadow-blue-500/25' 
+														: 'btn-outline text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-300'} transition-all duration-200"
+													onclick={() => { permissionMatchMode = 'any'; handlePermissionMatchModeChange({ detail: 'any' } as CustomEvent); }}
+												>
+													{m['administrator.manage_users.permission_modal.filter.any']()}
+												</button>
+												<button
+													type="button"
+													class="btn btn-sm {permissionMatchMode === 'all' 
+														? 'btn-active bg-blue-600 dark:bg-blue-500 text-white dark:text-white border-blue-600 dark:border-blue-500 shadow-md dark:shadow-blue-500/25' 
+														: 'btn-outline text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-300'} transition-all duration-200"
+													onclick={() => { permissionMatchMode = 'all'; handlePermissionMatchModeChange({ detail: 'all' } as CustomEvent); }}
+												>
+													{m['administrator.manage_users.permission_modal.filter.all']()}
+												</button>
+											</div>
+										</div>
+										
+										<!-- 权限选项 -->
+										<div class="flex flex-wrap gap-3">
+											{#each permissionOptions as option}
+												<label class="flex items-center gap-2 cursor-pointer">
+													<input
+														type="checkbox"
+														class="checkbox checkbox-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400"
+														bind:group={selectedPermissions}
+														value={option.value}
+														onchange={() => handlePermissionChange({ detail: selectedPermissions } as CustomEvent)}
+													/>
+													<span class="text-sm text-gray-700 dark:text-gray-300">{option.label}</span>
+												</label>
+											{/each}
+										</div>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
 				</div>
 			</div>
 		</div>

@@ -10,6 +10,7 @@
 <script lang="ts">
 	import type { FilterOption } from './types.js';
 	import { createEventDispatcher } from 'svelte';
+	import * as m from '$lib/paraglide/messages.js';
 
 	let {
 		label,
@@ -87,45 +88,45 @@
 
 <div class="filter-group">
 	{#if label}
-		<div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{label}</div>
+		<div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">{label}</div>
 	{/if}
 	
 	{#if showAllAnySwitch}
 		<div class="mb-3">
 			<div class="flex items-center gap-3">
-				<span class="text-sm text-gray-600 dark:text-gray-400">匹配模式:</span>
-				<div class="inline-flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1 gap-1 border border-gray-200 dark:border-gray-700">
+				<span class="text-sm text-gray-600 dark:text-gray-400">{m['administrator.manage_users.permission_modal.filter.match_mode']()}</span>
+				<div class="btn-group">
 					<button
 						type="button"
-						class="px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-200 {matchMode === 'any' 
-							? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' 
-							: 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}"
+						class="btn btn-sm {matchMode === 'any' 
+							? 'btn-active bg-blue-600 dark:bg-blue-500 text-white dark:text-white border-blue-600 dark:border-blue-500 shadow-md dark:shadow-blue-500/25' 
+							: 'btn-outline text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-300'} transition-all duration-200"
 						onclick={() => { matchMode = 'any'; handleMatchModeChange(); }}
 					>
-						Any
+						{m['administrator.manage_users.permission_modal.filter.any']()}
 					</button>
 					<button
 						type="button"
-						class="px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-200 {matchMode === 'all' 
-							? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' 
-							: 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}"
+						class="btn btn-sm {matchMode === 'all' 
+							? 'btn-active bg-blue-600 dark:bg-blue-500 text-white dark:text-white border-blue-600 dark:border-blue-500 shadow-md dark:shadow-blue-500/25' 
+							: 'btn-outline text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-300'} transition-all duration-200"
 						onclick={() => { matchMode = 'all'; handleMatchModeChange(); }}
 					>
-						All
+						{m['administrator.manage_users.permission_modal.filter.all']()}
 					</button>
 				</div>
 			</div>
 		</div>
 	{/if}
 	
-	<div class="flex flex-col gap-2.5">
+	<div class="flex flex-col gap-3">
 		{#each categoryGroups as group (group.category)}
-			<div class="flex flex-wrap gap-2">
+			<div class="flex flex-wrap gap-3">
 				{#each group.options as option (option.value)}
-					<label class="inline-flex items-center gap-2 px-3 py-2 cursor-pointer rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-150">
+					<label class="flex items-center gap-2 cursor-pointer">
 						<input
 							type="checkbox"
-							class="checkbox checkbox-sm accent-blue-600"
+							class="checkbox checkbox-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400"
 							bind:group={value}
 							value={option.value}
 							onchange={handleChange}

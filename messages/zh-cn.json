@@ -198,6 +198,11 @@
 				"errors": {
 					"failed_to_update": "更新权限失败",
 					"network_error": "网络错误"
+				},
+				"filter": {
+					"match_mode": "匹配模式:",
+					"all": "全部满足",
+					"any": "满足任意"
 				}
 			},
 			"notifications": {
