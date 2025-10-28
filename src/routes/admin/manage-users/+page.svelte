@@ -18,9 +18,24 @@
 	let users = $state(data.users);
 	let totalUsers = $state(data.users.length); // 总用户数，用于分页组件
 	
+	// localStorage key for this page
+	const STORAGE_KEY = 'manage-users-items-per-page';
+	
+	// 初始化时从 localStorage 读取每页显示个数
+	let initialItemsPerPage = 5;
+	if (typeof window !== 'undefined') {
+		const saved = localStorage.getItem(STORAGE_KEY);
+		if (saved) {
+			const savedValue = parseInt(saved);
+			if ([2, 5, 10].includes(savedValue)) {
+				initialItemsPerPage = savedValue;
+			}
+		}
+	}
+	
 	// 分页状态
 	let currentPage = $state(1);
-	let itemsPerPage = $state(5);
+	let itemsPerPage = $state(initialItemsPerPage);
 	const itemsPerPageOptions = [2, 5, 10];
 	
 	// 过滤状态
@@ -852,6 +867,7 @@
 				bind:currentPage={currentPage}
 				bind:itemsPerPage={itemsPerPage}
 				totalItems={totalUsers}
+				storageKey={STORAGE_KEY}
 				itemsPerPageOptions={itemsPerPageOptions}
 				dropdownPosition="bottom"
 			/>
@@ -968,6 +984,7 @@
 				bind:currentPage={currentPage}
 				bind:itemsPerPage={itemsPerPage}
 				totalItems={totalUsers}
+				storageKey={STORAGE_KEY}
 				itemsPerPageOptions={itemsPerPageOptions}
 				dropdownPosition="top"
 			/>

@@ -19,6 +19,7 @@
 		itemsPerPage: number;
 		itemsPerPageOptions?: number[];
 		dropdownPosition?: 'top' | 'bottom';
+		storageKey?: string; // localStorage key for persisting itemsPerPage
 		onPageChange?: (page: number) => void;
 		onItemsPerPageChange?: (itemsPerPage: number) => void;
 	}
@@ -29,9 +30,17 @@
 		itemsPerPage = $bindable(5),
 		itemsPerPageOptions = [2, 5, 10, 20, 50],
 		dropdownPosition = 'bottom',
+		storageKey,
 		onPageChange = (page: number) => {},
 		onItemsPerPageChange = (itemsPerPage: number) => {}
 	}: PaginationProps = $props();
+
+	$effect(() => {
+		if (storageKey && typeof window !== 'undefined') {
+			// 当每页显示个数改变时保存到 localStorage
+			localStorage.setItem(storageKey, itemsPerPage.toString());
+		}
+	});
 
 	// 计算总页数
 	function getTotalPages(): number {
