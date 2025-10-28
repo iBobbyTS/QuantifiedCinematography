@@ -135,7 +135,8 @@
 				"nickname": "昵称",
 				"email": "邮箱",
 				"permissions": "权限",
-				"actions": "操作"
+				"actions": "操作",
+				"status": "状态"
 			},
 			"actions": {
 				"disable_user": "禁用用户",
@@ -231,6 +232,17 @@
 				"buttons": {
 					"close": "关闭"
 				}
+			},
+			"pagination": {
+				"items_per_page": "每页显示：",
+				"page": "页码",
+				"of": "共",
+				"total": "总计",
+				"items": "条",
+				"previous": "上一页",
+				"next": "下一页",
+				"show": "显示",
+				"of_total": "共 {total} 条"
 			}
 		}
 	},

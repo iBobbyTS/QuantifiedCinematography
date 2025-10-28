@@ -121,7 +121,7 @@
 
 {#if totalItems > 0}
 	<!-- Pagination Controls -->
-	<div class="mt-4 flex items-center justify-center border-t border-gray-200 dark:border-gray-700 pt-4 space-x-6 overflow-visible">
+	<div class="flex items-center justify-center space-x-6 overflow-visible {dropdownPosition === 'top' ? 'border-t border-gray-200 dark:border-gray-700 pt-4' : 'border-b border-gray-200 dark:border-gray-700 pb-4'}">
 		<!-- Pagination buttons -->
 		{#if getTotalPages() > 1}
 			<div class="flex items-center space-x-2">

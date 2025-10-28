@@ -9,11 +9,24 @@
 	import { PERMISSION_OPTIONS, PERMISSION_I18N_KEYS } from '$lib/permission/permissions.js';
 	import ConfirmModal from '$lib/components/Modal/ConfirmModal.svelte';
 	import ToastManager from '$lib/components/Toast/ToastManager.svelte';
+	import Pagination from '$lib/components/Pagination.svelte';
 
 	let { data }: { data: PageData } = $props();
 
 	// 用户数据 - 创建可修改的本地副本
 	let users = $state(data.users);
+	
+	// 分页状态
+	let currentPage = $state(1);
+	let itemsPerPage = $state(5);
+	const itemsPerPageOptions = [2, 5, 10];
+	
+	// 计算分页后的用户列表
+	let paginatedUsers = $derived(() => {
+		const startIndex = (currentPage - 1) * itemsPerPage;
+		const endIndex = startIndex + itemsPerPage;
+		return users.slice(startIndex, endIndex);
+	});
 	
 	// 当 data.users 变化时更新本地副本
 	$effect(() => {
@@ -611,6 +624,17 @@
 			</div>
 		</div>
 
+		<!-- Top Pagination Component -->
+		{#if users.length > 0}
+			<Pagination
+				bind:currentPage={currentPage}
+				bind:itemsPerPage={itemsPerPage}
+				totalItems={users.length}
+				itemsPerPageOptions={itemsPerPageOptions}
+				dropdownPosition="bottom"
+			/>
+		{/if}
+
 		<!-- Users Table -->
 		<div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-md">
 			<div class="px-4 py-5 sm:p-6">
@@ -631,7 +655,7 @@
 									{m['administrator.manage_users.table.permissions']()}
 								</th>
 								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-									Status
+									{m['administrator.manage_users.table.status']()}
 								</th>
 								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
 									{m['administrator.manage_users.table.actions']()}
@@ -639,7 +663,7 @@
 							</tr>
 						</thead>
 						<tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-							{#each users as user}
+							{#each paginatedUsers() as user}
 								<tr>
 									<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
 										{user.username}
@@ -715,6 +739,17 @@
 				{/if}
 			</div>
 		</div>
+		
+		<!-- Pagination Component - Outside table container to allow dropdown to show -->
+		{#if users.length > 0}
+			<Pagination
+				bind:currentPage={currentPage}
+				bind:itemsPerPage={itemsPerPage}
+				totalItems={users.length}
+				itemsPerPageOptions={itemsPerPageOptions}
+				dropdownPosition="top"
+			/>
+		{/if}
 	</div>
 </div>
 
