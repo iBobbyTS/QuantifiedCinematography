@@ -8,6 +8,7 @@
   export let placeholder: string = '';
   export let widthClass: string = 'w-32';
   export let disabled: boolean = false;
+  export let dropdownPosition: 'top' | 'bottom' = 'bottom';
 
   const dispatch = createEventDispatcher();
 
@@ -67,7 +68,7 @@
   {#if isOpen}
     <div
       id={dropdownId}
-      class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
+      class="absolute right-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 {dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}"
       role="listbox"
     >
       {#each options as opt}
