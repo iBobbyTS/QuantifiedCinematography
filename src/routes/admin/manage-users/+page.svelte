@@ -10,16 +10,137 @@
 	import ConfirmModal from '$lib/components/Modal/ConfirmModal.svelte';
 	import ToastManager from '$lib/components/Toast/ToastManager.svelte';
 	import Pagination from '$lib/components/Pagination.svelte';
+	import CheckboxFilter from '$lib/components/Filter/CheckboxFilter.svelte';
 
 	let { data }: { data: PageData } = $props();
 
 	// 用户数据 - 创建可修改的本地副本
 	let users = $state(data.users);
+	let totalUsers = $state(data.users.length); // 总用户数，用于分页组件
 	
 	// 分页状态
 	let currentPage = $state(1);
 	let itemsPerPage = $state(5);
 	const itemsPerPageOptions = [2, 5, 10];
+	
+	// 过滤状态
+	let searchQuery = $state('');
+	let selectedStatuses = $state(['enabled', 'disabled']); // 默认全选
+	let selectedPermissions = $state(['none']); // 默认选择无权限
+	let permissionMatchMode = $state<'any' | 'all'>('any'); // 权限匹配模式：'any' 或 'all'
+	let searchTimeout: ReturnType<typeof setTimeout> | null = null;
+
+	// 过滤选项数据
+	const statusOptions = [
+		{ value: 'enabled', label: m['administrator.manage_users.table.enabled']() },
+		{ value: 'disabled', label: m['administrator.manage_users.table.disabled']() }
+	];
+
+	const permissionOptions = [
+		{ value: 'none', label: '无权限' },
+		{ value: 'light', label: '灯光' },
+		{ value: 'camera', label: '相机' },
+		{ value: 'lens', label: '镜头' },
+		{ value: 'admin', label: '管理员' }
+	];
+
+	// 搜索防抖函数
+	function handleSearchInput(event: Event) {
+		const target = event.target as HTMLInputElement;
+		searchQuery = target.value;
+		
+		// 清除之前的定时器
+		if (searchTimeout) {
+			clearTimeout(searchTimeout);
+		}
+		
+		// 设置新的定时器，0.5秒后触发搜索
+		searchTimeout = setTimeout(() => {
+			triggerFilter();
+		}, 500);
+	}
+
+	// 状态过滤器变化处理
+	function handleStatusChange(event: CustomEvent<(string | number)[]>) {
+		selectedStatuses = event.detail as string[];
+		triggerFilter();
+	}
+
+	// 权限过滤器变化处理
+	function handlePermissionChange(event: CustomEvent<(string | number)[]>) {
+		const newPermissions = event.detail as string[];
+		
+		// 处理互斥逻辑：无权限不能与其他权限同时选择
+		if (newPermissions.includes('none')) {
+			// 如果选择了"无权限"，清除其他权限选择
+			selectedPermissions = ['none'];
+		} else {
+			// 如果选择了其他权限，清除"无权限"选择
+			selectedPermissions = newPermissions.filter(p => p !== 'none');
+		}
+		
+		triggerFilter();
+	}
+
+	// 权限匹配模式变化处理
+	function handlePermissionMatchModeChange(event: CustomEvent<'any' | 'all'>) {
+		permissionMatchMode = event.detail;
+		triggerFilter();
+	}
+
+	// 收集所有过滤条件并准备API请求数据
+	function collectFilterData() {
+		const filterData = {
+			search: searchQuery.trim() || null, // 空字符串时不包含此条件
+			status: selectedStatuses.length > 0 ? selectedStatuses : null, // 空数组时不包含此条件
+			permissions: selectedPermissions.length > 0 ? selectedPermissions : null, // 空数组时不包含此条件
+			permissionMatchMode: permissionMatchMode, // 权限匹配模式
+			pagination: {
+				page: currentPage,
+				limit: itemsPerPage
+			}
+		};
+
+		// 移除null值，减少请求数据量
+		const cleanedFilterData = Object.fromEntries(
+			Object.entries(filterData).filter(([_, value]) => value !== null)
+		);
+
+		return cleanedFilterData;
+	}
+
+	// 统一的过滤触发函数
+	async function triggerFilter() {
+		const filterData = collectFilterData();
+		console.log('Filter data:', filterData);
+		
+		try {
+			const response = await fetch('/api/admin/users/filter', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(filterData)
+			});
+			
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+			
+			const result = await response.json();
+			
+			if (result.success) {
+				users = result.users;
+				// 更新分页信息
+				if (result.pagination) {
+					totalUsers = result.pagination.total;
+					console.log('Pagination info:', result.pagination);
+				}
+			} else {
+				console.error('Filter request failed:', result.error);
+			}
+		} catch (error) {
+			console.error('Filter request failed:', error);
+		}
+	}
 	
 	// 计算分页后的用户列表
 	let paginatedUsers = $derived(() => {
@@ -624,12 +745,65 @@
 			</div>
 		</div>
 
+		<!-- Filter Table -->
+		<div class="bg-white dark:bg-gray-800 shadow sm:rounded-md mb-4">
+			<div class="px-4 py-5 sm:p-6">
+				<h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">过滤条件</h3>
+				
+				<!-- 第一行：模糊搜索 -->
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+					<div class="flex items-center">
+						<label for="search-input" class="text-sm font-medium text-gray-700 dark:text-gray-300 mr-3 min-w-[120px]">
+							模糊搜索
+						</label>
+						<input
+							id="search-input"
+							type="text"
+							placeholder="用户名、昵称、邮箱"
+							class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							oninput={handleSearchInput}
+						/>
+					</div>
+					<div></div>
+				</div>
+
+				<!-- 第二行：状态过滤 -->
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+					<div>
+						<CheckboxFilter
+							label="状态"
+							options={statusOptions}
+							bind:value={selectedStatuses}
+							on:change={handleStatusChange}
+						/>
+					</div>
+					<div></div>
+				</div>
+
+				<!-- 第三行：权限过滤 -->
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div>
+						<CheckboxFilter
+							label="权限"
+							options={permissionOptions}
+							bind:value={selectedPermissions}
+							showAllAnySwitch={true}
+							bind:matchMode={permissionMatchMode}
+							on:change={handlePermissionChange}
+							on:matchModeChange={handlePermissionMatchModeChange}
+						/>
+					</div>
+					<div></div>
+				</div>
+			</div>
+		</div>
+
 		<!-- Top Pagination Component -->
-		{#if users.length > 0}
+		{#if totalUsers > 0}
 			<Pagination
 				bind:currentPage={currentPage}
 				bind:itemsPerPage={itemsPerPage}
-				totalItems={users.length}
+				totalItems={totalUsers}
 				itemsPerPageOptions={itemsPerPageOptions}
 				dropdownPosition="bottom"
 			/>
@@ -741,11 +915,11 @@
 		</div>
 		
 		<!-- Pagination Component - Outside table container to allow dropdown to show -->
-		{#if users.length > 0}
+		{#if totalUsers > 0}
 			<Pagination
 				bind:currentPage={currentPage}
 				bind:itemsPerPage={itemsPerPage}
-				totalItems={users.length}
+				totalItems={totalUsers}
 				itemsPerPageOptions={itemsPerPageOptions}
 				dropdownPosition="top"
 			/>
