@@ -10,7 +10,8 @@
 	import ConfirmModal from '$lib/components/Modal/ConfirmModal.svelte';
 	import ToastManager from '$lib/components/Toast/ToastManager.svelte';
 	import Pagination from '$lib/components/Pagination.svelte';
-	import CheckboxFilter from '$lib/components/Filter/CheckboxFilter.svelte';
+
+	import { parse as devalueParse } from 'devalue';
 
 	let { data }: { data: PageData } = $props();
 
@@ -195,33 +196,53 @@
 		return cleanedFilterData;
 	}
 
-	// 统一的过滤触发函数
+	// 统一的过滤触发函数（使用页面 action）
 	async function triggerFilter() {
 		const filterData = collectFilterData();
 		console.log('Filter data:', filterData);
 		
 		try {
-			const response = await fetch('/api/admin/users/filter', {
+			const fd = new FormData();
+			fd.set('payload', JSON.stringify(filterData));
+			const response = await fetch('?/filter', {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(filterData)
+				body: fd
 			});
 			
 			if (!response.ok) {
 				throw new Error(`HTTP error! status: ${response.status}`);
 			}
 			
-			const result = await response.json();
-			
-			if (result.success) {
-				users = result.users;
-				// 更新分页信息
-				if (result.pagination) {
-					totalUsers = result.pagination.total;
-					console.log('Pagination info:', result.pagination);
+			let success = false;
+			let data: any = null;
+			try {
+				const envelope = await response.json();
+				// SvelteKit action envelope
+				if (envelope?.type === 'success') {
+					success = true;
+					data = envelope.data;
+					// 兼容 devalue 字符串格式
+					if (typeof data === 'string') {
+						try {
+							data = devalueParse(data);
+						} catch {
+							try { data = JSON.parse(data); } catch {}
+						}
+					}
+				} else if (envelope?.type === 'failure') {
+					success = false;
+					console.error('Filter action failed:', envelope?.data);
 				}
-			} else {
-				console.error('Filter request failed:', result.error);
+			} catch (e) {
+				console.error('Error parsing action envelope:', e);
+			}
+			
+			if (success && data) {
+				users = data.users || [];
+				if (data.pagination) {
+					totalUsers = data.pagination.total;
+					console.log('Pagination info:', data.pagination);
+				}
 			}
 		} catch (error) {
 			console.error('Filter request failed:', error);
@@ -278,9 +299,9 @@
 	// 响应式声明：当 originalPermissions 变化时重新初始化
 	$effect(() => {
 		if (originalPermissions !== undefined && !isPermissionModalInitialized) {
-			currentPermissions = originalPermissions;
-			isPermissionModalInitialized = true;
-		}
+		currentPermissions = originalPermissions;
+		isPermissionModalInitialized = true;
+	}
 	});
 
 	// 检查权限是否有变化
@@ -410,13 +431,13 @@
 				}
 
 				if (success) {
-					// 更新 users 数组中对应的用户权限
-					const userIndex = users.findIndex(u => u.id === selectedUser.id);
-					if (userIndex !== -1) {
-						users[userIndex].permission = currentPermissions;
-					}
-					closePermissionModal();
-				} else {
+				// 更新 users 数组中对应的用户权限
+				const userIndex = users.findIndex(u => u.id === selectedUser.id);
+				if (userIndex !== -1) {
+					users[userIndex].permission = currentPermissions;
+				}
+				closePermissionModal();
+			} else {
 					permissionModalErrorMessage = errorMessage;
 				}
 			} else {
@@ -724,14 +745,14 @@
 				} catch {}
 				
 				if (ok) {
-					const userIndex = users.findIndex(u => u.id === userToDelete.id);
-					if (userIndex !== -1) {
-						users.splice(userIndex, 1);
-					}
+				const userIndex = users.findIndex(u => u.id === userToDelete.id);
+				if (userIndex !== -1) {
+					users.splice(userIndex, 1);
+				}
 					
 					// 在关闭确认弹窗前保存用户名
 					const deletedUsername = userToDelete.username;
-					closeDeleteConfirm();
+				closeDeleteConfirm();
 					
 					// 显示成功 Toast
 					toastManager.showToast({
@@ -743,7 +764,7 @@
 						showCountdown: true
 					});
 					return;
-				} else {
+			} else {
 					// 处理 SvelteKit 服务器动作失败
 					const failedUsername = userToDelete?.username || 'Unknown';
 					toastManager.showToast({
@@ -1028,7 +1049,7 @@
 										</button>
 									</td>
 									<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-										<button
+											<button
 											onclick={() => disableUser(user)}
 											disabled={isCurrentUser(user.id)}
 											class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 {user.disabled === 1 ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800' : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800'}"
