@@ -38,6 +38,10 @@
 	let itemsPerPage = $state(initialItemsPerPage);
 	const itemsPerPageOptions = [2, 5, 10];
 	
+	// 排序状态
+	let sortField = $state('status'); // 默认按状态排序
+	let sortDirection = $state<'asc' | 'desc'>('asc'); // 默认升序
+	
 	// 过滤状态
 	let searchQuery = $state('');
 	let selectedStatuses = $state(['enabled', 'disabled']); // 默认全选
@@ -103,6 +107,69 @@
 		triggerFilter();
 	}
 
+	// 排序处理函数
+	function handleSort(field: string) {
+		if (sortField === field) {
+			// 如果点击的是当前排序字段，切换排序方向
+			sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+		} else {
+			// 如果点击的是新字段，设置为升序
+			sortField = field;
+			sortDirection = 'asc';
+		}
+		
+		// 排序后切换到第一页
+		currentPage = 1;
+		
+		// 触发过滤（包含排序）
+		triggerFilter();
+	}
+
+	// 获取排序后的用户数据
+	function getSortedUsers() {
+		const sortedUsers = [...users].sort((a, b) => {
+			let aValue: any;
+			let bValue: any;
+			
+			switch (sortField) {
+				case 'status':
+					// 状态排序：enabled < disabled
+					aValue = a.disabled ? 1 : 0;
+					bValue = b.disabled ? 1 : 0;
+					break;
+				case 'permission':
+					// 权限排序：按权限值排序
+					aValue = a.permission;
+					bValue = b.permission;
+					break;
+				case 'username':
+					aValue = a.username.toLowerCase();
+					bValue = b.username.toLowerCase();
+					break;
+				case 'nickname':
+					aValue = (a.nickname || '').toLowerCase();
+					bValue = (b.nickname || '').toLowerCase();
+					break;
+				case 'email':
+					aValue = (a.email || '').toLowerCase();
+					bValue = (b.email || '').toLowerCase();
+					break;
+				default:
+					return 0;
+			}
+			
+			if (aValue < bValue) {
+				return sortDirection === 'asc' ? -1 : 1;
+			}
+			if (aValue > bValue) {
+				return sortDirection === 'asc' ? 1 : -1;
+			}
+			return 0;
+		});
+		
+		return sortedUsers;
+	}
+
 	// 收集所有过滤条件并准备API请求数据
 	function collectFilterData() {
 		const filterData = {
@@ -110,6 +177,10 @@
 			status: selectedStatuses.length > 0 ? selectedStatuses : null, // 空数组时不包含此条件
 			permissions: selectedPermissions.length > 0 ? selectedPermissions : null, // 空数组时不包含此条件
 			permissionMatchMode: permissionMatchMode, // 权限匹配模式
+			sort: {
+				field: sortField,
+				direction: sortDirection
+			},
 			pagination: {
 				page: currentPage,
 				limit: itemsPerPage
@@ -880,20 +951,55 @@
 					<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
 						<thead class="bg-gray-50 dark:bg-gray-700">
 							<tr>
-								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-									{m['administrator.manage_users.table.username']()}
+								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors" onclick={() => handleSort('username')}>
+									<div class="flex items-center gap-1">
+										{m['administrator.manage_users.table.username']()}
+										{#if sortField === 'username'}
+											<Icon icon={sortDirection === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'} class="w-3 h-3" />
+										{:else}
+											<Icon icon="mdi:unfold-more-horizontal" class="w-3 h-3 opacity-50" />
+										{/if}
+									</div>
 								</th>
-								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-									{m['administrator.manage_users.table.nickname']()}
+								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors" onclick={() => handleSort('nickname')}>
+									<div class="flex items-center gap-1">
+										{m['administrator.manage_users.table.nickname']()}
+										{#if sortField === 'nickname'}
+											<Icon icon={sortDirection === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'} class="w-3 h-3" />
+										{:else}
+											<Icon icon="mdi:unfold-more-horizontal" class="w-3 h-3 opacity-50" />
+										{/if}
+									</div>
 								</th>
-								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-									{m['administrator.manage_users.table.email']()}
+								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors" onclick={() => handleSort('email')}>
+									<div class="flex items-center gap-1">
+										{m['administrator.manage_users.table.email']()}
+										{#if sortField === 'email'}
+											<Icon icon={sortDirection === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'} class="w-3 h-3" />
+										{:else}
+											<Icon icon="mdi:unfold-more-horizontal" class="w-3 h-3 opacity-50" />
+										{/if}
+									</div>
 								</th>
-								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-									{m['administrator.manage_users.table.permissions']()}
+								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors" onclick={() => handleSort('permission')}>
+									<div class="flex items-center gap-1">
+										{m['administrator.manage_users.table.permissions']()}
+										{#if sortField === 'permission'}
+											<Icon icon={sortDirection === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'} class="w-3 h-3" />
+										{:else}
+											<Icon icon="mdi:unfold-more-horizontal" class="w-3 h-3 opacity-50" />
+										{/if}
+									</div>
 								</th>
-								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-									{m['administrator.manage_users.table.status']()}
+								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors" onclick={() => handleSort('status')}>
+									<div class="flex items-center gap-1">
+										{m['administrator.manage_users.table.status']()}
+										{#if sortField === 'status'}
+											<Icon icon={sortDirection === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'} class="w-3 h-3" />
+										{:else}
+											<Icon icon="mdi:unfold-more-horizontal" class="w-3 h-3 opacity-50" />
+										{/if}
+									</div>
 								</th>
 								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
 									{m['administrator.manage_users.table.actions']()}
@@ -932,7 +1038,7 @@
 											{user.disabled === 1 ? m['administrator.manage_users.table.disabled']() : m['administrator.manage_users.table.enabled']()}
 										</button>
 									</td>
-									<td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+									<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700 dark:text-gray-200">
 										<div class="flex space-x-2">
 											<button
 												onclick={() => openResetPasswordConfirm(user)}

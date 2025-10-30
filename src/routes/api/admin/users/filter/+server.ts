@@ -2,13 +2,13 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { db } from '$lib/server/db';
 import { user } from '$lib/server/db/schema';
-import { and, or, like, eq, sql } from 'drizzle-orm';
+import { and, or, like, eq, sql, desc, asc } from 'drizzle-orm';
 import { USER_PERMISSIONS } from '$lib/permission/bitmask.js';
 
 export const POST: RequestHandler = async ({ request }) => {
 	try {
 		const body = await request.json();
-		const { search, status, permissions, permissionMatchMode, pagination } = body;
+		const { search, status, permissions, permissionMatchMode, sort, pagination } = body;
 
 		console.log('=== Filter API Request ===');
 		console.log('Request body:', body);
@@ -16,6 +16,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		console.log('Status filter:', status);
 		console.log('Permissions filter:', permissions);
 		console.log('Permission match mode:', permissionMatchMode);
+		console.log('Sort:', sort);
 		console.log('Pagination:', pagination);
 
 		// 构建查询条件
@@ -103,12 +104,46 @@ export const POST: RequestHandler = async ({ request }) => {
 		const limit = pagination?.limit || 10;
 		const offset = (page - 1) * limit;
 
+		// 排序逻辑
+		let orderByClause;
+		if (sort && sort.field && sort.direction) {
+			const { field, direction } = sort;
+			const isAsc = direction === 'asc';
+			
+			switch (field) {
+				case 'status':
+					// 状态排序：enabled < disabled
+					orderByClause = isAsc ? [user.disabled] : [desc(user.disabled)];
+					break;
+				case 'permission':
+					// 权限排序：按权限值排序
+					orderByClause = isAsc ? [user.permission] : [desc(user.permission)];
+					break;
+				case 'username':
+					orderByClause = isAsc ? [user.username] : [desc(user.username)];
+					break;
+				case 'nickname':
+					orderByClause = isAsc ? [user.nickname] : [desc(user.nickname)];
+					break;
+				case 'email':
+					orderByClause = isAsc ? [user.email] : [desc(user.email)];
+					break;
+				default:
+					// 默认排序：状态, 权限, 用户名, 昵称, 邮箱
+					orderByClause = [user.disabled, user.permission, user.username, user.nickname, user.email];
+			}
+		} else {
+			// 默认排序：状态, 权限, 用户名, 昵称, 邮箱
+			orderByClause = [user.disabled, user.permission, user.username, user.nickname, user.email];
+		}
+
 		// 执行查询
 		const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 		
 		console.log('=== Query Conditions ===');
 		console.log('Conditions count:', conditions.length);
 		console.log('Where clause:', whereClause);
+		console.log('Order by clause:', orderByClause);
 		console.log('Page:', page, 'Limit:', limit, 'Offset:', offset);
 		
 		const filteredUsers = await db
@@ -124,6 +159,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			})
 			.from(user)
 			.where(whereClause)
+			.orderBy(...orderByClause)
 			.limit(limit)
 			.offset(offset);
 
