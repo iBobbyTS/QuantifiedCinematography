@@ -50,6 +50,20 @@
 	let permissionMatchMode = $state<'any' | 'all'>('any'); // 权限匹配模式：'any' 或 'all'
 	let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
+	// 禁用用户确认弹窗状态
+	let showDisableConfirm = $state(false);
+	let userToDisable: any = $state(null);
+
+	function openDisableConfirm(user: any) {
+		userToDisable = user;
+		showDisableConfirm = true;
+	}
+
+	function closeDisableConfirm() {
+		showDisableConfirm = false;
+		userToDisable = null;
+	}
+
 	// 过滤选项数据
 	const statusOptions = [
 		{ value: 'enabled', label: m['administrator.manage_users.table.enabled']() },
@@ -487,9 +501,7 @@
 	async function disableUser(user: any) {
 		const isCurrentlyDisabled = user.disabled === 1;
 		const actionText = isCurrentlyDisabled ? 'enable' : 'disable';
-		
-		if (confirm(m['administrator.manage_users.confirmations.disable_user']())) {
-			try {
+		try {
 				const fd = new FormData();
 				fd.set('userId', user.id);
 				fd.set('disabled', (!isCurrentlyDisabled).toString());
@@ -549,6 +561,7 @@
 							duration: 3000,
 							showCountdown: true
 						});
+						closeDisableConfirm();
 						return;
 					} else {
 						// 处理 SvelteKit 服务器动作失败
@@ -599,7 +612,6 @@
 					showCountdown: true
 				});
 			}
-		}
 	}
 
 	// 打开删除确认弹窗
@@ -1052,7 +1064,7 @@
 									</td>
 									<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
 											<button
-											onclick={() => disableUser(user)}
+						onclick={() => openDisableConfirm(user)}
 											disabled={isCurrentUser(user.id)}
 											class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 {user.disabled === 1 ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800' : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800'}"
 											title={isCurrentUser(user.id) ? m['administrator.manage_users.actions.cannot_disable_self']() : (user.disabled === 1 ? m['administrator.manage_users.actions.enable_user']() : m['administrator.manage_users.actions.disable_user']())}
@@ -1233,6 +1245,36 @@
 	iconColor="text-red-500"
 	on:confirm={confirmDeleteUser}
 	on:cancel={closeDeleteConfirm}
+/>
+
+<!-- Disable/Enable Confirmation Modal -->
+<ConfirmModal
+	bind:isOpen={showDisableConfirm}
+	title={userToDisable
+		? (userToDisable.disabled === 1
+			? (m['administrator.manage_users.table.status']() === '状态' ? '确定要启用此用户吗？' : 'Are you sure you want to enable this user?')
+			: m['administrator.manage_users.confirmations.disable_user']())
+		: ''}
+	message={userToDisable
+		? (userToDisable.disabled === 1
+			? (m['administrator.manage_users.table.status']() === '状态'
+				? `用户${userToDisable.nickname}(${userToDisable.username})将恢复登录权限。`
+				: `User ${userToDisable.nickname}(${userToDisable.username}) will have login access restored.`)
+			: (m['administrator.manage_users.table.status']() === '状态'
+				? `用户${userToDisable.nickname}(${userToDisable.username})将会被禁止登录，登录状态会立即失效。`
+				: `User ${userToDisable.nickname}(${userToDisable.username}) will be blocked from logging in, and any active sessions will be terminated immediately.`))
+		: ''}
+	confirmText={userToDisable
+		? (m['administrator.manage_users.table.status']() === '状态'
+			? (userToDisable.disabled === 1 ? '启用' : '禁用')
+			: (userToDisable.disabled === 1 ? 'Enable' : 'Disable'))
+		: ''}
+	cancelText={m[PERMISSION_I18N_KEYS.modal.buttons.cancel]()}
+	confirmButtonColor={userToDisable && userToDisable.disabled === 1 ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}
+	iconName={userToDisable && userToDisable.disabled === 1 ? 'mdi:account-check' : 'mdi:account-cancel'}
+	iconColor={userToDisable && userToDisable.disabled === 1 ? 'text-green-500' : 'text-red-500'}
+	on:confirm={() => userToDisable && disableUser(userToDisable)}
+	on:cancel={closeDisableConfirm}
 />
 
 <!-- Reset Password Confirmation Modal -->
