@@ -10,7 +10,7 @@
 	import ConfirmModal from '$lib/components/Modal/ConfirmModal.svelte';
 	import ToastManager from '$lib/components/Toast/ToastManager.svelte';
 	import Pagination from '$lib/components/Pagination.svelte';
-
+	import { ITEMS_PER_PAGE_OPTIONS } from '$lib/constants';
 	import { parse as devalueParse } from 'devalue';
 
 	let { data }: { data: PageData } = $props();
@@ -28,7 +28,7 @@
 		const saved = localStorage.getItem(STORAGE_KEY);
 		if (saved) {
 			const savedValue = parseInt(saved);
-			if ([2, 5, 10].includes(savedValue)) {
+			if (ITEMS_PER_PAGE_OPTIONS.includes(savedValue)) {
 				initialItemsPerPage = savedValue;
 			}
 		}
@@ -37,7 +37,7 @@
 	// 分页状态
 	let currentPage = $state(1);
 	let itemsPerPage = $state(initialItemsPerPage);
-	const itemsPerPageOptions = [2, 5, 10];
+	const itemsPerPageOptions = ITEMS_PER_PAGE_OPTIONS;
 	
 	// 排序状态
 	let sortField = $state('status'); // 默认按状态排序
@@ -955,14 +955,16 @@
 
 		<!-- Top Pagination Component -->
 		{#if totalUsers > 0}
-			<Pagination
-				bind:currentPage={currentPage}
-				bind:itemsPerPage={itemsPerPage}
-				totalItems={totalUsers}
-				storageKey={STORAGE_KEY}
-				itemsPerPageOptions={itemsPerPageOptions}
-				dropdownPosition="bottom"
-			/>
+			<div class="mb-4">
+				<Pagination
+					bind:currentPage={currentPage}
+					bind:itemsPerPage={itemsPerPage}
+					totalItems={totalUsers}
+					storageKey={STORAGE_KEY}
+					itemsPerPageOptions={itemsPerPageOptions}
+					dropdownPosition="bottom"
+				/>
+			</div>
 		{/if}
 
 		<!-- Users Table -->
@@ -1107,14 +1109,16 @@
 		
 		<!-- Pagination Component - Outside table container to allow dropdown to show -->
 		{#if totalUsers > 0}
-			<Pagination
-				bind:currentPage={currentPage}
-				bind:itemsPerPage={itemsPerPage}
-				totalItems={totalUsers}
-				storageKey={STORAGE_KEY}
-				itemsPerPageOptions={itemsPerPageOptions}
-				dropdownPosition="top"
-			/>
+			<div class="mt-4">
+				<Pagination
+					bind:currentPage={currentPage}
+					bind:itemsPerPage={itemsPerPage}
+					totalItems={totalUsers}
+					storageKey={STORAGE_KEY}
+					itemsPerPageOptions={itemsPerPageOptions}
+					dropdownPosition="top"
+				/>
+			</div>
 		{/if}
 	</div>
 </div>

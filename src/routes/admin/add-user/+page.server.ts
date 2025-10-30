@@ -7,10 +7,10 @@ import { hashPassword, generatePassword } from '$lib/password.js';
 import { eq } from 'drizzle-orm';
 
 export const load: PageServerLoad = async ({ locals }) => {
-		// 检查用户是否登录
-		if (!locals.user) {
+	// 检查用户是否登录
+	if (!locals.user) {
 			throw redirect(302, '/user/login');
-		}
+	}
 
 	// 检查用户是否为管理员
 	if (!UserPermissions.hasPermission(locals.user.permission, USER_PERMISSIONS.ADMINISTRATOR)) {
@@ -37,14 +37,14 @@ export const actions: Actions = {
 			const username = formData.get('username') as string;
 			const permissions = parseInt(formData.get('permissions') as string) || 0;
 
-			// 验证输入
+		// 验证输入
 			if (!username) {
 				return fail(400, { message: 'Username is required' });
-			}
+		}
 
-			if (username.length < 3) {
+		if (username.length < 3) {
 				return fail(400, { message: 'Username must be at least 3 characters long' });
-			}
+		}
 
 			// 检查用户名是否已存在
 			const existingUser = await db.select().from(user).where(eq(user.username, username));

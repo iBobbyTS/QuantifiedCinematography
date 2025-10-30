@@ -12,7 +12,8 @@
 	import Icon from '@iconify/svelte';
 	import * as m from '$lib/paraglide/messages.js';
 	import Dropdown from './Dropdown.svelte';
-
+	import { ITEMS_PER_PAGE_OPTIONS } from '$lib/constants';
+	
 	interface PaginationProps {
 		currentPage: number;
 		totalItems: number;
@@ -28,7 +29,7 @@
 		currentPage = $bindable(1),
 		totalItems = 0,
 		itemsPerPage = $bindable(5),
-		itemsPerPageOptions = [2, 5, 10, 20, 50],
+		itemsPerPageOptions = ITEMS_PER_PAGE_OPTIONS,
 		dropdownPosition = 'bottom',
 		storageKey,
 		onPageChange = (page: number) => {},
