@@ -1,4 +1,5 @@
 import type { RequestEvent } from '@sveltejs/kit';
+import { dev } from '$app/environment';
 import { eq } from 'drizzle-orm';
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
@@ -43,12 +44,8 @@ export async function validateSessionToken(token: string) {
 	}
 	const { session, user } = result;
 
-	// 检查用户是否被禁用
-	if (user.disabled === 1) {
-		// 如果用户被禁用，删除其所有session
-		await db.delete(table.session).where(eq(table.session.userId, user.id));
-		return { session: null, user: null };
-	}
+    // 登录态校验仅依据会话是否存在与是否过期；
+    // 禁用用户时会在禁用动作中清理其所有会话。
 
 	const sessionExpired = Date.now() >= session.expiresAt.getTime();
 	if (sessionExpired) {
@@ -77,12 +74,18 @@ export async function invalidateSession(sessionId: string) {
 export function setSessionTokenCookie(event: RequestEvent, token: string, expiresAt: Date) {
 	event.cookies.set(sessionCookieName, token, {
 		expires: expiresAt,
-		path: '/'
+        path: '/',
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: !dev
 	});
 }
 
 export function deleteSessionTokenCookie(event: RequestEvent) {
 	event.cookies.delete(sessionCookieName, {
-		path: '/'
+        path: '/',
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: !dev
 	});
 }

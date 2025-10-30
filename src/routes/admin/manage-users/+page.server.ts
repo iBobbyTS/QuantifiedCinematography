@@ -1,7 +1,7 @@
 import { error, redirect, fail } from '@sveltejs/kit';
 import type { ServerLoad, Actions } from '@sveltejs/kit';
 import { db } from '$lib/server/db/index.js';
-import { user } from '$lib/server/db/schema.js';
+import { user, session } from '$lib/server/db/schema.js';
 import { UserPermissions, USER_PERMISSIONS } from '$lib/permission/bitmask.js';
 import { and, or, like, eq, sql, desc } from 'drizzle-orm';
 
@@ -242,8 +242,11 @@ export const actions: Actions = {
                 return fail(404, { message: 'User not found' });
             }
 
-            // Delete
-            await db.delete(user).where(eq(user.id, userId));
+            // Transaction: delete all sessions then delete user
+            await db.transaction(async (tx) => {
+                await tx.delete(session).where(eq(session.userId, userId));
+                await tx.delete(user).where(eq(user.id, userId));
+            });
 
             return { success: true, userId };
         } catch (err) {
@@ -283,14 +286,20 @@ export const actions: Actions = {
                 return fail(404, { message: 'User not found' });
             }
 
-            // Update disabled status
-            await db
-                .update(user)
-                .set({ 
-                    disabled: disabled ? 1 : 0,
-                    updatedAt: new Date()
-                })
-                .where(eq(user.id, userId));
+            // Transaction: update disabled status and (if disabling) delete all sessions
+            await db.transaction(async (tx) => {
+                await tx
+                    .update(user)
+                    .set({ 
+                        disabled: disabled ? 1 : 0,
+                        updatedAt: new Date()
+                    })
+                    .where(eq(user.id, userId));
+
+                if (disabled) {
+                    await tx.delete(session).where(eq(session.userId, userId));
+                }
+            });
 
             return { success: true, userId, disabled };
         } catch (err) {
