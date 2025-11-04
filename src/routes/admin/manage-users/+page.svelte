@@ -845,7 +845,7 @@
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 		<!-- Header -->
 		<div class="mb-8">
-			<div class="flex items-center justify-between">
+			<div class="flex items-start justify-between">
 				<div>
 					<h1 class="text-3xl font-bold text-gray-900 dark:text-white">
 						{m['administrator.manage_users.title']()}
@@ -856,7 +856,7 @@
 				</div>
 				<button
 					onclick={addUser}
-					class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-500 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-400 dark:hover:border-blue-500"
+					class="inline-flex items-center whitespace-nowrap px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-500 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-400 dark:hover:border-blue-500"
 				>
 					<Icon icon="mdi:plus" class="w-4 h-4 mr-2" />
 					{m['administrator.manage_users.add_user']()}
@@ -866,7 +866,7 @@
 
 		<!-- Filter Table -->
 		<div class="bg-white dark:bg-gray-800 shadow sm:rounded-md mb-4">
-			<div class="px-4 py-5 sm:p-6">
+			<div class="px-4 py-4 sm:py-5">
 				<!-- 过滤条件表格 -->
 				<div class="overflow-hidden">
 					<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
