@@ -319,5 +319,32 @@
 			"description": "浏览灯光产品彩光的照度、饱和度等信息。",
 			"button": "RGB纯色 VS 照度"
 		}
+	},
+	"spectrometer": {
+		"title": "管理光谱仪",
+		"subtitle": "本网站主要是灯光产品测试，而非光谱仪，所以光谱仪部分从简，只记录光谱仪的名字，名字需要包含品牌、型号等，其他人看了名字需要可以认出来这是哪一款，并且这个名字指向的是**唯一的**一款产品。",
+		"add_spectrometer": "添加光谱仪",
+		"filter": {
+			"fuzzy_search": "模糊搜索",
+			"search_placeholder": "光谱仪名称"
+		},
+		"table": {
+			"name": "名称",
+			"actions": "操作"
+		},
+		"actions": {
+			"rename": "重命名",
+			"delete": "删除"
+		},
+		"confirmations": {
+			"delete_title": "删除光谱仪",
+			"delete_message": "确定要删除光谱仪 '{name}' 吗？此操作无法撤销。",
+			"delete_confirm": "删除",
+			"delete_cancel": "取消"
+		},
+		"empty_state": {
+			"title": "暂无光谱仪",
+			"description": "通过添加新光谱仪开始使用。"
+		}
 	}
 }

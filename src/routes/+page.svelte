@@ -68,7 +68,8 @@
 				},
 				{
 				text: m['data_provider_lighting.spectrometer.button'](),
-					color: 'blue'
+					color: 'blue',
+					onClick: () => goto('/spectrometer')
 				}
 			],
 			color: 'blue'

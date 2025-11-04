@@ -327,5 +327,32 @@
 			"description": "Browse illuminance, saturation and other information of colored lighting products.",
 			"button": "RGB Pure Color VS Illuminance"
 		}
+	},
+	"spectrometer": {
+		"title": "Manage Spectrometer",
+		"subtitle": "This website focuses on lighting product testing, not spectrometers, so the spectrometer section is simplified. Only record the spectrometer name, which should include brand, model, etc. Others should be able to identify which specific product it is from the name, and this name refers to a **unique** product.",
+		"add_spectrometer": "Add Spectrometer",
+		"filter": {
+			"fuzzy_search": "Fuzzy Search",
+			"search_placeholder": "Spectrometer name"
+		},
+		"table": {
+			"name": "Name",
+			"actions": "Actions"
+		},
+		"actions": {
+			"rename": "Rename",
+			"delete": "Delete"
+		},
+		"confirmations": {
+			"delete_title": "Delete Spectrometer",
+			"delete_message": "Are you sure you want to delete spectrometer '{name}'? This action cannot be undone.",
+			"delete_confirm": "Delete",
+			"delete_cancel": "Cancel"
+		},
+		"empty_state": {
+			"title": "No spectrometers",
+			"description": "Get started by adding a new spectrometer."
+		}
 	}
 }
