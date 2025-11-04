@@ -159,7 +159,13 @@
 				"reset_password_message": "确定要重置用户 '{username}' ({nickname}) 的密码吗？这将生成一个新密码，用户需要使用新密码登录。",
 				"reset_password_confirm": "重置密码",
 				"reset_password_confirm_loading": "重置中...",
-				"reset_password_cancel": "取消"
+				"reset_password_cancel": "取消",
+				"disable_user_title": "确定要禁用此用户吗？",
+				"disable_user_message": "用户{nickname}({username})将会被禁止登录，登录状态会立即失效。",
+				"disable_confirm": "禁用",
+				"enable_user_title": "确定要启用此用户吗？",
+				"enable_user_message": "用户{nickname}({username})将恢复登录权限。",
+				"enable_confirm": "启用"
 			},
 			"empty_state": {
 				"title": "暂无用户",
@@ -250,14 +256,23 @@
 				"next": "下一页",
 				"show": "显示",
 				"of_total": "共 {total} 条"
+			},
+			"filter": {
+				"fuzzy_search": "模糊搜索",
+				"search_placeholder": "用户名、昵称、邮箱",
+				"permission_none": "无权限",
+				"permission_light": "灯光",
+				"permission_camera": "相机",
+				"permission_lens": "镜头",
+				"permission_admin": "管理员"
 			}
 		}
 	},
 	"data_provider_lighting": {
 		"title": "数据上传 - 灯光",
 		"recorded_lighting_products": {
-			"title": "已收录的灯光产品：{count}款",
-			"description": "本板块收录多位测试博主对多款灯光产品的全面测试，点击下方按钮查看所有灯，后方的卡片有详细的测试项目。",
+			"title": "管理灯光相关产品",
+			"description": "点击下面的选项进行对应的管理，如有需要新增板块，请联系开发者。",
 			"button": "管理灯光产品"
 		},
 		"lighting_accessories": {

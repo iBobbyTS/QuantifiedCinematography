@@ -167,7 +167,13 @@
 				"reset_password_message": "Are you sure you want to reset the password for user '{username}' ({nickname})? This will generate a new password and the user will need to use it to log in.",
 				"reset_password_confirm": "Reset Password",
 				"reset_password_confirm_loading": "Resetting...",
-				"reset_password_cancel": "Cancel"
+				"reset_password_cancel": "Cancel",
+				"disable_user_title": "Are you sure you want to disable this user?",
+				"disable_user_message": "User {nickname}({username}) will be blocked from logging in, and any active sessions will be terminated immediately.",
+				"disable_confirm": "Disable",
+				"enable_user_title": "Are you sure you want to enable this user?",
+				"enable_user_message": "User {nickname}({username}) will have login access restored.",
+				"enable_confirm": "Enable"
 			},
 			"empty_state": {
 				"title": "No users",
@@ -258,6 +264,15 @@
 				"next": "Next",
 				"show": "Show",
 				"of_total": "of {total}"
+			},
+			"filter": {
+				"fuzzy_search": "Fuzzy Search",
+				"search_placeholder": "Username, Nickname, Email",
+				"permission_none": "None",
+				"permission_light": "Light",
+				"permission_camera": "Camera",
+				"permission_lens": "Lens",
+				"permission_admin": "Administrator"
 			}
 		}
 	},

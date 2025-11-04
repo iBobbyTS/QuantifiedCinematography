@@ -71,11 +71,11 @@
 	];
 
 	const permissionOptions = [
-		{ value: 'none', label: '无权限' },
-		{ value: 'light', label: '灯光' },
-		{ value: 'camera', label: '相机' },
-		{ value: 'lens', label: '镜头' },
-		{ value: 'admin', label: '管理员' }
+		{ value: 'none', label: m['administrator.manage_users.filter.permission_none']() },
+		{ value: 'light', label: m['administrator.manage_users.filter.permission_light']() },
+		{ value: 'camera', label: m['administrator.manage_users.filter.permission_camera']() },
+		{ value: 'lens', label: m['administrator.manage_users.filter.permission_lens']() },
+		{ value: 'admin', label: m['administrator.manage_users.filter.permission_admin']() }
 	];
 
 	// 搜索防抖函数
@@ -874,13 +874,13 @@
 							<!-- 第一行：模糊搜索 -->
 							<tr>
 								<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-20">
-									模糊搜索
+									{m['administrator.manage_users.filter.fuzzy_search']()}
 								</td>
 								<td class="px-6 py-4 whitespace-nowrap">
 									<input
 										id="search-input"
 										type="text"
-										placeholder="用户名、昵称、邮箱"
+										placeholder={m['administrator.manage_users.filter.search_placeholder']()}
 										class="w-1/2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
 										oninput={handleSearchInput}
 									/>
@@ -890,7 +890,7 @@
 							<!-- 第二行：状态过滤 -->
 							<tr>
 								<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-20">
-									状态
+									{m['administrator.manage_users.table.status']()}
 								</td>
 								<td class="px-6 py-4 whitespace-nowrap">
 									<div class="flex flex-wrap gap-3">
@@ -913,7 +913,7 @@
 							<!-- 第三行：权限过滤 -->
 							<tr>
 								<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-20">
-									权限
+									{m['administrator.manage_users.table.permissions']()}
 								</td>
 								<td class="px-6 py-4 whitespace-nowrap">
 									<div class="space-y-3">
@@ -1250,25 +1250,9 @@
 <!-- Disable/Enable Confirmation Modal -->
 <ConfirmModal
 	bind:isOpen={showDisableConfirm}
-	title={userToDisable
-		? (userToDisable.disabled === 1
-			? (m['administrator.manage_users.table.status']() === '状态' ? '确定要启用此用户吗？' : 'Are you sure you want to enable this user?')
-			: m['administrator.manage_users.confirmations.disable_user']())
-		: ''}
-	message={userToDisable
-		? (userToDisable.disabled === 1
-			? (m['administrator.manage_users.table.status']() === '状态'
-				? `用户${userToDisable.nickname}(${userToDisable.username})将恢复登录权限。`
-				: `User ${userToDisable.nickname}(${userToDisable.username}) will have login access restored.`)
-			: (m['administrator.manage_users.table.status']() === '状态'
-				? `用户${userToDisable.nickname}(${userToDisable.username})将会被禁止登录，登录状态会立即失效。`
-				: `User ${userToDisable.nickname}(${userToDisable.username}) will be blocked from logging in, and any active sessions will be terminated immediately.`))
-		: ''}
-	confirmText={userToDisable
-		? (m['administrator.manage_users.table.status']() === '状态'
-			? (userToDisable.disabled === 1 ? '启用' : '禁用')
-			: (userToDisable.disabled === 1 ? 'Enable' : 'Disable'))
-		: ''}
+	title={userToDisable?.disabled === 1 ? m['administrator.manage_users.confirmations.enable_user_title']() : m['administrator.manage_users.confirmations.disable_user_title']()}
+	message={userToDisable ? (userToDisable.disabled === 1 ? m['administrator.manage_users.confirmations.enable_user_message']({ username: userToDisable.username, nickname: userToDisable.nickname }) : m['administrator.manage_users.confirmations.disable_user_message']({ username: userToDisable.username, nickname: userToDisable.nickname })) : ''}
+	confirmText={userToDisable?.disabled === 1 ? m['administrator.manage_users.confirmations.enable_confirm']() : m['administrator.manage_users.confirmations.disable_confirm']()}
 	cancelText={m[PERMISSION_I18N_KEYS.modal.buttons.cancel]()}
 	confirmButtonColor={userToDisable && userToDisable.disabled === 1 ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}
 	iconName={userToDisable && userToDisable.disabled === 1 ? 'mdi:account-check' : 'mdi:account-cancel'}
