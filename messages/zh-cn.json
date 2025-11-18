@@ -345,6 +345,13 @@
 		"empty_state": {
 			"title": "暂无光谱仪",
 			"description": "通过添加新光谱仪开始使用。"
+		},
+		"add_modal": {
+			"title": "添加光谱仪",
+			"message": "请输入光谱仪名称，需包含品牌、型号等。添加的光谱仪整个网站内共享，确保其他人看了可以知道这是哪一款，且这个名字仅指向**唯一的**一款光谱仪。",
+			"input_placeholder": "请输入光谱仪名称",
+			"add_button": "添加",
+			"cancel_button": "取消"
 		}
 	}
 }

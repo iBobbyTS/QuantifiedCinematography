@@ -353,6 +353,13 @@
 		"empty_state": {
 			"title": "No spectrometers",
 			"description": "Get started by adding a new spectrometer."
+		},
+		"add_modal": {
+			"title": "Add Spectrometer",
+			"message": "Please enter the spectrometer name, which should include brand, model, etc. The added spectrometer will be shared across the entire website. Ensure others can identify which specific product it is from the name, and this name refers to a **unique** spectrometer.",
+			"input_placeholder": "Enter spectrometer name",
+			"add_button": "Add",
+			"cancel_button": "Cancel"
 		}
 	}
 }
