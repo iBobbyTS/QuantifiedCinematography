@@ -60,6 +60,7 @@
 	// 管理员卡片配置数据
 	$: adminCards = [
 		{
+			id: 'admin-user-management',
 			title: m['administrator.user_management.title'](),
 			description: m['administrator.user_management.description'](),
 			buttons: [
@@ -76,6 +77,7 @@
 	// 数据提供方灯光卡片配置数据
 	$: dataProviderLightingCards = [
 		{
+			id: 'data-provider-lighting-products',
 			title: m['data_provider_lighting.recorded_lighting_products.title']({ count: productCount.toString() }),
 			description: m['data_provider_lighting.recorded_lighting_products.description'](),
 			buttons: [
@@ -96,6 +98,7 @@
 			color: 'blue'
 		},
 		{
+			id: 'data-provider-lighting-upload',
 			title: m['data_provider_lighting.data_upload.title'](),
 			description: m['data_provider_lighting.data_upload.description'](),
 			buttons: [
@@ -115,6 +118,7 @@
 	// 卡片配置数据
 	$: cards = [
 		{
+			id: 'lighting-products',
 			title: m['lighting.products.title']({ count: productCount.toString() }),
 			description: m['lighting.products.description'](),
 			buttons: [
@@ -126,6 +130,7 @@
 			color: 'blue'
 		},
 		{
+			id: 'lighting-brightness',
 			title: m['lighting.brightness.title'](),
 			description: m['lighting.brightness.description'](),
 			buttons: [
@@ -141,6 +146,7 @@
 			color: 'green'
 		},
 		{
+			id: 'lighting-white-light-quality',
 			title: m['lighting.white_light_quality.title'](),
 			description: m['lighting.white_light_quality.description'](),
 			buttons: [
@@ -168,6 +174,7 @@
 			color: 'orange'
 		},
 		{
+			id: 'lighting-color-light',
 			title: m['lighting.color_light.title'](),
 			description: m['lighting.color_light.description'](),
 			buttons: [
@@ -183,6 +190,7 @@
 	// 相机/摄影机卡片配置数据
 	$: cameraCards = [
 		{
+			id: 'camera-products',
 			title: m['camera.products.title']({ cameraCount: cameraCount.toString(), cinemaCount: cinemaCount.toString() }),
 			description: '',
 			buttons: [
@@ -194,6 +202,7 @@
 			color: 'blue'
 		},
 		{
+			id: 'camera-dynamic-range',
 			title: m['camera.dynamic_range.title'](),
 			description: m['camera.dynamic_range.description'](),
 			buttons: [
@@ -205,6 +214,38 @@
 			color: 'blue'
 		}
 	];
+	
+	// 导航项配置
+	$: navigationItems = [
+		...(isAdministrator ? [{
+			section: m['administrator.title'](),
+			sectionId: 'section-administrator',
+			cards: adminCards.map(card => ({ id: card.id, title: card.title }))
+		}] : []),
+		...(hasLightPermission ? [{
+			section: m['data_provider_lighting.title'](),
+			sectionId: 'section-data-provider-lighting',
+			cards: dataProviderLightingCards.map(card => ({ id: card.id, title: card.title }))
+		}] : []),
+		{
+			section: m['camera.title'](),
+			sectionId: 'section-camera',
+			cards: cameraCards.map(card => ({ id: card.id, title: card.title }))
+		},
+		{
+			section: m['lighting.title'](),
+			sectionId: 'section-lighting',
+			cards: cards.map(card => ({ id: card.id, title: card.title }))
+		}
+	];
+	
+	// 平滑滚动到锚点
+	function scrollToAnchor(anchorId: string) {
+		const element = document.getElementById(anchorId);
+		if (element) {
+			element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		}
+	}
 	
 	// 组件挂载时加载产品数量
 	onMount(() => {
@@ -233,8 +274,36 @@
 		<!-- Navbar -->
 		<Navbar centerTitle={navbarCenterTitle} centerTitleSize="3xl" />
 	
+	<!-- Main Content with Sidebar -->
+	<div class="flex">
+		<!-- Left Sidebar Navigation -->
+		<aside class="hidden lg:block w-64 flex-shrink-0 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto pt-8 pl-4 pr-2">
+			<nav class="space-y-4">
+				{#each navigationItems as item}
+					<div class="space-y-2">
+						<button
+							onclick={() => scrollToAnchor(item.sectionId)}
+							class="w-full text-left px-3 py-2 text-sm font-semibold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
+						>
+							{item.section}
+						</button>
+						<div class="pl-4 space-y-1">
+							{#each item.cards as card}
+								<button
+									onclick={() => scrollToAnchor(card.id)}
+									class="w-full text-left px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
+								>
+									{card.title}
+								</button>
+							{/each}
+						</div>
+					</div>
+				{/each}
+			</nav>
+		</aside>
+	
 	<!-- Main Content -->
-	<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+	<main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 		<!-- Introduction Card -->
 		<div class="w-4/5 mx-auto mb-12 lg:w-4/5 xl:w-4/5">
 			<div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
@@ -249,7 +318,7 @@
 		
 		<!-- Administrator Section (Only visible to administrators) -->
 		{#if isAdministrator}
-			<div class="mb-12">
+			<div id="section-administrator" class="mb-12 scroll-mt-24">
 				<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
 					{m['administrator.title']()}
 				</h2>
@@ -258,6 +327,7 @@
 				<div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
 					{#each adminCards as card}
 						<Card
+							id={card.id}
 							title={card.title}
 							description={card.description}
 							buttons={card.buttons}
@@ -270,7 +340,7 @@
 		
 		<!-- Data Provider - Lighting Section (Only visible to users with LIGHT permission) -->
 		{#if hasLightPermission}
-			<div class="mb-12">
+			<div id="section-data-provider-lighting" class="mb-12 scroll-mt-24">
 				<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
 					{m['data_provider_lighting.title']()}
 				</h2>
@@ -279,6 +349,7 @@
 				<div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
 					{#each dataProviderLightingCards as card}
 						<Card
+							id={card.id}
 							title={card.title}
 							description={card.description}
 							buttons={card.buttons}
@@ -290,7 +361,7 @@
 		{/if}
 		
 		<!-- Camera Section -->
-		<div class="mb-12">
+		<div id="section-camera" class="mb-12 scroll-mt-24">
 			<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
 				{m['camera.title']()}
 			</h2>
@@ -299,6 +370,7 @@
 			<div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
 				{#each cameraCards as card}
 					<Card
+						id={card.id}
 						title={card.title}
 						description={card.description}
 						buttons={card.buttons}
@@ -309,7 +381,7 @@
 		</div>
 		
 		<!-- Lighting Section -->
-		<div class="mb-12">
+		<div id="section-lighting" class="mb-12 scroll-mt-24">
 			<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
 				{m['lighting.title']()}
 			</h2>
@@ -318,6 +390,7 @@
 			<div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
 				{#each cards as card}
 					<Card
+						id={card.id}
 						title={card.title}
 						description={card.description}
 						buttons={card.buttons}
@@ -327,6 +400,7 @@
 			</div>
 		</div>
 	</main>
+	</div>
 </div>
 
 <style>

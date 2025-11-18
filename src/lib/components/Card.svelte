@@ -8,6 +8,7 @@
 		onClick?: () => void;
 	}> = [];
 	export let color: string = 'blue';
+	export let id: string | undefined = undefined;
 	
 	// 颜色配置
 	const colorConfig = {
@@ -43,6 +44,9 @@
 </script>
 
 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+	{#if id}
+		<div id={id} class="scroll-mt-24 invisible pointer-events-none relative"></div>
+	{/if}
 	<h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
 		{title}
 	</h3>
