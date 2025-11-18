@@ -62,6 +62,7 @@
 		"@iconify/svelte": "^5.0.1",
 		"@node-rs/argon2": "^2.0.2",
 		"@rollup/rollup-linux-arm64-gnu": "^4.50.1",
+		"devalue": "^5.5.0",
 		"postgres": "^3.4.5"
 	}
 }
