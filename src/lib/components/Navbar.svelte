@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import Icon from '@iconify/svelte';
+	import { onMount } from 'svelte';
+	import Icon from '@iconify/svelte';
     import * as m from '$lib/paraglide/messages.js';
-    import { page } from '$app/stores';
+	import { page } from '$app/stores';
     import { setLocale, getLocale } from '$lib/paraglide/runtime.js';
     import Dropdown from '$lib/components/Dropdown.svelte';
 	let currentUser: any = null;
@@ -56,7 +56,7 @@
 		
 		// 根据参数决定是否保存到本地存储
 		if (saveToStorage) {
-			localStorage.setItem('theme', theme);
+		localStorage.setItem('theme', theme);
 		}
 	}
 
@@ -94,7 +94,7 @@
 		} catch (error) {
 			console.error('🌐 语言切换失败:', error);
 			// 如果ParaglideJS失败，回退到手动设置
-			localStorage.setItem('locale', langCode);
+		localStorage.setItem('locale', langCode);
 			document.cookie = `PARAGLIDE_LOCALE=${langCode}; path=/; max-age=34560000`;
 			window.location.reload();
 		}
@@ -174,7 +174,7 @@
 			<!-- Center - Dynamic Title (always centered) -->
 			<!-- 中间列始终占位，只有内容有无之分，避免右侧按钮漂移 -->
 			<div class="flex justify-center items-center">
-				{#if centerTitle}
+			{#if centerTitle}
 					<h1 class="text-{centerTitleSize} font-semibold text-gray-900 dark:text-gray-100 text-center">
 						{(m as any)[centerTitle]()}
 					</h1>
@@ -182,11 +182,11 @@
 					<!-- 占位元素，保持三列布局不变 -->
 					<span aria-hidden="true"></span>
 				{/if}
-			</div>
+				</div>
 			
 			<!-- Right align - Language and Theme controls -->
 			<div class="flex items-center justify-end space-x-2">
-					{#if currentUser}
+				{#if currentUser}
 					<!-- User Menu -->
             <div>
                 <Dropdown
@@ -210,7 +210,7 @@
                         }
                     }}
                 />
-            </div>
+						</div>
 					{:else if !hideLoginButton}
 					<!-- Login Button -->
 					<a
@@ -230,7 +230,7 @@
                     widthClass="w-24"
                     on:change={(e) => changeLanguage(e.detail as string)}
                 />
-            </div>
+				</div>
 				
 				<!-- Theme Selector -->
             <div>
@@ -240,7 +240,7 @@
                     widthClass="w-36"
                     on:change={(e) => changeTheme(e.detail as string)}
                 />
-            </div>
+				</div>
 			</div>
 		</div>
 	</div>

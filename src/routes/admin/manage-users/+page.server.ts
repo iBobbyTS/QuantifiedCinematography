@@ -352,5 +352,5 @@ export const actions: Actions = {
             console.error('Error updating user permissions:', err);
             return fail(500, { message: 'Failed to update user permissions' });
         }
-    }
+	}
 };
