@@ -328,6 +328,18 @@
 			"button": "RGB Pure Color VS Illuminance"
 		}
 	},
+	"camera": {
+		"title": "Camera/Cinema Camera",
+		"products": {
+			"title": "Recorded {cameraCount} cameras, {cinemaCount} cinema cameras",
+			"button": "Browse All Cameras and Cinema Cameras"
+		},
+		"dynamic_range": {
+			"title": "Dynamic Range Testing",
+			"description": "Includes Slope-based, SNR=1, SNR=2 and other dynamic range data",
+			"button": "View Dynamic Range"
+		}
+	},
 	"spectrometer": {
 		"title": "Manage Spectrometer",
 		"subtitle": "This website focuses on lighting product testing, not spectrometers, so the spectrometer section is simplified. Only record the spectrometer name, which should include brand, model, etc. Others should be able to identify which specific product it is from the name, and this name refers to a **unique** product.",

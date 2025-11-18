@@ -13,6 +13,8 @@
 	
 	// 产品数量状态
 	let productCount = 0;
+	let cameraCount = 0;
+	let cinemaCount = 0;
 	
 	// 加载产品数量
 	async function loadProductCount() {
@@ -27,6 +29,25 @@
 		} catch (error) {
 			console.error(m['app.networkError'](), error);
 			productCount = 0;
+		}
+	}
+	
+	// 加载相机和摄影机数量
+	async function loadCameraCounts() {
+		try {
+			// 这里应该调用实际的API，现在先用模拟数据
+			// const response = await fetch('/api/cameras/count');
+			// const data = await response.json();
+			// cameraCount = data.cameraCount;
+			// cinemaCount = data.cinemaCount;
+			
+			// 模拟数据
+			cameraCount = 15;
+			cinemaCount = 8;
+		} catch (error) {
+			console.error(m['app.networkError'](), error);
+			cameraCount = 0;
+			cinemaCount = 0;
 		}
 	}
 	
@@ -159,9 +180,36 @@
 		}
 	];
 	
+	// 相机/摄影机卡片配置数据
+	$: cameraCards = [
+		{
+			title: m['camera.products.title']({ cameraCount: cameraCount.toString(), cinemaCount: cinemaCount.toString() }),
+			description: '',
+			buttons: [
+				{
+					text: m['camera.products.button'](),
+					color: 'blue'
+				}
+			],
+			color: 'blue'
+		},
+		{
+			title: m['camera.dynamic_range.title'](),
+			description: m['camera.dynamic_range.description'](),
+			buttons: [
+				{
+					text: m['camera.dynamic_range.button'](),
+					color: 'blue'
+				}
+			],
+			color: 'blue'
+		}
+	];
+	
 	// 组件挂载时加载产品数量
 	onMount(() => {
 		loadProductCount();
+		loadCameraCounts();
 
 		// 观察 intro 标题可见性
 		const el = document.getElementById('introTitle');
@@ -240,6 +288,25 @@
 				</div>
 			</div>
 		{/if}
+		
+		<!-- Camera Section -->
+		<div class="mb-12">
+			<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+				{m['camera.title']()}
+			</h2>
+			
+			<!-- Camera Cards Grid Container -->
+			<div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+				{#each cameraCards as card}
+					<Card
+						title={card.title}
+						description={card.description}
+						buttons={card.buttons}
+						color={card.color}
+					/>
+				{/each}
+			</div>
+		</div>
 		
 		<!-- Lighting Section -->
 		<div class="mb-12">
