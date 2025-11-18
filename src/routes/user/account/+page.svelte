@@ -6,6 +6,7 @@
 	import Icon from '@iconify/svelte';
     import { enhance } from '$app/forms';
     import Dropdown from '$lib/components/Dropdown.svelte';
+	import { parse as devalueParse } from 'devalue';
     export let data: { publicInfo?: { platform: string; link: string }[] };
 
 	// 当前选中的页面
@@ -176,8 +177,15 @@
 			try {
 				const envelope = await response.json();
 				let payload = envelope?.data;
+				// 兼容 devalue 字符串格式（SvelteKit 5 使用 devalue 序列化）
 				if (typeof payload === 'string') {
-					try { payload = JSON.parse(payload); } catch {}
+					try {
+						payload = devalueParse(payload);
+					} catch {
+						try {
+							payload = JSON.parse(payload);
+						} catch {}
+					}
 				}
 				if (typeof payload === 'number') {
 					count = payload;

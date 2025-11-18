@@ -7,6 +7,7 @@
 	import ToastManager from '$lib/components/Toast/ToastManager.svelte';
 	import { USER_PERMISSIONS, UserPermissions } from '$lib/permission/bitmask.js';
 	import { PERMISSION_OPTIONS, PERMISSION_I18N_KEYS } from '$lib/permission/permissions.js';
+	import { parse as devalueParse } from 'devalue';
 
 	let isLoading = false;
 	let toastManager: ToastManager;
@@ -85,33 +86,21 @@
 						// 处理SvelteKit server action的返回数据
 						let data = envelope.data;
 						
-						// 如果data是字符串，尝试解析JSON
+						// 兼容 devalue 字符串格式（SvelteKit 5 使用 devalue 序列化）
 						if (typeof data === 'string') {
 							try {
-								data = JSON.parse(data);
-							} catch (e) {
-								console.error('Failed to parse data:', e);
+								data = devalueParse(data);
+							} catch {
+								try {
+									data = JSON.parse(data);
+								} catch (e) {
+									console.error('Failed to parse data:', e);
+								}
 							}
 						}
 						
-						// 如果data是数组，取最后一个元素
-						if (Array.isArray(data)) {
-							// 从数组的最后一个元素获取结果
-							const result = data[data.length - 1];
-							if (result && typeof result === 'object') {
-								generatedPassword = result.password;
-								createdUsername = result.username;
-							} else {
-								// 如果最后一个元素不是对象，可能是字符串格式
-								// 尝试从数组中提取用户名和密码
-								// 根据响应格式: [{"success":1,"username":2,"password":3},true,"test6","SBBhdonEtUPW"]
-								if (data.length >= 4) {
-									createdUsername = data[2]; // 第三个元素是用户名
-									generatedPassword = data[3]; // 第四个元素是密码
-								}
-							}
-						} else if (data && typeof data === 'object') {
-							// 直接使用对象
+						// devalueParse 解析后应该直接是对象 { success: true, username: '...', password: '...' }
+						if (data && typeof data === 'object' && !Array.isArray(data)) {
 							generatedPassword = data.password;
 							createdUsername = data.username;
 						}
