@@ -191,6 +191,52 @@ export const actions: Actions = {
 			console.error('Delete spectrometer error:', err);
 			return fail(500, { message: 'Failed to delete spectrometer' });
 		}
+	},
+
+	add: async ({ request, locals }) => {
+		// 必须登录且有灯光权限
+		if (!locals.user) {
+			return fail(401, { message: 'Unauthorized' });
+		}
+		if (!UserPermissions.hasPermission(locals.user.permission, USER_PERMISSIONS.LIGHT)) {
+			return fail(403, { message: 'Insufficient permissions' });
+		}
+
+		try {
+			const formData = await request.formData();
+			const name = String(formData.get('name') || '').trim();
+
+			if (!name) {
+				return fail(400, { message: 'Spectrometer name is required' });
+			}
+
+			// 检查名称是否已存在
+			const existingSpectrometer = await db
+				.select()
+				.from(spectrometer)
+				.where(eq(spectrometer.name, name))
+				.limit(1);
+
+			if (existingSpectrometer.length > 0) {
+				return fail(400, { message: 'A spectrometer with this name already exists' });
+			}
+
+			// 添加光谱仪
+			const [newSpectrometer] = await db
+				.insert(spectrometer)
+				.values({ name })
+				.returning({
+					id: spectrometer.id,
+					name: spectrometer.name,
+					createdAt: spectrometer.createdAt,
+					updatedAt: spectrometer.updatedAt
+				});
+
+			return { success: true, spectrometer: newSpectrometer };
+		} catch (err) {
+			console.error('Add spectrometer error:', err);
+			return fail(500, { message: 'Failed to add spectrometer' });
+		}
 	}
 };
 

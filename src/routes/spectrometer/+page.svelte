@@ -27,6 +27,16 @@
 	let newName = $state('');
 	let isRenaming = $state(false);
 
+	// 添加光谱仪弹窗状态
+	let showAddModal = $state(false);
+	let spectrometerName = $state('');
+	let isAdding = $state(false);
+
+	// 处理添加光谱仪弹窗的 message（加粗处理）
+	let addModalMessage = $derived(
+		m['spectrometer.add_modal.message']().replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+	);
+
 	// Toast 管理器引用
 	let toastManager: ToastManager;
 
@@ -315,10 +325,120 @@
 		}
 	}
 
-	// 添加光谱仪（暂时只是占位，后续可以添加）
-	function addSpectrometer() {
-		// TODO: 实现添加光谱仪功能
-		alert('Add spectrometer functionality coming soon');
+	// 打开添加光谱仪弹窗
+	function openAddModal() {
+		spectrometerName = '';
+		showAddModal = true;
+	}
+
+	// 关闭添加光谱仪弹窗
+	function closeAddModal() {
+		showAddModal = false;
+		spectrometerName = '';
+	}
+
+	// 确认添加光谱仪
+	async function confirmAddSpectrometer() {
+		if (!spectrometerName.trim()) return;
+
+		isAdding = true;
+
+		try {
+			const fd = new FormData();
+			fd.set('name', spectrometerName.trim());
+			const response = await fetch('?/add', {
+				method: 'POST',
+				body: fd
+			});
+
+			if (response.ok) {
+				let success = false;
+				let errorMessage = 'Failed to add spectrometer';
+				try {
+					const envelope = await response.json();
+					if (envelope?.type === 'failure') {
+						success = false;
+						if (envelope.data && typeof envelope.data === 'object' && envelope.data.message) {
+							errorMessage = envelope.data.message;
+						} else if (Array.isArray(envelope.data) && envelope.data.length > 0) {
+							errorMessage = envelope.data[envelope.data.length - 1];
+						} else if (typeof envelope.data === 'string') {
+							try {
+								const parsedData = JSON.parse(envelope.data);
+								if (Array.isArray(parsedData) && parsedData.length > 0) {
+									errorMessage = parsedData[parsedData.length - 1];
+								}
+							} catch (e) {
+								errorMessage = envelope.data;
+							}
+						}
+					} else if (envelope?.type === 'success') {
+						success = true;
+					}
+				} catch {}
+
+				if (success) {
+					// 重新加载数据
+					const loadResponse = await fetch('?/filter', {
+						method: 'POST',
+						body: new FormData()
+					});
+					if (loadResponse.ok) {
+						const envelope = await loadResponse.json();
+						if (envelope?.type === 'success') {
+							spectrometers = envelope.data.spectrometers || [];
+						}
+					}
+					closeAddModal();
+					
+					// 显示成功 Toast
+					toastManager.showToast({
+						title: 'Spectrometer added',
+						message: `Spectrometer '${spectrometerName.trim()}' has been added successfully.`,
+						iconName: 'mdi:check-circle',
+						iconColor: 'text-green-500',
+						duration: 3000,
+						showCountdown: true
+					});
+				} else {
+					// 显示错误 Toast
+					toastManager.showToast({
+						title: 'Failed to add spectrometer',
+						message: errorMessage,
+						iconName: 'mdi:alert-circle',
+						iconColor: 'text-red-500',
+						duration: 5000,
+						showCountdown: true
+					});
+				}
+			} else {
+				let msg = 'Failed to add spectrometer';
+				try {
+					const data = await response.json();
+					msg = data?.message || msg;
+				} catch {}
+				toastManager.showToast({
+					title: 'Failed to add spectrometer',
+					message: msg,
+					iconName: 'mdi:alert-circle',
+					iconColor: 'text-red-500',
+					duration: 5000,
+					showCountdown: true
+				});
+			}
+		} catch (error) {
+			console.error('Error adding spectrometer:', error);
+			toastManager.showToast({
+				title: 'Failed to add spectrometer',
+				message: 'Network error occurred',
+				iconName: 'mdi:alert-circle',
+				iconColor: 'text-red-500',
+				duration: 5000,
+				showCountdown: true
+			});
+		} finally {
+			isAdding = false;
+		}
 	}
 </script>
 
@@ -343,7 +463,7 @@
 					</p>
 				</div>
 				<button
-					onclick={addSpectrometer}
+					onclick={openAddModal}
 					class="inline-flex items-center whitespace-nowrap px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-500 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-400 dark:hover:border-blue-500"
 				>
 					<Icon icon="mdi:plus" class="w-4 h-4 mr-2" />
@@ -433,7 +553,7 @@
 						</p>
 						<div class="mt-6">
 							<button
-								onclick={addSpectrometer}
+								onclick={openAddModal}
 								class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-500 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-400 dark:hover:border-blue-500"
 							>
 								<Icon icon="mdi:plus" class="w-4 h-4 mr-2" />
@@ -524,6 +644,76 @@
 						Renaming...
 					{:else}
 						{m['spectrometer.actions.rename']()}
+					{/if}
+				</button>
+			</div>
+		</div>
+	</div>
+{/if}
+
+<!-- Add Spectrometer Modal -->
+{#if showAddModal}
+	<div 
+		class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+		onclick={(e) => e.target === e.currentTarget && closeAddModal()}
+		onkeydown={(e) => e.key === 'Escape' && closeAddModal()}
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby="add-spectrometer-modal-title"
+		tabindex="-1"
+	>
+		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full border border-gray-200 dark:border-gray-700">
+			<!-- Header -->
+			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+				<div class="flex items-center justify-between">
+					<h3 id="add-spectrometer-modal-title" class="text-lg font-medium text-gray-900 dark:text-white">
+						{m['spectrometer.add_modal.title']()}
+					</h3>
+					<button
+						onclick={closeAddModal}
+						disabled={isAdding}
+						class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-50"
+					>
+						<Icon icon="mdi:close" class="w-5 h-5" />
+					</button>
+				</div>
+			</div>
+
+			<!-- Body -->
+			<div class="px-6 py-4">
+				<p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
+					{@html addModalMessage}
+				</p>
+				<input
+					id="spectrometer-name-input"
+					type="text"
+					bind:value={spectrometerName}
+					placeholder={m['spectrometer.add_modal.input_placeholder']()}
+					disabled={isAdding}
+					class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
+					onkeydown={(e) => { if (e.key === 'Enter' && !isAdding && spectrometerName.trim()) { confirmAddSpectrometer(); } }}
+				/>
+			</div>
+
+			<!-- Footer -->
+			<div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+				<button
+					onclick={closeAddModal}
+					disabled={isAdding}
+					class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+				>
+					{m['spectrometer.add_modal.cancel_button']()}
+				</button>
+				<button
+					onclick={confirmAddSpectrometer}
+					disabled={!spectrometerName.trim() || isAdding}
+					class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-blue-500 dark:hover:bg-blue-400 dark:hover:border-blue-500"
+				>
+					{#if isAdding}
+						<Icon icon="mdi:loading" class="animate-spin -ml-1 mr-2 h-4 w-4" />
+						Adding...
+					{:else}
+						{m['spectrometer.add_modal.add_button']()}
 					{/if}
 				</button>
 			</div>
