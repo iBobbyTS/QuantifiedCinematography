@@ -360,6 +360,20 @@
 			"input_placeholder": "Enter spectrometer name",
 			"add_button": "Add",
 			"cancel_button": "Cancel"
+		},
+		"toasts": {
+			"add_success_title": "Spectrometer added",
+			"add_success_message": "Spectrometer '{name}' has been added successfully.",
+			"add_error_title": "Failed to add spectrometer",
+			"add_error_network": "Network error occurred",
+			"rename_success_title": "Spectrometer renamed",
+			"rename_success_message": "Spectrometer renamed successfully.",
+			"rename_error_title": "Failed to rename spectrometer",
+			"rename_error_network": "Network error occurred",
+			"delete_success_title": "Spectrometer deleted",
+			"delete_success_message": "Spectrometer '{name}' has been deleted.",
+			"delete_error_title": "Failed to delete spectrometer",
+			"delete_error_network": "Network error occurred"
 		}
 	}
 }

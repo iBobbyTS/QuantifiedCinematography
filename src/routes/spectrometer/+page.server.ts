@@ -17,13 +17,11 @@ export const load: ServerLoad = async ({ locals }) => {
 	}
 
 	try {
-		// 获取所有光谱仪
+		// 获取所有光谱仪，按名字排序，只返回前端需要的字段（id 和 name）
 		const allSpectrometers = await db.select({
 			id: spectrometer.id,
-			name: spectrometer.name,
-			createdAt: spectrometer.createdAt,
-			updatedAt: spectrometer.updatedAt
-		}).from(spectrometer).orderBy(spectrometer.createdAt);
+			name: spectrometer.name
+		}).from(spectrometer).orderBy(spectrometer.name);
 
 		return {
 			spectrometers: allSpectrometers
@@ -63,23 +61,23 @@ export const actions: Actions = {
 			// 构建查询条件
 			const conditions: any[] = [];
 
-			// 模糊搜索
-			if (search && typeof search === 'string' && search.trim()) {
+			// 模糊搜索：只有当 search 存在且不为空字符串时才添加搜索条件
+			if (search && typeof search === 'string' && search.trim().length > 0) {
 				conditions.push(like(spectrometer.name, `%${search.trim()}%`));
 			}
 
+			// 如果 conditions 为空，whereClause 为 undefined，将返回所有数据
 			const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
+			// 只选择前端需要的字段（id 和 name），不返回 Date 对象避免序列化问题
 			const filteredSpectrometers = await db
 				.select({
 					id: spectrometer.id,
-					name: spectrometer.name,
-					createdAt: spectrometer.createdAt,
-					updatedAt: spectrometer.updatedAt
+					name: spectrometer.name
 				})
 				.from(spectrometer)
 				.where(whereClause)
-				.orderBy(spectrometer.createdAt);
+				.orderBy(spectrometer.name);
 
 			return { success: true, spectrometers: filteredSpectrometers };
 		} catch (err) {

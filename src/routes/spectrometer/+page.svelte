@@ -6,6 +6,7 @@
 	import Navbar from '$lib/components/Navbar.svelte';
 	import ConfirmModal from '$lib/components/Modal/ConfirmModal.svelte';
 	import ToastManager from '$lib/components/Toast/ToastManager.svelte';
+	import { parse as devalueParse } from 'devalue';
 
 	let { data }: { data: PageData } = $props();
 
@@ -78,9 +79,22 @@
 			let data: any = null;
 			try {
 				const envelope = await response.json();
+				// SvelteKit action envelope
 				if (envelope?.type === 'success') {
 					success = true;
 					data = envelope.data;
+					// 兼容 devalue 字符串格式（SvelteKit 5 使用 devalue 序列化）
+					if (typeof data === 'string') {
+						try {
+							data = devalueParse(data);
+						} catch {
+							try { 
+								data = JSON.parse(data); 
+							} catch (e) {
+								console.error('Failed to parse data:', e);
+							}
+						}
+					}
 				} else if (envelope?.type === 'failure') {
 					success = false;
 					console.error('Filter action failed:', envelope?.data);
@@ -90,7 +104,12 @@
 			}
 			
 			if (success && data) {
-				spectrometers = data.spectrometers || [];
+				// 只提取 id 和 name 字段
+				const parsedSpectrometers = (data.spectrometers || []).map((s: any) => ({
+					id: s.id,
+					name: s.name
+				}));
+				spectrometers = parsedSpectrometers;
 			}
 		} catch (error) {
 			console.error('Filter request failed:', error);
@@ -167,8 +186,8 @@
 					
 					// 显示成功 Toast
 					toastManager.showToast({
-						title: m['spectrometer.actions.rename'](),
-						message: `Spectrometer renamed successfully`,
+						title: m['spectrometer.toasts.rename_success_title'](),
+						message: m['spectrometer.toasts.rename_success_message'](),
 						iconName: 'mdi:check-circle',
 						iconColor: 'text-green-500',
 						duration: 3000,
@@ -177,7 +196,7 @@
 				} else {
 					// 显示错误 Toast
 					toastManager.showToast({
-						title: 'Failed to rename spectrometer',
+						title: m['spectrometer.toasts.rename_error_title'](),
 						message: errorMessage,
 						iconName: 'mdi:alert-circle',
 						iconColor: 'text-red-500',
@@ -186,13 +205,13 @@
 					});
 				}
 			} else {
-				let msg = 'Failed to rename spectrometer';
+				let msg = m['spectrometer.toasts.rename_error_title']();
 				try {
 					const data = await response.json();
 					msg = data?.message || msg;
 				} catch {}
 				toastManager.showToast({
-					title: 'Failed to rename spectrometer',
+					title: m['spectrometer.toasts.rename_error_title'](),
 					message: msg,
 					iconName: 'mdi:alert-circle',
 					iconColor: 'text-red-500',
@@ -203,8 +222,8 @@
 		} catch (error) {
 			console.error('Error renaming spectrometer:', error);
 			toastManager.showToast({
-				title: 'Failed to rename spectrometer',
-				message: 'Network error occurred',
+				title: m['spectrometer.toasts.rename_error_title'](),
+				message: m['spectrometer.toasts.rename_error_network'](),
 				iconName: 'mdi:alert-circle',
 				iconColor: 'text-red-500',
 				duration: 5000,
@@ -278,8 +297,8 @@
 					
 					// 显示成功 Toast
 					toastManager.showToast({
-						title: 'Spectrometer deleted',
-						message: `Spectrometer '${deletedName}' has been deleted.`,
+						title: m['spectrometer.toasts.delete_success_title'](),
+						message: m['spectrometer.toasts.delete_success_message']({ name: deletedName }),
 						iconName: 'mdi:check-circle',
 						iconColor: 'text-green-500',
 						duration: 3000,
@@ -287,7 +306,7 @@
 					});
 				} else {
 					toastManager.showToast({
-						title: 'Failed to delete spectrometer',
+						title: m['spectrometer.toasts.delete_error_title'](),
 						message: errorMessage,
 						iconName: 'mdi:alert-circle',
 						iconColor: 'text-red-500',
@@ -296,13 +315,13 @@
 					});
 				}
 			} else {
-				let msg = 'Failed to delete spectrometer';
+				let msg = m['spectrometer.toasts.delete_error_title']();
 				try {
 					const data = await response.json();
 					msg = data?.message || msg;
 				} catch {}
 				toastManager.showToast({
-					title: 'Failed to delete spectrometer',
+					title: m['spectrometer.toasts.delete_error_title'](),
 					message: msg,
 					iconName: 'mdi:alert-circle',
 					iconColor: 'text-red-500',
@@ -313,8 +332,8 @@
 		} catch (error) {
 			console.error('Error deleting spectrometer:', error);
 			toastManager.showToast({
-				title: 'Failed to delete spectrometer',
-				message: 'Network error occurred',
+				title: m['spectrometer.toasts.delete_error_title'](),
+				message: m['spectrometer.toasts.delete_error_network'](),
 				iconName: 'mdi:alert-circle',
 				iconColor: 'text-red-500',
 				duration: 5000,
@@ -378,23 +397,17 @@
 				} catch {}
 
 				if (success) {
-					// 重新加载数据
-					const loadResponse = await fetch('?/filter', {
-						method: 'POST',
-						body: new FormData()
-					});
-					if (loadResponse.ok) {
-						const envelope = await loadResponse.json();
-						if (envelope?.type === 'success') {
-							spectrometers = envelope.data.spectrometers || [];
-						}
-					}
+					// 保存添加前的名称用于 Toast
+					const addedName = spectrometerName.trim();
 					closeAddModal();
+					
+					// 重新加载数据（使用当前的搜索条件）
+					await triggerFilter();
 					
 					// 显示成功 Toast
 					toastManager.showToast({
-						title: 'Spectrometer added',
-						message: `Spectrometer '${spectrometerName.trim()}' has been added successfully.`,
+						title: m['spectrometer.toasts.add_success_title'](),
+						message: m['spectrometer.toasts.add_success_message']({ name: addedName }),
 						iconName: 'mdi:check-circle',
 						iconColor: 'text-green-500',
 						duration: 3000,
@@ -403,7 +416,7 @@
 				} else {
 					// 显示错误 Toast
 					toastManager.showToast({
-						title: 'Failed to add spectrometer',
+						title: m['spectrometer.toasts.add_error_title'](),
 						message: errorMessage,
 						iconName: 'mdi:alert-circle',
 						iconColor: 'text-red-500',
@@ -412,13 +425,13 @@
 					});
 				}
 			} else {
-				let msg = 'Failed to add spectrometer';
+				let msg = m['spectrometer.toasts.add_error_title']();
 				try {
 					const data = await response.json();
 					msg = data?.message || msg;
 				} catch {}
 				toastManager.showToast({
-					title: 'Failed to add spectrometer',
+					title: m['spectrometer.toasts.add_error_title'](),
 					message: msg,
 					iconName: 'mdi:alert-circle',
 					iconColor: 'text-red-500',
@@ -429,8 +442,8 @@
 		} catch (error) {
 			console.error('Error adding spectrometer:', error);
 			toastManager.showToast({
-				title: 'Failed to add spectrometer',
-				message: 'Network error occurred',
+				title: m['spectrometer.toasts.add_error_title'](),
+				message: m['spectrometer.toasts.add_error_network'](),
 				iconName: 'mdi:alert-circle',
 				iconColor: 'text-red-500',
 				duration: 5000,

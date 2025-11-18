@@ -352,6 +352,20 @@
 			"input_placeholder": "请输入光谱仪名称",
 			"add_button": "添加",
 			"cancel_button": "取消"
+		},
+		"toasts": {
+			"add_success_title": "光谱仪已添加",
+			"add_success_message": "光谱仪 '{name}' 已成功添加。",
+			"add_error_title": "添加光谱仪失败",
+			"add_error_network": "网络错误",
+			"rename_success_title": "光谱仪已重命名",
+			"rename_success_message": "光谱仪已成功重命名。",
+			"rename_error_title": "重命名光谱仪失败",
+			"rename_error_network": "网络错误",
+			"delete_success_title": "光谱仪已删除",
+			"delete_success_message": "光谱仪 '{name}' 已删除。",
+			"delete_error_title": "删除光谱仪失败",
+			"delete_error_network": "网络错误"
 		}
 	}
 }
