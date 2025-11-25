@@ -268,6 +268,17 @@
 			}
 		}
 	},
+	"data_provider_camera": {
+		"title": "相机/摄影机数据上传",
+		"manage_camera": {
+			"title": "管理相机/摄影机",
+			"button": "管理相机/摄影机"
+		},
+		"data_upload": {
+			"title": "数据上传",
+			"button": "动态范围数据"
+		}
+	},
 	"data_provider_lighting": {
 		"title": "数据上传 - 灯光",
 		"recorded_lighting_products": {

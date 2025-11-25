@@ -10,12 +10,12 @@
 	// 根据 intro 标题是否可见，动态设置 Navbar 标题
 	let isIntroTitleVisible = true;
 	$: navbarCenterTitle = isIntroTitleVisible ? '' : 'app.title';
-	
+
 	// 产品数量状态
 	let productCount = 0;
 	let cameraCount = 0;
 	let cinemaCount = 0;
-	
+
 	// 加载产品数量
 	async function loadProductCount() {
 		try {
@@ -23,7 +23,7 @@
 			// const response = await fetch('/api/products/count');
 			// const data = await response.json();
 			// productCount = data.count;
-			
+
 			// 模拟数据
 			productCount = 42;
 		} catch (error) {
@@ -31,7 +31,7 @@
 			productCount = 0;
 		}
 	}
-	
+
 	// 加载相机和摄影机数量
 	async function loadCameraCounts() {
 		try {
@@ -40,7 +40,7 @@
 			// const data = await response.json();
 			// cameraCount = data.cameraCount;
 			// cinemaCount = data.cinemaCount;
-			
+
 			// 模拟数据
 			cameraCount = 15;
 			cinemaCount = 8;
@@ -50,13 +50,22 @@
 			cinemaCount = 0;
 		}
 	}
-	
+
 	// 检查用户是否为管理员
-	$: isAdministrator = $page.data.user && UserPermissions.hasPermission($page.data.user.permission, USER_PERMISSIONS.ADMINISTRATOR);
-	
+	$: isAdministrator =
+		$page.data.user &&
+		UserPermissions.hasPermission($page.data.user.permission, USER_PERMISSIONS.ADMINISTRATOR);
+
 	// 检查用户是否具有灯光权限
-	$: hasLightPermission = $page.data.user && UserPermissions.hasPermission($page.data.user.permission, USER_PERMISSIONS.LIGHT);
-	
+	$: hasLightPermission =
+		$page.data.user &&
+		UserPermissions.hasPermission($page.data.user.permission, USER_PERMISSIONS.LIGHT);
+
+	// 检查用户是否具有相机权限
+	$: hasCameraPermission =
+		$page.data.user &&
+		UserPermissions.hasPermission($page.data.user.permission, USER_PERMISSIONS.CAMERA);
+
 	// 管理员卡片配置数据
 	$: adminCards = [
 		{
@@ -65,7 +74,7 @@
 			description: m['administrator.user_management.description'](),
 			buttons: [
 				{
-				text: m['administrator.user_management.button'](),
+					text: m['administrator.user_management.button'](),
 					color: 'red',
 					onClick: () => goto('/admin/manage-users')
 				}
@@ -73,24 +82,26 @@
 			color: 'red'
 		}
 	];
-	
+
 	// 数据提供方灯光卡片配置数据
 	$: dataProviderLightingCards = [
 		{
 			id: 'data-provider-lighting-products',
-			title: m['data_provider_lighting.recorded_lighting_products.title']({ count: productCount.toString() }),
+			title: m['data_provider_lighting.recorded_lighting_products.title']({
+				count: productCount.toString()
+			}),
 			description: m['data_provider_lighting.recorded_lighting_products.description'](),
 			buttons: [
 				{
-				text: m['data_provider_lighting.recorded_lighting_products.button'](),
+					text: m['data_provider_lighting.recorded_lighting_products.button'](),
 					color: 'blue'
 				},
 				{
-				text: m['data_provider_lighting.lighting_accessories.button'](),
+					text: m['data_provider_lighting.lighting_accessories.button'](),
 					color: 'blue'
 				},
 				{
-				text: m['data_provider_lighting.spectrometer.button'](),
+					text: m['data_provider_lighting.spectrometer.button'](),
 					color: 'blue',
 					onClick: () => goto('/spectrometer')
 				}
@@ -103,18 +114,46 @@
 			description: m['data_provider_lighting.data_upload.description'](),
 			buttons: [
 				{
-				text: m['data_provider_lighting.data_upload.white_light_test'](),
+					text: m['data_provider_lighting.data_upload.white_light_test'](),
 					color: 'blue'
 				},
 				{
-				text: m['data_provider_lighting.data_upload.color_light_test'](),
+					text: m['data_provider_lighting.data_upload.color_light_test'](),
 					color: 'blue'
 				}
 			],
 			color: 'blue'
 		}
 	];
-	
+
+	// 数据提供方相机卡片配置数据
+	$: dataProviderCameraCards = [
+		{
+			id: 'data-provider-camera-manage',
+			title: m['data_provider_camera.manage_camera.title'](),
+			description: '',
+			buttons: [
+				{
+					text: m['data_provider_camera.manage_camera.button'](),
+					color: 'blue'
+				}
+			],
+			color: 'blue'
+		},
+		{
+			id: 'data-provider-camera-upload',
+			title: m['data_provider_camera.data_upload.title'](),
+			description: '',
+			buttons: [
+				{
+					text: m['data_provider_camera.data_upload.button'](),
+					color: 'blue'
+				}
+			],
+			color: 'blue'
+		}
+	];
+
 	// 卡片配置数据
 	$: cards = [
 		{
@@ -123,7 +162,7 @@
 			description: m['lighting.products.description'](),
 			buttons: [
 				{
-				text: m['lighting.products.button'](),
+					text: m['lighting.products.button'](),
 					color: 'blue'
 				}
 			],
@@ -135,11 +174,11 @@
 			description: m['lighting.brightness.description'](),
 			buttons: [
 				{
-				text: m['lighting.brightness.buttons.cct_illuminance'](),
+					text: m['lighting.brightness.buttons.cct_illuminance'](),
 					color: 'green'
 				},
 				{
-				text: m['lighting.brightness.buttons.brightness_illuminance'](),
+					text: m['lighting.brightness.buttons.brightness_illuminance'](),
 					color: 'green'
 				}
 			],
@@ -151,23 +190,23 @@
 			description: m['lighting.white_light_quality.description'](),
 			buttons: [
 				{
-				text: m['lighting.white_light_quality.buttons.cct_vs_actual'](),
+					text: m['lighting.white_light_quality.buttons.cct_vs_actual'](),
 					color: 'orange'
 				},
 				{
-				text: m['lighting.white_light_quality.buttons.cct_vs_duv'](),
+					text: m['lighting.white_light_quality.buttons.cct_vs_duv'](),
 					color: 'orange'
 				},
 				{
-				text: m['lighting.white_light_quality.buttons.brightness_vs_duv'](),
+					text: m['lighting.white_light_quality.buttons.brightness_vs_duv'](),
 					color: 'orange'
 				},
 				{
-				text: m['lighting.white_light_quality.buttons.cct_vs_color_rendering'](),
-					color: 'orange',
+					text: m['lighting.white_light_quality.buttons.cct_vs_color_rendering'](),
+					color: 'orange'
 				},
 				{
-				text: m['lighting.white_light_quality.buttons.spectrum'](),
+					text: m['lighting.white_light_quality.buttons.spectrum'](),
 					color: 'orange'
 				}
 			],
@@ -179,19 +218,22 @@
 			description: m['lighting.color_light.description'](),
 			buttons: [
 				{
-				text: m['lighting.color_light.button'](),
+					text: m['lighting.color_light.button'](),
 					color: 'purple'
 				}
 			],
 			color: 'purple'
 		}
 	];
-	
+
 	// 相机/摄影机卡片配置数据
 	$: cameraCards = [
 		{
 			id: 'camera-products',
-			title: m['camera.products.title']({ cameraCount: cameraCount.toString(), cinemaCount: cinemaCount.toString() }),
+			title: m['camera.products.title']({
+				cameraCount: cameraCount.toString(),
+				cinemaCount: cinemaCount.toString()
+			}),
 			description: '',
 			buttons: [
 				{
@@ -214,31 +256,48 @@
 			color: 'blue'
 		}
 	];
-	
+
 	// 导航项配置
 	$: navigationItems = [
-		...(isAdministrator ? [{
-			section: m['administrator.title'](),
-			sectionId: 'section-administrator',
-			cards: adminCards.map(card => ({ id: card.id, title: card.title }))
-		}] : []),
-		...(hasLightPermission ? [{
-			section: m['data_provider_lighting.title'](),
-			sectionId: 'section-data-provider-lighting',
-			cards: dataProviderLightingCards.map(card => ({ id: card.id, title: card.title }))
-		}] : []),
+		...(isAdministrator
+			? [
+					{
+						section: m['administrator.title'](),
+						sectionId: 'section-administrator',
+						cards: adminCards.map((card) => ({ id: card.id, title: card.title }))
+					}
+				]
+			: []),
+		...(hasLightPermission
+			? [
+					{
+						section: m['data_provider_lighting.title'](),
+						sectionId: 'section-data-provider-lighting',
+						cards: dataProviderLightingCards.map((card) => ({ id: card.id, title: card.title }))
+					}
+				]
+			: []),
+		...(hasCameraPermission
+			? [
+					{
+						section: m['data_provider_camera.title'](),
+						sectionId: 'section-data-provider-camera',
+						cards: dataProviderCameraCards.map((card) => ({ id: card.id, title: card.title }))
+					}
+				]
+			: []),
 		{
 			section: m['camera.title'](),
 			sectionId: 'section-camera',
-			cards: cameraCards.map(card => ({ id: card.id, title: card.title }))
+			cards: cameraCards.map((card) => ({ id: card.id, title: card.title }))
 		},
 		{
 			section: m['lighting.title'](),
 			sectionId: 'section-lighting',
-			cards: cards.map(card => ({ id: card.id, title: card.title }))
+			cards: cards.map((card) => ({ id: card.id, title: card.title }))
 		}
 	];
-	
+
 	// 平滑滚动到锚点
 	function scrollToAnchor(anchorId: string) {
 		const element = document.getElementById(anchorId);
@@ -246,7 +305,7 @@
 			element.scrollIntoView({ behavior: 'smooth', block: 'start' });
 		}
 	}
-	
+
 	// 组件挂载时加载产品数量
 	onMount(() => {
 		loadProductCount();
@@ -271,13 +330,15 @@
 </svelte:head>
 
 <div class="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200 pt-16">
-		<!-- Navbar -->
-		<Navbar centerTitle={navbarCenterTitle} centerTitleSize="3xl" />
-	
+	<!-- Navbar -->
+	<Navbar centerTitle={navbarCenterTitle} centerTitleSize="3xl" />
+
 	<!-- Main Content with Sidebar -->
 	<div class="flex">
 		<!-- Left Sidebar Navigation -->
-		<aside class="hidden lg:block w-64 flex-shrink-0 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto pt-8 pl-4 pr-2">
+		<aside
+			class="hidden lg:block w-64 flex-shrink-0 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto pt-8 pl-4 pr-2"
+		>
 			<nav class="space-y-4">
 				{#each navigationItems as item}
 					<div class="space-y-2">
@@ -301,31 +362,109 @@
 				{/each}
 			</nav>
 		</aside>
-	
-	<!-- Main Content -->
-	<main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-		<!-- Introduction Card -->
-		<div class="w-4/5 mx-auto mb-12 lg:w-4/5 xl:w-4/5">
-			<div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
-				<h1 id="introTitle" class="text-3xl font-bold text-gray-900 dark:text-white mb-4 text-center">
-					{m['intro.title']()}
-				</h1>
-				<p class="text-lg text-gray-600 dark:text-gray-400 text-center leading-relaxed">
-					{m['intro.description']()}
-				</p>
+
+		<!-- Main Content -->
+		<main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+			<!-- Introduction Card -->
+			<div class="w-4/5 mx-auto mb-12 lg:w-4/5 xl:w-4/5">
+				<div
+					class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8"
+				>
+					<h1
+						id="introTitle"
+						class="text-3xl font-bold text-gray-900 dark:text-white mb-4 text-center"
+					>
+						{m['intro.title']()}
+					</h1>
+					<p class="text-lg text-gray-600 dark:text-gray-400 text-center leading-relaxed">
+						{m['intro.description']()}
+					</p>
+				</div>
 			</div>
-		</div>
-		
-		<!-- Administrator Section (Only visible to administrators) -->
-		{#if isAdministrator}
-			<div id="section-administrator" class="mb-12 scroll-mt-24">
+
+			<!-- Administrator Section (Only visible to administrators) -->
+			{#if isAdministrator}
+				<div id="section-administrator" class="mb-12 scroll-mt-24">
+					<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+						{m['administrator.title']()}
+					</h2>
+
+					<!-- Admin Cards Grid Container -->
+					<div
+						class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6"
+					>
+						{#each adminCards as card}
+							<Card
+								id={card.id}
+								title={card.title}
+								description={card.description}
+								buttons={card.buttons}
+								color={card.color}
+							/>
+						{/each}
+					</div>
+				</div>
+			{/if}
+
+			<!-- Data Provider - Lighting Section (Only visible to users with LIGHT permission) -->
+			{#if hasLightPermission}
+				<div id="section-data-provider-lighting" class="mb-12 scroll-mt-24">
+					<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+						{m['data_provider_lighting.title']()}
+					</h2>
+
+					<!-- Data Provider Lighting Cards Grid Container -->
+					<div
+						class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6"
+					>
+						{#each dataProviderLightingCards as card}
+							<Card
+								id={card.id}
+								title={card.title}
+								description={card.description}
+								buttons={card.buttons}
+								color={card.color}
+							/>
+						{/each}
+					</div>
+				</div>
+			{/if}
+
+			<!-- Data Provider - Camera Section (Only visible to users with CAMERA permission) -->
+			{#if hasCameraPermission}
+				<div id="section-data-provider-camera" class="mb-12 scroll-mt-24">
+					<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+						{m['data_provider_camera.title']()}
+					</h2>
+
+					<!-- Data Provider Camera Cards Grid Container -->
+					<div
+						class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6"
+					>
+						{#each dataProviderCameraCards as card}
+							<Card
+								id={card.id}
+								title={card.title}
+								description={card.description}
+								buttons={card.buttons}
+								color={card.color}
+							/>
+						{/each}
+					</div>
+				</div>
+			{/if}
+
+			<!-- Camera Section -->
+			<div id="section-camera" class="mb-12 scroll-mt-24">
 				<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
-					{m['administrator.title']()}
+					{m['camera.title']()}
 				</h2>
-				
-				<!-- Admin Cards Grid Container -->
-				<div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-					{#each adminCards as card}
+
+				<!-- Camera Cards Grid Container -->
+				<div
+					class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6"
+				>
+					{#each cameraCards as card}
 						<Card
 							id={card.id}
 							title={card.title}
@@ -336,18 +475,18 @@
 					{/each}
 				</div>
 			</div>
-		{/if}
-		
-		<!-- Data Provider - Lighting Section (Only visible to users with LIGHT permission) -->
-		{#if hasLightPermission}
-			<div id="section-data-provider-lighting" class="mb-12 scroll-mt-24">
+
+			<!-- Lighting Section -->
+			<div id="section-lighting" class="mb-12 scroll-mt-24">
 				<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
-					{m['data_provider_lighting.title']()}
+					{m['lighting.title']()}
 				</h2>
-				
-				<!-- Data Provider Lighting Cards Grid Container -->
-				<div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-					{#each dataProviderLightingCards as card}
+
+				<!-- Cards Grid Container -->
+				<div
+					class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6"
+				>
+					{#each cards as card}
 						<Card
 							id={card.id}
 							title={card.title}
@@ -358,48 +497,7 @@
 					{/each}
 				</div>
 			</div>
-		{/if}
-		
-		<!-- Camera Section -->
-		<div id="section-camera" class="mb-12 scroll-mt-24">
-			<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
-				{m['camera.title']()}
-			</h2>
-			
-			<!-- Camera Cards Grid Container -->
-			<div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-				{#each cameraCards as card}
-					<Card
-						id={card.id}
-						title={card.title}
-						description={card.description}
-						buttons={card.buttons}
-						color={card.color}
-					/>
-				{/each}
-			</div>
-		</div>
-		
-		<!-- Lighting Section -->
-		<div id="section-lighting" class="mb-12 scroll-mt-24">
-			<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
-				{m['lighting.title']()}
-			</h2>
-			
-			<!-- Cards Grid Container -->
-			<div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-				{#each cards as card}
-					<Card
-						id={card.id}
-						title={card.title}
-						description={card.description}
-						buttons={card.buttons}
-						color={card.color}
-					/>
-				{/each}
-			</div>
-		</div>
-	</main>
+		</main>
 	</div>
 </div>
 

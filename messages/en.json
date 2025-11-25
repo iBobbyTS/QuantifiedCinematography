@@ -276,6 +276,17 @@
 			}
 		}
 	},
+	"data_provider_camera": {
+		"title": "Camera/Camcorder Data Upload",
+		"manage_camera": {
+			"title": "Manage Camera/Camcorder",
+			"button": "Manage Camera/Camcorder"
+		},
+		"data_upload": {
+			"title": "Data Upload",
+			"button": "Dynamic Range Data"
+		}
+	},
 	"data_provider_lighting": {
 		"title": "Data Provider - Lighting",
 		"recorded_lighting_products": {
