@@ -278,11 +278,33 @@
 			</div>
 		</div>
 
+		<!-- Top Pagination Component -->
+		{#if totalCameras > 0}
+			<div class="mb-4">
+				<Pagination
+					bind:currentPage
+					bind:itemsPerPage
+					totalItems={totalCameras}
+					storageKey={STORAGE_KEY}
+					{itemsPerPageOptions}
+					dropdownPosition="bottom"
+					onPageChange={(page) => {
+						currentPage = page;
+						triggerFilter();
+					}}
+					onItemsPerPageChange={(limit) => {
+						itemsPerPage = limit;
+						currentPage = 1;
+						localStorage.setItem(STORAGE_KEY, limit.toString());
+						triggerFilter();
+					}}
+				/>
+			</div>
+		{/if}
+
 		<!-- Table -->
-		<div
-			class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg flex flex-col h-[600px]"
-		>
-			<div class="flex-1 overflow-auto">
+		<div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+			<div class="overflow-auto">
 				<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 relative">
 					<thead class="bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
 						<tr>
@@ -361,14 +383,18 @@
 					</tbody>
 				</table>
 			</div>
+		</div>
 
-			<!-- Pagination -->
-			<div class="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
+		<!-- Bottom Pagination Component -->
+		{#if totalCameras > 0}
+			<div class="mt-4">
 				<Pagination
+					bind:currentPage
+					bind:itemsPerPage
 					totalItems={totalCameras}
-					{itemsPerPage}
-					{currentPage}
+					storageKey={STORAGE_KEY}
 					{itemsPerPageOptions}
+					dropdownPosition="top"
 					onPageChange={(page) => {
 						currentPage = page;
 						triggerFilter();
@@ -381,7 +407,7 @@
 					}}
 				/>
 			</div>
-		</div>
+		{/if}
 	</main>
 </div>
 
