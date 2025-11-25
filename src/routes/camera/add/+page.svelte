@@ -387,12 +387,77 @@
 	title={m['camera.add.batch_add.modal_title']()}
 	templateEndpoint="/api/camera/template"
 	uploadEndpoint="/api/camera/batch-upload"
+	validateEndpoint="/api/camera/batch-validate"
 	instructions={[
 		m['camera.add.batch_add.instructions_1'](),
 		m['camera.add.batch_add.instructions_2'](),
 		`${m['camera.add.batch_add.instructions_brands']()} ${existingBrands.join(', ')}`
 	]}
 	itemName="cameras"
-/>
+>
+	<div slot="preview" let:validationData class="overflow-x-auto">
+		{#if validationData && validationData.results}
+			<table class="table table-xs w-full">
+				<thead>
+					<tr>
+						<th>Brand</th>
+						<th>Model</th>
+						<th>Year</th>
+						<th>Cinema</th>
+						<th>Status</th>
+					</tr>
+				</thead>
+				<tbody>
+					{#each validationData.results as row}
+						<tr>
+							<!-- Brand: Green if exists, Blue if new -->
+							<td
+								class={row.brandExists ? 'text-green-600 font-medium' : 'text-blue-600 font-medium'}
+							>
+								{row.brand}
+							</td>
+
+							<!-- Model: Green if new (valid), Red if exists (invalid) -->
+							<td
+								class={!row.modelExists ? 'text-green-600 font-medium' : 'text-red-600 font-medium'}
+							>
+								{row.model}
+							</td>
+
+							<td>{row.year}</td>
+							<td>{row.isCinema ? 'Y' : 'N'}</td>
+
+							<!-- Status Icon -->
+							<td>
+								{#if row.isValid}
+									<Icon icon="mdi:check-circle" class="text-green-500 h-5 w-5" />
+								{:else}
+									<div class="tooltip" data-tip="Model already exists">
+										<Icon icon="mdi:alert-circle" class="text-red-500 h-5 w-5" />
+									</div>
+								{/if}
+							</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+
+			<div class="mt-4 flex gap-4 text-xs text-gray-500 justify-center">
+				<div class="flex items-center gap-1">
+					<span class="w-3 h-3 bg-green-600 rounded-full"></span>
+					<span>Existing Brand / New Model</span>
+				</div>
+				<div class="flex items-center gap-1">
+					<span class="w-3 h-3 bg-blue-600 rounded-full"></span>
+					<span>New Brand</span>
+				</div>
+				<div class="flex items-center gap-1">
+					<span class="w-3 h-3 bg-red-600 rounded-full"></span>
+					<span>Duplicate Model</span>
+				</div>
+			</div>
+		{/if}
+	</div>
+</CsvUploadModal>
 
 <ToastManager bind:this={toastManager} />

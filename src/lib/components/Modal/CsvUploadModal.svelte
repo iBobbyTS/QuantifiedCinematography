@@ -19,6 +19,7 @@
 		title,
 		templateEndpoint,
 		uploadEndpoint,
+		validateEndpoint,
 		instructions = [],
 		itemName = 'items',
 		showDownload = true,
@@ -29,6 +30,7 @@
 		title: string;
 		templateEndpoint: string;
 		uploadEndpoint: string;
+		validateEndpoint?: string;
 		instructions?: string[];
 		itemName?: string;
 		showDownload?: boolean;
@@ -46,6 +48,7 @@
 	let fileInput: HTMLInputElement | undefined = $state();
 	let selectedFile: File | null = $state(null);
 	let isUploading = $state(false);
+	let isValidating = $state(false);
 	let uploadError: {
 		message: string;
 		details?: string[];
@@ -58,6 +61,7 @@
 		added_items?: string[];
 		file_name?: string;
 	} | null = $state(null);
+	let validationData: any = $state(null);
 
 	function handleFileSelect(event: Event) {
 		const target = event.target as HTMLInputElement;
@@ -66,8 +70,43 @@
 			selectedFile = file;
 
 			// Clear previous states when a new file is selected
-			uploadError = null; // Clear previous errors
-			uploadResult = null; // Clear previous upload results
+			uploadError = null;
+			uploadResult = null;
+			validationData = null;
+
+			if (validateEndpoint) {
+				validateFile();
+			}
+		}
+	}
+
+	async function validateFile() {
+		if (!selectedFile || !validateEndpoint) return;
+
+		isValidating = true;
+		uploadError = null;
+
+		try {
+			const formData = new FormData();
+			formData.append('csv', selectedFile);
+
+			const response = await fetch(validateEndpoint, {
+				method: 'POST',
+				body: formData
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				uploadError = { message: errorData.error || 'Validation failed.' };
+				return;
+			}
+
+			validationData = await response.json();
+		} catch (err) {
+			console.error('Validation error:', err);
+			uploadError = { message: 'An unexpected error occurred during validation.' };
+		} finally {
+			isValidating = false;
 		}
 	}
 
@@ -96,6 +135,7 @@
 						fileInput.value = '';
 					}
 					selectedFile = null;
+					validationData = null;
 					return;
 				}
 
@@ -123,6 +163,7 @@
 						fileInput.value = '';
 					}
 					selectedFile = null;
+					validationData = null;
 					return;
 				}
 
@@ -161,6 +202,7 @@
 				fileInput.value = '';
 			}
 			selectedFile = null;
+			validationData = null;
 		} catch (err) {
 			console.error('Upload error:', err);
 			uploadError = { message: 'An unexpected client-side error occurred. Please try again.' };
@@ -170,6 +212,7 @@
 				fileInput.value = '';
 			}
 			selectedFile = null;
+			validationData = null;
 		} finally {
 			isUploading = false;
 		}
@@ -180,6 +223,7 @@
 		selectedFile = null;
 		uploadError = null; // Clear errors on close
 		uploadResult = null; // Clear results on close
+		validationData = null;
 		dispatch('close');
 	}
 
@@ -216,6 +260,8 @@
 		title;
 		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 		instructions;
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+		validationData;
 		if (modalElement) {
 			requestAnimationFrame(checkIfShouldCenter);
 		}
@@ -253,6 +299,19 @@
 				</div>
 				{#if selectedFile}
 					<div class="mt-2 text-sm text-gray-500 text-center">Selected: {selectedFile.name}</div>
+				{/if}
+
+				<!-- Validation Loading -->
+				{#if isValidating}
+					<div class="flex items-center justify-center pt-4">
+						<span class="loading loading-spinner loading-lg"></span>
+						<span class="ml-4">Validating file...</span>
+					</div>
+				{/if}
+
+				<!-- Validation Preview Slot -->
+				{#if validationData && !isValidating}
+					<slot name="preview" {validationData}></slot>
 				{/if}
 
 				<!-- Error display area -->
@@ -320,7 +379,13 @@
 				<div class="flex justify-center gap-4 mt-4">
 					<button class="btn" onclick={closeModal}> Cancel </button>
 					{#if !uploadResult}
-						<button class="btn btn-primary" onclick={uploadFile}> Upload </button>
+						<button
+							class="btn btn-primary"
+							onclick={uploadFile}
+							disabled={validateEndpoint && !validationData}
+						>
+							Upload
+						</button>
 					{:else}
 						<button
 							class="btn btn-primary"
@@ -328,6 +393,7 @@
 								uploadResult = null;
 								selectedFile = null;
 								uploadError = null;
+								validationData = null;
 							}}
 						>
 							Upload Another File
