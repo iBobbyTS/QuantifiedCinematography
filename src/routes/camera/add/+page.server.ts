@@ -42,6 +42,7 @@ export const actions: Actions = {
             const brandId = parseInt(formData.get('brandId') as string);
             const name = formData.get('name') as string;
             const releaseYear = parseInt(formData.get('releaseYear') as string);
+            const cinema = formData.get('cinema') === 'true';
 
             // Validate input
             if (!brandId || isNaN(brandId)) {
@@ -72,7 +73,8 @@ export const actions: Actions = {
             await db.insert(productCameras).values({
                 brandId,
                 name: name.trim(),
-                releaseYear
+                releaseYear,
+                cinema
             });
 
             return { success: true };

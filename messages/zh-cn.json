@@ -379,8 +379,10 @@
 				"brand": "品牌",
 				"model": "型号",
 				"model_placeholder": "例如：A7M4",
-				"model_help": "请确认产品型号的命名和数据库内已有的型号名称风格统一。",
-				"release_year": "发布年份"
+				"model_help": "请确认产品型号命名风格与数据库中已有型号一致。",
+				"release_year": "发布年份",
+				"cinema": "电影机",
+				"cinema_help": "电影机请打勾，照相机留空"
 			},
 			"brand_search": {
 				"placeholder": "搜索品牌...",
@@ -390,6 +392,12 @@
 					"message": "请输入新品牌的名称：",
 					"confirm": "确定",
 					"cancel": "取消"
+				},
+				"toast": {
+					"exists": "品牌已存在",
+					"success": "添加成功",
+					"failure": "添加失败：{reason}",
+					"network_error": "网络错误"
 				}
 			},
 			"warnings": {

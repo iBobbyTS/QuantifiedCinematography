@@ -388,7 +388,9 @@
 				"model": "Model",
 				"model_placeholder": "e.g. A7M4",
 				"model_help": "Please confirm the product model naming style is consistent with existing models in the database.",
-				"release_year": "Release Year"
+				"release_year": "Release Year",
+				"cinema": "Cinema Camera",
+				"cinema_help": "Check for cinema camera, leave empty for still camera"
 			},
 			"brand_search": {
 				"placeholder": "Search brands...",
@@ -398,6 +400,12 @@
 					"message": "Please enter the name of the new brand:",
 					"confirm": "Confirm",
 					"cancel": "Cancel"
+				},
+				"toast": {
+					"exists": "Brand already exists",
+					"success": "Brand added successfully",
+					"failure": "Failed to add brand: {reason}",
+					"network_error": "Network error"
 				}
 			},
 			"warnings": {

@@ -5,15 +5,18 @@
 	import Navbar from '$lib/components/Navbar.svelte';
 	import ToastManager from '$lib/components/Toast/ToastManager.svelte';
 	import BrandDropdownSearch from '$lib/components/DropdownSearch/BrandDropdownSearch.svelte';
+	import { CINEMA_CAMERA_BRANDS } from '$lib/constants';
 
 	let isLoading = false;
 	let toastManager: ToastManager;
+	let modelInput: HTMLInputElement;
 
 	// Form state
 	let brandId: number | null = null;
 	let brandName = '';
 	let modelName = '';
-	let releaseYear: number | null = null;
+	let releaseYear: number | null = new Date().getFullYear();
+	let isCinema = false;
 
 	// Validation state
 	let isNameValid = true;
@@ -32,6 +35,15 @@
 		const { id, title } = event.detail;
 		brandId = id;
 		brandName = title;
+
+		// Auto-select cinema camera based on brand
+		if (CINEMA_CAMERA_BRANDS.some((b) => title.toLowerCase().includes(b.toLowerCase()))) {
+			isCinema = true;
+		}
+	}
+
+	function handleModalClose() {
+		modelInput?.focus();
 	}
 
 	// Handle name input with debounce
@@ -86,6 +98,7 @@
 			formData.set('brandId', String(brandId));
 			formData.set('name', modelName);
 			formData.set('releaseYear', String(releaseYear));
+			formData.set('cinema', String(isCinema));
 
 			const response = await fetch('?/createCamera', {
 				method: 'POST',
@@ -159,7 +172,7 @@
 />
 
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">
-	<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+	<div class="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 		<!-- Header -->
 		<div class="mb-8">
 			<h1 class="text-3xl font-bold text-gray-900 dark:text-white">
@@ -188,7 +201,7 @@
 						>
 							{m['camera.add.form.brand']()}
 						</label>
-						<BrandDropdownSearch on:select={handleBrandSelect} />
+						<BrandDropdownSearch on:select={handleBrandSelect} on:modal-close={handleModalClose} />
 					</div>
 
 					<!-- Model Name -->
@@ -202,6 +215,7 @@
 						<div class="flex items-start gap-4">
 							<div class="flex-1">
 								<input
+									bind:this={modelInput}
 									id="model"
 									type="text"
 									class="appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white
@@ -266,6 +280,24 @@
 							class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white"
 							bind:value={releaseYear}
 						/>
+					</div>
+
+					<!-- Cinema Camera Checkbox -->
+					<!-- Cinema Camera Checkbox -->
+					<div class="flex flex-col space-y-1">
+						<span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+							{m['camera.add.form.cinema']()}
+						</span>
+						<label class="flex items-center space-x-2 cursor-pointer">
+							<input
+								type="checkbox"
+								bind:checked={isCinema}
+								class="checkbox checkbox-sm checkbox-primary"
+							/>
+							<span class="text-xs text-gray-500 dark:text-gray-400">
+								{m['camera.add.form.cinema_help']()}
+							</span>
+						</label>
 					</div>
 
 					<!-- Actions -->

@@ -1,4 +1,4 @@
-import { pgTable, serial, text, timestamp, integer, uuid, index, real, pgEnum, check } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, timestamp, integer, uuid, index, real, pgEnum, check, boolean } from 'drizzle-orm/pg-core';
 import { relations, sql } from 'drizzle-orm';
 
 // Define enums
@@ -178,6 +178,7 @@ export const productCameras = pgTable('product_cameras', {
 	name: text('name').notNull(), // Camera name
 	brandId: integer('brand_id').references(() => brands.id).notNull(),
 	releaseYear: integer('release_year'),
+	cinema: boolean('cinema').notNull().default(false),
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at').defaultNow(),
 }, (table) => [
