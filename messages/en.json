@@ -397,7 +397,7 @@
 				"button": "Batch Add",
 				"modal_title": "Batch Add Cameras",
 				"instructions_1": "Please upload a CSV file containing camera information.",
-				"instructions_2": "The file should contain the following columns: brand, model, release_year, cinema (true/false).",
+				"instructions_2": "The file should contain the following columns: brand, model, release_year, cinema (Y/N).",
 				"instructions_brands": "Currently existing brands in the system:"
 			},
 			"brand_search": {
