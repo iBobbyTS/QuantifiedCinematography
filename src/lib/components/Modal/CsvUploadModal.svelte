@@ -12,6 +12,8 @@
 	import { createEventDispatcher } from 'svelte';
 	import Icon from '@iconify/svelte';
 
+	import * as m from '$lib/paraglide/messages.js';
+
 	let {
 		isOpen = $bindable(),
 		title,
@@ -230,7 +232,7 @@
 					<div class="flex justify-center">
 						<a href={templateEndpoint} class="btn btn-outline w-2/5" download>
 							<Icon icon="mdi:download" class="mr-2" />
-							Download CSV Template
+							{m['modal.download_template']()}
 						</a>
 					</div>
 				{/if}
@@ -238,7 +240,7 @@
 				<div class="flex justify-center">
 					<div class="w-2/5">
 						<div class="label">
-							<span class="label-text">Select CSV File</span>
+							<span class="label-text">{m['modal.select_csv']()}</span>
 						</div>
 						<input
 							type="file"
@@ -335,7 +337,7 @@
 
 				{#if instructions.length > 0}
 					<div class="prose prose-sm max-w-none rounded-lg border bg-base-200 p-4">
-						<h4 class="font-bold">Instructions</h4>
+						<h4 class="font-bold">{m['modal.instructions']()}</h4>
 						<ul>
 							{#each instructions as instruction}
 								{@html `<li>${instruction}</li>`}

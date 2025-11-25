@@ -398,7 +398,7 @@
 				"modal_title": "Batch Add Cameras",
 				"instructions_1": "Please upload a CSV file containing camera information.",
 				"instructions_2": "The file should contain the following columns: brand, model, release_year, cinema (true/false).",
-				"instructions_3": "Example: ARRI, Alexa Mini, 2015, true"
+				"instructions_brands": "Currently existing brands in the system:"
 			},
 			"brand_search": {
 				"placeholder": "Search brands...",
@@ -489,5 +489,10 @@
 			"delete_error_title": "Failed to delete spectrometer",
 			"delete_error_network": "Network error occurred"
 		}
+	},
+	"modal": {
+		"select_csv": "Select CSV File",
+		"download_template": "Download CSV Template",
+		"instructions": "Instructions"
 	}
 }

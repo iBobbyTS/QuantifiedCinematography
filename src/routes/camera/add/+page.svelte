@@ -8,10 +8,29 @@
 	import CsvUploadModal from '$lib/components/Modal/CsvUploadModal.svelte';
 	import { CINEMA_CAMERA_BRANDS } from '$lib/constants';
 
+	import { onMount } from 'svelte';
+
 	let isLoading = false;
 	let toastManager: ToastManager;
 	let modelInput: HTMLInputElement;
 	let showBatchModal = false;
+	let existingBrands: string[] = [];
+
+	onMount(async () => {
+		try {
+			const response = await fetch('/api/camera/search/brand', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ query: '' })
+			});
+			if (response.ok) {
+				const data = await response.json();
+				existingBrands = data.brands.map((b: any) => b.name);
+			}
+		} catch (error) {
+			console.error('Error fetching brands:', error);
+		}
+	});
 
 	// Form state
 	let brandId: number | null = null;
@@ -371,7 +390,7 @@
 	instructions={[
 		m['camera.add.batch_add.instructions_1'](),
 		m['camera.add.batch_add.instructions_2'](),
-		m['camera.add.batch_add.instructions_3']()
+		`${m['camera.add.batch_add.instructions_brands']()} ${existingBrands.join(', ')}`
 	]}
 	itemName="cameras"
 />
