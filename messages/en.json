@@ -277,7 +277,7 @@
 		}
 	},
 	"data_provider_camera": {
-		"title": "Camera/Camcorder Data Upload",
+		"title": "Data Upload - Camera/Camcorder",
 		"manage_camera": {
 			"title": "Manage Camera/Camcorder",
 			"button": "Manage Camera/Camcorder"

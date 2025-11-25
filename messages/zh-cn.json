@@ -269,7 +269,7 @@
 		}
 	},
 	"data_provider_camera": {
-		"title": "相机/摄影机数据上传",
+		"title": "数据上传 - 相机/摄影机",
 		"manage_camera": {
 			"title": "管理相机/摄影机",
 			"button": "管理相机/摄影机"

@@ -268,21 +268,21 @@
 					}
 				]
 			: []),
-		...(hasLightPermission
-			? [
-					{
-						section: m['data_provider_lighting.title'](),
-						sectionId: 'section-data-provider-lighting',
-						cards: dataProviderLightingCards.map((card) => ({ id: card.id, title: card.title }))
-					}
-				]
-			: []),
 		...(hasCameraPermission
 			? [
 					{
 						section: m['data_provider_camera.title'](),
 						sectionId: 'section-data-provider-camera',
 						cards: dataProviderCameraCards.map((card) => ({ id: card.id, title: card.title }))
+					}
+				]
+			: []),
+		...(hasLightPermission
+			? [
+					{
+						section: m['data_provider_lighting.title'](),
+						sectionId: 'section-data-provider-lighting',
+						cards: dataProviderLightingCards.map((card) => ({ id: card.id, title: card.title }))
 					}
 				]
 			: []),
@@ -406,30 +406,6 @@
 				</div>
 			{/if}
 
-			<!-- Data Provider - Lighting Section (Only visible to users with LIGHT permission) -->
-			{#if hasLightPermission}
-				<div id="section-data-provider-lighting" class="mb-12 scroll-mt-24">
-					<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
-						{m['data_provider_lighting.title']()}
-					</h2>
-
-					<!-- Data Provider Lighting Cards Grid Container -->
-					<div
-						class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6"
-					>
-						{#each dataProviderLightingCards as card}
-							<Card
-								id={card.id}
-								title={card.title}
-								description={card.description}
-								buttons={card.buttons}
-								color={card.color}
-							/>
-						{/each}
-					</div>
-				</div>
-			{/if}
-
 			<!-- Data Provider - Camera Section (Only visible to users with CAMERA permission) -->
 			{#if hasCameraPermission}
 				<div id="section-data-provider-camera" class="mb-12 scroll-mt-24">
@@ -442,6 +418,30 @@
 						class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6"
 					>
 						{#each dataProviderCameraCards as card}
+							<Card
+								id={card.id}
+								title={card.title}
+								description={card.description}
+								buttons={card.buttons}
+								color={card.color}
+							/>
+						{/each}
+					</div>
+				</div>
+			{/if}
+
+			<!-- Data Provider - Lighting Section (Only visible to users with LIGHT permission) -->
+			{#if hasLightPermission}
+				<div id="section-data-provider-lighting" class="mb-12 scroll-mt-24">
+					<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+						{m['data_provider_lighting.title']()}
+					</h2>
+
+					<!-- Data Provider Lighting Cards Grid Container -->
+					<div
+						class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6"
+					>
+						{#each dataProviderLightingCards as card}
 							<Card
 								id={card.id}
 								title={card.title}
