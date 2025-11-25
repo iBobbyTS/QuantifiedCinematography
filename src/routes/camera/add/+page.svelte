@@ -294,7 +294,7 @@
 								bind:checked={isCinema}
 								class="checkbox checkbox-sm checkbox-primary"
 							/>
-							<span class="text-xs text-gray-500 dark:text-gray-400">
+							<span class="text-xs text-gray-500 dark:text-gray-400 select-none">
 								{m['camera.add.form.cinema_help']()}
 							</span>
 						</label>
