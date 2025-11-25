@@ -378,7 +378,7 @@
 			"form": {
 				"brand": "品牌",
 				"model": "型号",
-				"model_placeholder": "例如：A7M4",
+				"model_placeholder": "例如：a7 IV",
 				"model_help": "请确认产品型号命名风格与数据库中已有型号一致。",
 				"release_year": "发布年份",
 				"cinema": "电影机",
@@ -391,6 +391,7 @@
 				"instructions_1": "请上传包含相机信息的CSV文件。",
 				"instructions_2": "文件应包含以下列：brand (品牌), model (型号), release_year (发布年份), cinema (是否电影机, Y/N)。",
 				"instructions_brands": "目前系统内已有的品牌列表：",
+				"brand_separator": "、",
 				"preview": {
 					"brand": "品牌",
 					"model": "型号",

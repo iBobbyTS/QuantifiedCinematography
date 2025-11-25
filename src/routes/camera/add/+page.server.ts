@@ -1,9 +1,9 @@
 import { error, redirect, fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db/index.js';
-import { productCameras } from '$lib/server/db/schema.js';
+import { productCameras, brands } from '$lib/server/db/schema.js';
 import { UserPermissions, USER_PERMISSIONS } from '$lib/permission/bitmask.js';
-import { eq, ilike } from 'drizzle-orm';
+import { eq, ilike, asc, gt } from 'drizzle-orm';
 
 export const load: PageServerLoad = async ({ locals }) => {
     // Check login
@@ -19,7 +19,11 @@ export const load: PageServerLoad = async ({ locals }) => {
         throw error(403, { message: 'Access denied. Camera permission required.' });
     }
 
-    return {};
+    const allBrands = await db.select().from(brands).where(gt(brands.id, 0)).orderBy(asc(brands.name));
+
+    return {
+        brands: allBrands
+    };
 };
 
 export const actions: Actions = {

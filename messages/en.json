@@ -386,7 +386,7 @@
 			"form": {
 				"brand": "Brand",
 				"model": "Model",
-				"model_placeholder": "e.g. A7M4",
+				"model_placeholder": "e.g. a7 IV",
 				"model_help": "Please confirm the product model naming style is consistent with existing models in the database.",
 				"release_year": "Release Year",
 				"cinema": "Cinema Camera",
@@ -399,6 +399,7 @@
 				"instructions_1": "Please upload a CSV file containing camera information.",
 				"instructions_2": "The file should contain the following columns: brand, model, release_year, cinema (Y/N).",
 				"instructions_brands": "Currently existing brands in the system:",
+				"brand_separator": ", ",
 				"preview": {
 					"brand": "Brand",
 					"model": "Model",

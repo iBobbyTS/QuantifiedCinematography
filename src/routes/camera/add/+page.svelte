@@ -10,27 +10,14 @@
 
 	import { onMount } from 'svelte';
 
+	export let data;
 	let isLoading = false;
 	let toastManager: ToastManager;
 	let modelInput: HTMLInputElement;
 	let showBatchModal = false;
-	let existingBrands: string[] = [];
 
-	onMount(async () => {
-		try {
-			const response = await fetch('/api/camera/search/brand', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ query: '' })
-			});
-			if (response.ok) {
-				const data = await response.json();
-				existingBrands = data.brands.map((b: any) => b.name);
-			}
-		} catch (error) {
-			console.error('Error fetching brands:', error);
-		}
-	});
+	$: existingBrands = data.brands ? data.brands.map((b: any) => b.name) : [];
+	$: formattedBrands = `<span class="font-bold text-base">${existingBrands.join((m as any)['camera.add.batch_add.brand_separator']())}</span>`;
 
 	// Form state
 	let brandId: number | null = null;
@@ -391,7 +378,7 @@
 	instructions={[
 		m['camera.add.batch_add.instructions_1'](),
 		m['camera.add.batch_add.instructions_2'](),
-		`${m['camera.add.batch_add.instructions_brands']()} ${existingBrands.join(', ')}`
+		`${m['camera.add.batch_add.instructions_brands']()} ${formattedBrands}`
 	]}
 	itemName="cameras"
 >
