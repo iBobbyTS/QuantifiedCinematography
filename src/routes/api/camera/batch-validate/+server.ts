@@ -1,5 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { db } from '$lib/server/db';
+import { brands, productCameras } from '$lib/server/db/schema';
 
 export const POST: RequestHandler = async ({ request }) => {
     const formData = await request.formData();
@@ -12,9 +14,12 @@ export const POST: RequestHandler = async ({ request }) => {
     const text = await file.text();
     const lines = text.split('\n');
 
-    // Mock database of existing brands/models for validation
-    const existingBrands = ['ARRI', 'RED', 'Sony', 'Canon', 'Blackmagic'];
-    const existingModels = ['Alexa Mini', 'Komodo', 'FX6', 'C70'];
+    // Fetch existing data from database
+    const dbBrands = await db.select().from(brands);
+    const dbCameras = await db.select().from(productCameras);
+
+    const existingBrandNames = new Set(dbBrands.map((b) => b.name.toLowerCase()));
+    const existingModelNames = new Set(dbCameras.map((c) => c.name.toLowerCase()));
 
     const validationResults = [];
     let validCount = 0;
@@ -39,8 +44,8 @@ export const POST: RequestHandler = async ({ request }) => {
             else if (lower === 'n' || lower === 'false') isCinema = false;
         }
 
-        const brandExists = existingBrands.some(b => b.toLowerCase() === brand.toLowerCase());
-        const modelExists = existingModels.some(m => m.toLowerCase() === model.toLowerCase());
+        const brandExists = existingBrandNames.has(brand.toLowerCase());
+        const modelExists = existingModelNames.has(model.toLowerCase());
 
         // Logic:
         // Brand: Green if exists (good), Blue if new (also fine, just info)
@@ -60,9 +65,6 @@ export const POST: RequestHandler = async ({ request }) => {
             isValid
         });
     }
-
-    // Simulate processing delay
-    await new Promise((resolve) => setTimeout(resolve, 500));
 
     return json({
         results: validationResults,

@@ -390,7 +390,18 @@
 				"modal_title": "批量添加相机",
 				"instructions_1": "请上传包含相机信息的CSV文件。",
 				"instructions_2": "文件应包含以下列：brand (品牌), model (型号), release_year (发布年份), cinema (是否电影机, Y/N)。",
-				"instructions_brands": "目前系统内已有的品牌列表："
+				"instructions_brands": "目前系统内已有的品牌列表：",
+				"preview": {
+					"brand": "品牌",
+					"model": "型号",
+					"year": "年份",
+					"cinema": "电影机",
+					"status": "状态",
+					"existing": "已存在",
+					"new": "新增",
+					"duplicate": "重复",
+					"model_exists_tooltip": "相机型号已存在，你可以继续提交，这一个相机会自动跳过，不会出错。"
+				}
 			},
 			"brand_search": {
 				"placeholder": "搜索品牌...",
