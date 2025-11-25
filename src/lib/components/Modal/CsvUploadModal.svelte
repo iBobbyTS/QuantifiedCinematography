@@ -44,15 +44,25 @@
 	let fileInput: HTMLInputElement | undefined = $state();
 	let selectedFile: File | null = $state(null);
 	let isUploading = $state(false);
-	let uploadError: { message: string; details?: string[]; errorGroups?: { error: string; details: string[] }[] } | null = $state(null);
-	let uploadResult: { added_count: number; existing_count: number; total_processed: number; added_items?: string[]; file_name?: string } | null = $state(null);
+	let uploadError: {
+		message: string;
+		details?: string[];
+		errorGroups?: { error: string; details: string[] }[];
+	} | null = $state(null);
+	let uploadResult: {
+		added_count: number;
+		existing_count: number;
+		total_processed: number;
+		added_items?: string[];
+		file_name?: string;
+	} | null = $state(null);
 
 	function handleFileSelect(event: Event) {
 		const target = event.target as HTMLInputElement;
 		if (target.files && target.files.length > 0) {
 			const file = target.files[0];
 			selectedFile = file;
-			
+
 			// Clear previous states when a new file is selected
 			uploadError = null; // Clear previous errors
 			uploadResult = null; // Clear previous upload results
@@ -72,9 +82,9 @@
 			// Use custom upload handler if provided
 			if (customUploadHandler) {
 				const result = await customUploadHandler(selectedFile);
-				
+
 				if (!result.success) {
-					uploadError = { 
+					uploadError = {
 						message: result.error || 'Upload failed. Please try again.',
 						details: result.details || [],
 						errorGroups: result.errorGroups || []
@@ -86,7 +96,7 @@
 					selectedFile = null;
 					return;
 				}
-				
+
 				// For custom handlers, we assume success and dispatch event
 				dispatch('uploadSuccess', { filename: selectedFile.name });
 			} else {
@@ -101,10 +111,11 @@
 
 				if (!response.ok) {
 					const errorData = await response.json();
-					const errorMessage = errorData.error || 'An unknown error occurred during upload. Please try again.';
+					const errorMessage =
+						errorData.error || 'An unknown error occurred during upload. Please try again.';
 					const errorDetails = errorData.details || [];
 					uploadError = { message: errorMessage, details: errorDetails };
-					
+
 					// Clear the file input after failed upload
 					if (fileInput) {
 						fileInput.value = '';
@@ -115,7 +126,7 @@
 
 				// Parse JSON response
 				const responseData = await response.json();
-				
+
 				uploadResult = {
 					added_count: responseData.added_count,
 					existing_count: responseData.existing_count,
@@ -123,7 +134,7 @@
 					added_items: responseData.added_items || [],
 					file_name: selectedFile.name
 				};
-				
+
 				// Handle CSV download if content is provided
 				if (responseData.csv_content) {
 					const blob = new Blob([responseData.csv_content], { type: 'text/csv' });
@@ -136,13 +147,13 @@
 					a.click();
 					window.URL.revokeObjectURL(url);
 					a.remove();
-					
+
 					dispatch('uploadSuccess', { filename: 'new_user_passwords.csv' });
 				} else {
 					dispatch('uploadSuccess', { filename: 'upload_completed' });
 				}
 			}
-			
+
 			// Clear the file input after successful upload
 			if (fileInput) {
 				fileInput.value = '';
@@ -151,7 +162,7 @@
 		} catch (err) {
 			console.error('Upload error:', err);
 			uploadError = { message: 'An unexpected client-side error occurred. Please try again.' };
-			
+
 			// Clear the file input after failed upload
 			if (fileInput) {
 				fileInput.value = '';
@@ -211,13 +222,9 @@
 
 {#if isOpen}
 	<div class="modal modal-open" class:modal-scrollable={!shouldCenter}>
-		<div
-			class="modal-box modal-smart"
-			style="max-width: 90vw;"
-			bind:this={modalElement}
-		>
+		<div class="modal-box modal-smart" style="max-width: 90vw;" bind:this={modalElement}>
 			<h3 class="font-bold text-lg mb-2">{title}</h3>
-			
+
 			<div class="space-y-4">
 				{#if showDownload}
 					<div class="flex justify-center">
@@ -242,9 +249,9 @@
 						/>
 					</div>
 				</div>
-					{#if selectedFile}
-						<div class="mt-2 text-sm text-gray-500 text-center">Selected: {selectedFile.name}</div>
-					{/if}
+				{#if selectedFile}
+					<div class="mt-2 text-sm text-gray-500 text-center">Selected: {selectedFile.name}</div>
+				{/if}
 
 				<!-- Error display area -->
 				{#if uploadError}
@@ -309,20 +316,23 @@
 					</div>
 				{/if}
 				<div class="flex justify-center gap-4 mt-4">
-					<button class="btn" onclick={closeModal}>
-						Cancel
-					</button>
+					<button class="btn" onclick={closeModal}> Cancel </button>
 					{#if !uploadResult}
-						<button class="btn btn-primary" onclick={uploadFile}>
-							Upload
-						</button>
+						<button class="btn btn-primary" onclick={uploadFile}> Upload </button>
 					{:else}
-						<button class="btn btn-primary" onclick={() => { uploadResult = null; selectedFile = null; uploadError = null; }}>
+						<button
+							class="btn btn-primary"
+							onclick={() => {
+								uploadResult = null;
+								selectedFile = null;
+								uploadError = null;
+							}}
+						>
 							Upload Another File
 						</button>
 					{/if}
 				</div>
-				
+
 				{#if instructions.length > 0}
 					<div class="prose prose-sm max-w-none rounded-lg border bg-base-200 p-4">
 						<h4 class="font-bold">Instructions</h4>
@@ -360,4 +370,4 @@
 		width: 100%;
 		max-width: 32rem;
 	}
-</style> 
+</style>

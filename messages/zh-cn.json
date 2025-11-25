@@ -384,6 +384,14 @@
 				"cinema": "电影机",
 				"cinema_help": "电影机请打勾，照相机留空"
 			},
+			"batch_add": {
+				"title": "批量添加",
+				"button": "批量添加",
+				"modal_title": "批量添加相机",
+				"instructions_1": "请上传包含相机信息的CSV文件。",
+				"instructions_2": "文件应包含以下列：brand (品牌), model (型号), release_year (发布年份), cinema (是否电影机, true/false)。",
+				"instructions_3": "示例：ARRI, Alexa Mini, 2015, true"
+			},
 			"brand_search": {
 				"placeholder": "搜索品牌...",
 				"add_brand": "添加品牌",
