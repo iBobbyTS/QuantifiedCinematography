@@ -369,8 +369,44 @@
 			},
 			"empty_state": {
 				"title": "暂无相机",
-				"description": "通过添加新相机开始使用。"
+				"description": "开始添加您的第一个相机或摄影机。"
 			}
+		},
+		"add": {
+			"title": "添加相机/摄影机",
+			"subtitle": "添加新的相机或摄影机到数据库",
+			"form": {
+				"brand": "品牌",
+				"model": "型号",
+				"model_placeholder": "例如：A7M4",
+				"model_help": "请确认产品型号的命名和数据库内已有的型号名称风格统一。",
+				"release_year": "发布年份"
+			},
+			"brand_search": {
+				"placeholder": "搜索品牌...",
+				"add_brand": "添加品牌",
+				"add_modal": {
+					"title": "添加新品牌",
+					"message": "请输入新品牌的名称：",
+					"confirm": "确定",
+					"cancel": "取消"
+				}
+			},
+			"warnings": {
+				"similar_names_found": "已检索到相似的名称",
+				"check_duplicate": "请确认相机没有被添加过"
+			},
+			"errors": {
+				"name_exists": "该型号已存在"
+			},
+			"buttons": {
+				"add": "添加相机",
+				"adding": "添加中...",
+				"cancel": "取消"
+			},
+			"success": "相机添加成功",
+			"failure": "添加相机失败",
+			"network_error": "网络错误，请重试"
 		},
 		"products": {
 			"title": "已收录{cameraCount}款相机、{cinemaCount}款摄影机",
