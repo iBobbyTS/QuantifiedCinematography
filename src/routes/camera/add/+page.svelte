@@ -130,10 +130,14 @@
 						title: m['camera.add.success'](),
 						iconName: 'mdi:check-circle',
 						iconColor: 'text-green-500',
-						duration: 2000,
+						duration: 3000,
 						showCountdown: true
 					});
-					setTimeout(() => goto('/camera/manage'), 2000);
+					// Reset form
+					brandId = null;
+					modelName = '';
+					releaseYear = currentYear;
+					isCinema = false;
 				} else {
 					toastManager.showToast({
 						title: m['camera.add.failure'](),
@@ -314,14 +318,7 @@
 							</div>
 
 							<!-- Actions -->
-							<div class="flex justify-end space-x-3 pt-4">
-								<button
-									type="button"
-									onclick={() => goto('/camera/manage')}
-									class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-600 dark:hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-								>
-									{m['camera.add.buttons.cancel']()}
-								</button>
+							<div class="flex justify-end pt-4">
 								<button
 									type="submit"
 									disabled={isLoading || !isFormValid}
