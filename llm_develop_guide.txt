@@ -1,36 +1,67 @@
-# SvelteKit + TypeScript 开发指南
+# SvelteKit + TypeScript Development Guide
 
-## 类型导入
-- 使用 `ServerLoad` 而不是 `PageServerLoad`
-- 使用 `Actions` 而不是 `PageActions`
-- 不要导入 `HandleError`，直接定义函数类型
-- 使用 `typeof table.session.$inferInsert` 而不是 `table.Session`
+## Svelte 5 Standards (New)
+
+### Syntax & Runes
+- **State**: Use `$state(initialValue)` instead of `let variable = initialValue`.
+- **Props**: Use `let { prop1, prop2 } = $props<{ prop1: string; prop2?: number }>()` instead of `export let prop1`.
+- **Derived State**: Use `$derived(expression)` instead of `$: variable = expression`.
+- **Side Effects**: Use `$effect(() => { ... })` instead of `$: { ... }` for side effects.
+- **Bindings**: Use `$bindable()` in props for two-way binding.
+
+### Event Handling
+- **Callback Props**: Use callback props (e.g., `onConfirm`, `onChange`) instead of `createEventDispatcher`.
+- **Naming**: Prefix event callback props with `on` (e.g., `onSave`, `onCancel`).
+- **Usage**: Call the function directly: `onSave?.(data)`.
+
+### Theme Management
+- **Global Store**: Use the global theme store: `import { theme } from '$lib/stores/theme.svelte.js'`.
+- **Access**: Use `theme.current` to get the current theme.
+- **Update**: Use `theme.setTheme('light' | 'dark' | 'system')` to change the theme.
+- **No Local Logic**: Do not implement local theme state or logic in individual components.
+
+### Localization (i18n)
+- **Library**: Use Paraglide JS.
+- **Import**: `import * as m from '$lib/paraglide/messages.js'`.
+- **Usage**: Call message functions: `m.hello_world()`.
+- **Parameters**: Pass parameters as an object: `m.welcome_user({ name: 'Bobby' })`.
+
+### Modals & Async Actions
+- **Loading State**: Always implement an `isLoading` prop for modals performing async actions.
+- **Button State**: Disable buttons and show a spinner/loading icon when `isLoading` is true.
+- **Destructuring**: Destructure props with default values in the `$props()` definition.
+
+## Type Imports
+- Use `ServerLoad` instead of `PageServerLoad`.
+- Use `Actions` instead of `PageActions`.
+- Do not import `HandleError`; define the function type directly.
+- Use `typeof table.session.$inferInsert` instead of `table.Session`.
 
 ## API vs Server Actions
-- API端点：使用 `error()` 抛出错误，返回 `json()`
-- Server Actions：使用 `fail()` 返回错误，直接返回对象
-- API端点：`throw error(401, { message: 'Unauthorized' })`
-- Server Actions：`return fail(401, { message: 'Unauthorized' })`
+- **API Endpoints**: Use `error()` to throw errors, return `json()` for success.
+    - Example: `throw error(401, { message: 'Unauthorized' })`
+- **Server Actions**: Use `fail()` to return errors, return plain objects for success.
+    - Example: `return fail(401, { message: 'Unauthorized' })`
 
-## 空值检查
-- 始终检查 `locals.user` 是否为空
-- 使用 `if (!locals.user) { throw error(401, { message: 'Unauthorized' }); }`
+## Null Checks
+- Always check if `locals.user` is null/undefined.
+- Pattern: `if (!locals.user) { throw error(401, { message: 'Unauthorized' }); }`
 
-## 函数参数类型
-- 避免隐式 `any` 类型
-- 明确指定参数类型：`({ error, event }: { error: unknown; event: any })`
+## Function Parameter Types
+- Avoid implicit `any` types.
+- Explicitly specify parameter types: `({ error, event }: { error: unknown; event: any })`.
 
-## 导入语句
-- 确保导入所有使用的函数：`import { error, fail, redirect } from '@sveltejs/kit'`
+## Import Statements
+- Ensure all used functions are imported: `import { error, fail, redirect } from '@sveltejs/kit'`.
 
-## 组件属性
-- 避免使用不存在的组件属性如 `onchange`
-- 使用正确的事件处理方式
+## Component Attributes
+- Avoid using non-existent component attributes (e.g., `onchange` on elements that don't support it, unless it's a custom prop).
+- Use correct event handling syntax.
 
-## 类型引用
-- 避免递归类型引用
-- 使用具体的类型而不是泛型
+## Type References
+- Avoid recursive type references.
+- Use specific types instead of generics where possible.
 
-## 语言类型
-- 使用联合类型而不是字符串：`"en" | "zh-cn"`
-- 避免动态字符串索引类型
+## Language Types
+- Use union types instead of strings: `"en" | "zh-cn"`.
+- Avoid dynamic string index types for language keys.
