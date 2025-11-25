@@ -274,13 +274,21 @@
 
 {#if isOpen}
 	<div class="modal modal-open" class:modal-scrollable={!shouldCenter}>
-		<div class="modal-box modal-smart" style="max-width: 90vw;" bind:this={modalElement}>
-			<h3 class="font-bold text-lg mb-2">{title}</h3>
+		<div
+			class="modal-box modal-smart bg-white dark:bg-base-100 text-gray-900 dark:text-base-content"
+			style="max-width: 90vw;"
+			bind:this={modalElement}
+		>
+			<h3 class="font-bold text-lg mb-2 text-gray-900 dark:text-white">{title}</h3>
 
 			<div class="space-y-4">
 				{#if showDownload}
 					<div class="flex justify-center">
-						<a href={templateEndpoint} class="btn btn-outline w-2/5" download>
+						<a
+							href={templateEndpoint}
+							class="btn btn-outline w-2/5 text-gray-700 dark:text-white"
+							download
+						>
 							<Icon icon="mdi:download" class="mr-2" />
 							{m['modal.download_template']()}
 						</a>
@@ -290,7 +298,9 @@
 				<div class="flex justify-center">
 					<div class="w-2/5">
 						<div class="label">
-							<span class="label-text">{m['modal.select_csv']()}</span>
+							<span class="label-text text-gray-700 dark:text-gray-300"
+								>{m['modal.select_csv']()}</span
+							>
 						</div>
 						<input
 							type="file"
@@ -437,8 +447,10 @@
 				</div>
 
 				{#if instructions.length > 0}
-					<div class="prose prose-sm max-w-none rounded-lg border bg-base-200 p-4">
-						<h4 class="font-bold">{m['modal.instructions']()}</h4>
+					<div
+						class="prose prose-sm max-w-none rounded-lg border bg-gray-50 dark:bg-base-200 p-4 text-gray-600 dark:text-gray-300"
+					>
+						<h4 class="font-bold text-gray-900 dark:text-white">{m['modal.instructions']()}</h4>
 						<ul>
 							{#each instructions as instruction}
 								{@html `<li>${instruction}</li>`}
