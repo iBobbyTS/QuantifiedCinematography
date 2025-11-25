@@ -135,6 +135,7 @@
 			buttons: [
 				{
 					text: m['data_provider_camera.manage_camera.button'](),
+					onClick: () => goto('/camera/manage'),
 					color: 'blue'
 				}
 			],

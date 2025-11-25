@@ -1,5 +1,5 @@
-import { pgTable, serial, text, timestamp, integer, uuid, index, real, pgEnum } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
+import { pgTable, serial, text, timestamp, integer, uuid, index, real, pgEnum, check } from 'drizzle-orm/pg-core';
+import { relations, sql } from 'drizzle-orm';
 
 // Define enums
 export const accessaryTypeEnum = pgEnum('accessary_type', ['reflector', 'fresnel']);
@@ -12,7 +12,7 @@ export const platformTypeEnum = pgEnum('platform_type', ['bilibili', 'zhihu', 'd
 
 // Users table
 export const user = pgTable('users', {
-	id: uuid('id').primaryKey().defaultRandom(),
+	id: uuid('id').primaryKey().defaultRandom().notNull(),
 	username: text('username').notNull().unique(), // For login
 	nickname: text('nickname').notNull(), // For display
 	email: text('email').notNull().unique(), // Company Email
@@ -21,24 +21,35 @@ export const user = pgTable('users', {
 	disabled: integer('disabled').notNull().default(0), // 0=enabled, 1=disabled
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at').defaultNow(),
-  }, (table) => [
+}, (table) => [
 	index('users_username_idx').on(table.username),
 	index('users_email_idx').on(table.email),
 	index('users_permission_idx').on(table.permission),
 	index('users_disabled_idx').on(table.disabled),
+	check("users_id_not_null", sql`NOT NULL id`),
+	check("users_username_not_null", sql`NOT NULL username`),
+	check("users_nickname_not_null", sql`NOT NULL nickname`),
+	check("users_email_not_null", sql`NOT NULL email`),
+	check("users_password_hash_not_null", sql`NOT NULL password_hash`),
+	check("users_permission_not_null", sql`NOT NULL permission`),
+	check("users_disabled_not_null", sql`NOT NULL disabled`),
 ]);
 
 export const session = pgTable('session', {
-	id: text('id').primaryKey(),
+	id: text('id').primaryKey().notNull(),
 	userId: uuid('user_id')
 		.notNull()
 		.references(() => user.id),
 	expiresAt: timestamp('expires_at', { withTimezone: true, mode: 'date' }).notNull()
-});
+}, (table) => [
+	check("session_id_not_null", sql`NOT NULL id`),
+	check("session_user_id_not_null", sql`NOT NULL user_id`),
+	check("session_expires_at_not_null", sql`NOT NULL expires_at`),
+]);
 
 // User public info table
 export const userPublicInfo = pgTable('user_public_info', {
-	id: serial('id').primaryKey(),
+	id: serial('id').primaryKey().notNull(),
 	userId: uuid('user_id').references(() => user.id).notNull(),
 	platform: platformTypeEnum('platform').notNull(),
 	link: text('link').notNull(), // varchar(1024) equivalent
@@ -47,31 +58,39 @@ export const userPublicInfo = pgTable('user_public_info', {
 }, (table) => [
 	index('user_public_info_user_id_idx').on(table.userId),
 	index('user_public_info_platform_idx').on(table.platform),
+	check("user_public_info_id_not_null", sql`NOT NULL id`),
+	check("user_public_info_user_id_not_null", sql`NOT NULL user_id`),
+	check("user_public_info_platform_not_null", sql`NOT NULL platform`),
+	check("user_public_info_link_not_null", sql`NOT NULL link`),
 ]);
 
 // Brand table
 export const brands = pgTable('brands', {
-	id: serial('id').primaryKey(),
+	id: serial('id').primaryKey().notNull(),
 	name: text('name').notNull(), // English name of the brand
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at').defaultNow(),
 }, (table) => [
 	index('brands_name_idx').on(table.name),
+	check("brands_id_not_null", sql`NOT NULL id`),
+	check("brands_name_not_null", sql`NOT NULL name`),
 ]);
-  
-  // Product type table
+
+// Product type table
 export const productTypes = pgTable('product_types', {
-	id: serial('id').primaryKey(),
+	id: serial('id').primaryKey().notNull(),
 	name: text('name').notNull(), // English name of the product type
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at').defaultNow(),
 }, (table) => [
 	index('product_types_name_idx').on(table.name),
+	check("product_types_id_not_null", sql`NOT NULL id`),
+	check("product_types_name_not_null", sql`NOT NULL name`),
 ]);
-  
-  // Product series table
+
+// Product series table
 export const productSeries = pgTable('product_series', {
-	id: serial('id').primaryKey(),
+	id: serial('id').primaryKey().notNull(),
 	name: text('name').notNull(), // English name of the product series
 	brandId: integer('brand_id').references(() => brands.id).notNull(),
 	productTypeId: integer('product_type_id').references(() => productTypes.id).notNull(),
@@ -81,11 +100,15 @@ export const productSeries = pgTable('product_series', {
 	index('product_series_name_idx').on(table.name),
 	index('product_series_brand_id_idx').on(table.brandId),
 	index('product_series_product_type_id_idx').on(table.productTypeId),
+	check("product_series_id_not_null", sql`NOT NULL id`),
+	check("product_series_name_not_null", sql`NOT NULL name`),
+	check("product_series_brand_id_not_null", sql`NOT NULL brand_id`),
+	check("product_series_product_type_id_not_null", sql`NOT NULL product_type_id`),
 ]);
-  
-  // Product light table (merged from products + product_light_info)
+
+// Product light table (merged from products + product_light_info)
 export const productLight = pgTable('product_light', {
-	id: serial('id').primaryKey(),
+	id: serial('id').primaryKey().notNull(),
 	name: text('name').notNull(), // English name of the product
 	seriesId: integer('series_id').references(() => productSeries.id).notNull(),
 	colorType: colorTypeEnum('color_type').notNull(), // Single, Bi, Color
@@ -107,11 +130,19 @@ export const productLight = pgTable('product_light', {
 	index('product_light_light_engine_idx').on(table.lightEngine),
 	index('product_light_form_factor_idx').on(table.formFactor),
 	index('product_light_size_idx').on(table.size),
+	check("product_light_id_not_null", sql`NOT NULL id`),
+	check("product_light_name_not_null", sql`NOT NULL name`),
+	check("product_light_series_id_not_null", sql`NOT NULL series_id`),
+	check("product_light_color_type_not_null", sql`NOT NULL color_type`),
+	check("product_light_light_engine_not_null", sql`NOT NULL light_engine`),
+	check("product_light_form_factor_not_null", sql`NOT NULL form_factor`),
+	check("product_light_size_not_null", sql`NOT NULL size`),
+	check("product_light_modes_available_not_null", sql`NOT NULL modes_available`),
 ]);
 
 // Product light accessory table (merged from products + product_light_accessary_info)
 export const productLightAccessary = pgTable('product_light_accessary', {
-	id: serial('id').primaryKey(),
+	id: serial('id').primaryKey().notNull(),
 	name: text('name').notNull(), // English name of the product
 	seriesId: integer('series_id').references(() => productSeries.id).notNull(),
 	accessaryType: accessaryTypeEnum('accessary_type').notNull(), // reflector, fresnel
@@ -123,21 +154,43 @@ export const productLightAccessary = pgTable('product_light_accessary', {
 	index('product_light_accessary_name_idx').on(table.name),
 	index('product_light_accessary_series_id_idx').on(table.seriesId),
 	index('product_light_accessary_accessary_type_idx').on(table.accessaryType),
+	check("product_light_accessary_id_not_null", sql`NOT NULL id`),
+	check("product_light_accessary_name_not_null", sql`NOT NULL name`),
+	check("product_light_accessary_series_id_not_null", sql`NOT NULL series_id`),
+	check("product_light_accessary_accessary_type_not_null", sql`NOT NULL accessary_type`),
 ]);
-  
-  // Spectrometer table
+
+// Spectrometer table
 export const spectrometer = pgTable('spectrometer', {
-	id: serial('id').primaryKey(),
+	id: serial('id').primaryKey().notNull(),
 	name: text('name').notNull(), // e.g., "Sekonic C-700U", "SpectraVal PULSE", "Integrated Sphere System"
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at').defaultNow(),
 }, (table) => [
 	index('spectrometer_name_idx').on(table.name),
+	check("spectrometer_id_not_null", sql`NOT NULL id`),
+	check("spectrometer_name_not_null", sql`NOT NULL name`),
+]);
+
+// Product camera table
+export const productCameras = pgTable('product_cameras', {
+	id: serial('id').primaryKey().notNull(),
+	name: text('name').notNull(), // Camera name
+	brandId: integer('brand_id').references(() => brands.id).notNull(),
+	releaseYear: integer('release_year'),
+	createdAt: timestamp('created_at').defaultNow(),
+	updatedAt: timestamp('updated_at').defaultNow(),
+}, (table) => [
+	index('product_cameras_name_idx').on(table.name),
+	index('product_cameras_brand_id_idx').on(table.brandId),
+	check("product_cameras_id_not_null", sql`NOT NULL id`),
+	check("product_cameras_name_not_null", sql`NOT NULL name`),
+	check("product_cameras_brand_id_not_null", sql`NOT NULL brand_id`),
 ]);
 
 // Benchmark light white table
 export const benchmarkLightWhite = pgTable('benchmark_light_white', {
-	id: serial('id').primaryKey(),
+	id: serial('id').primaryKey().notNull(),
 	productId: integer('product_id').references(() => productLight.id).notNull(), // product_light.id
 	userId: uuid('user_id').references(() => user.id).notNull(), // user who performed the benchmark
 	spectrometerId: integer('spectrometer_id').references(() => spectrometer.id), // spectrometer used for measurement
@@ -170,80 +223,94 @@ export const benchmarkLightWhite = pgTable('benchmark_light_white', {
 	index('benchmark_light_white_set_cct_idx').on(table.setCct),
 	index('benchmark_light_white_set_int_idx').on(table.setInt),
 	index('benchmark_light_white_accessary_idx').on(table.accessary),
+	check("benchmark_light_white_id_not_null", sql`NOT NULL id`),
+	check("benchmark_light_white_product_id_not_null", sql`NOT NULL product_id`),
+	check("benchmark_light_white_user_id_not_null", sql`NOT NULL user_id`),
+	check("benchmark_light_white_set_int_not_null", sql`NOT NULL set_int`),
+	check("benchmark_light_white_set_cct_not_null", sql`NOT NULL set_cct`),
+	check("benchmark_light_white_set_gm_not_null", sql`NOT NULL set_gm`),
 ]);
-  
-  // Define relations
+
+// Define relations
 export const usersRelations = relations(user, ({ many }) => ({
 	benchmarkLightWhite: many(benchmarkLightWhite),
 	userPublicInfo: many(userPublicInfo),
 }));
-  
+
 export const brandsRelations = relations(brands, ({ many }) => ({
 	productSeries: many(productSeries),
+	productCameras: many(productCameras),
 }));
-  
+
 export const productTypesRelations = relations(productTypes, ({ many }) => ({
 	productSeries: many(productSeries),
 }));
-  
+
 export const productSeriesRelations = relations(productSeries, ({ one, many }) => ({
 	brand: one(brands, {
-	  fields: [productSeries.brandId],
-	  references: [brands.id],
+		fields: [productSeries.brandId],
+		references: [brands.id],
 	}),
 	productType: one(productTypes, {
-	  fields: [productSeries.productTypeId],
-	  references: [productTypes.id],
+		fields: [productSeries.productTypeId],
+		references: [productTypes.id],
 	}),
 	productLights: many(productLight),
 	productLightAccessaries: many(productLightAccessary),
 }));
-  
+
 export const productLightRelations = relations(productLight, ({ one, many }) => ({
 	series: one(productSeries, {
-	  fields: [productLight.seriesId],
-	  references: [productSeries.id],
+		fields: [productLight.seriesId],
+		references: [productSeries.id],
 	}),
 	benchmarkLightWhite: many(benchmarkLightWhite),
 }));
-  
+
 export const productLightAccessaryRelations = relations(productLightAccessary, ({ one, many }) => ({
-series: one(productSeries, {
-	fields: [productLightAccessary.seriesId],
-	references: [productSeries.id],
-}),
+	series: one(productSeries, {
+		fields: [productLightAccessary.seriesId],
+		references: [productSeries.id],
+	}),
 }));
-  
+
 export const spectrometerRelations = relations(spectrometer, ({ many }) => ({
 	benchmarkLightWhite: many(benchmarkLightWhite),
 }));
 
 export const benchmarkLightWhiteRelations = relations(benchmarkLightWhite, ({ one }) => ({
 	product: one(productLight, {
-	  fields: [benchmarkLightWhite.productId],
-	  references: [productLight.id],
+		fields: [benchmarkLightWhite.productId],
+		references: [productLight.id],
 	}),
 	user: one(user, {
-	  fields: [benchmarkLightWhite.userId],
-	  references: [user.id],
+		fields: [benchmarkLightWhite.userId],
+		references: [user.id],
 	}),
 	spectrometer: one(spectrometer, {
-	  fields: [benchmarkLightWhite.spectrometerId],
-	  references: [spectrometer.id],
+		fields: [benchmarkLightWhite.spectrometerId],
+		references: [spectrometer.id],
 	}),
 	accessary: one(productLightAccessary, {
-	  fields: [benchmarkLightWhite.accessary],
-	  references: [productLightAccessary.id],
+		fields: [benchmarkLightWhite.accessary],
+		references: [productLightAccessary.id],
 	}),
 }));
-  
+
 export const userPublicInfoRelations = relations(userPublicInfo, ({ one }) => ({
 	user: one(user, {
-	  fields: [userPublicInfo.userId],
-	  references: [user.id],
+		fields: [userPublicInfo.userId],
+		references: [user.id],
 	}),
 }));
-  
+
+export const productCamerasRelations = relations(productCameras, ({ one }) => ({
+	brand: one(brands, {
+		fields: [productCameras.brandId],
+		references: [brands.id],
+	}),
+}));
+
 // Export types for use in the application
 export type User = typeof user.$inferSelect;
 export type NewUser = typeof user.$inferInsert;
@@ -263,4 +330,5 @@ export type Spectrometer = typeof spectrometer.$inferSelect;
 export type NewSpectrometer = typeof spectrometer.$inferInsert;
 export type BenchmarkLightWhite = typeof benchmarkLightWhite.$inferSelect;
 export type NewBenchmarkLightWhite = typeof benchmarkLightWhite.$inferInsert;
-  
+export type ProductCamera = typeof productCameras.$inferSelect;
+export type NewProductCamera = typeof productCameras.$inferInsert;

@@ -333,6 +333,45 @@
 	},
 	"camera": {
 		"title": "相机/摄影机",
+		"manage": {
+			"title": "管理相机/摄影机",
+			"subtitle": "管理相机和摄影机产品数据",
+			"add_camera": "添加相机",
+			"filter": {
+				"fuzzy_search": "模糊搜索",
+				"search_placeholder": "品牌、名称"
+			},
+			"table": {
+				"brand": "品牌",
+				"name": "名称",
+				"release_year": "发布年份",
+				"actions": "操作"
+			},
+			"actions": {
+				"edit": "编辑",
+				"delete": "删除"
+			},
+			"confirmations": {
+				"delete_title": "删除相机",
+				"delete_message": "确定要删除相机 '{name}' 吗？此操作无法撤销。",
+				"delete_confirm": "删除",
+				"delete_cancel": "取消"
+			},
+			"notifications": {
+				"delete_success": {
+					"title": "相机已删除",
+					"message": "相机 '{name}' 已删除。"
+				},
+				"delete_failure": {
+					"title": "删除相机失败",
+					"message": "相机 '{name}' 未成功删除，错误原因：{error}"
+				}
+			},
+			"empty_state": {
+				"title": "暂无相机",
+				"description": "通过添加新相机开始使用。"
+			}
+		},
 		"products": {
 			"title": "已收录{cameraCount}款相机、{cinemaCount}款摄影机",
 			"button": "浏览所有相机和摄影机"

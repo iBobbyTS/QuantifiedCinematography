@@ -340,7 +340,46 @@
 		}
 	},
 	"camera": {
-		"title": "Camera/Cinema Camera",
+		"title": "Camera/Camcorder",
+		"manage": {
+			"title": "Manage Camera/Camcorder",
+			"subtitle": "Manage camera and camcorder product data",
+			"add_camera": "Add Camera",
+			"filter": {
+				"fuzzy_search": "Fuzzy Search",
+				"search_placeholder": "Brand, Name"
+			},
+			"table": {
+				"brand": "Brand",
+				"name": "Name",
+				"release_year": "Release Year",
+				"actions": "Actions"
+			},
+			"actions": {
+				"edit": "Edit",
+				"delete": "Delete"
+			},
+			"confirmations": {
+				"delete_title": "Delete Camera",
+				"delete_message": "Are you sure you want to delete camera '{name}'? This action cannot be undone.",
+				"delete_confirm": "Delete",
+				"delete_cancel": "Cancel"
+			},
+			"notifications": {
+				"delete_success": {
+					"title": "Camera Deleted",
+					"message": "Camera '{name}' has been deleted."
+				},
+				"delete_failure": {
+					"title": "Failed to Delete Camera",
+					"message": "Failed to delete camera '{name}'. Error: {error}"
+				}
+			},
+			"empty_state": {
+				"title": "No Cameras",
+				"description": "Get started by adding a new camera."
+			}
+		},
 		"products": {
 			"title": "Recorded {cameraCount} cameras, {cinemaCount} cinema cameras",
 			"button": "Browse All Cameras and Cinema Cameras"
