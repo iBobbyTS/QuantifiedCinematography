@@ -13,7 +13,7 @@
 	import * as m from '$lib/paraglide/messages.js';
 	import Dropdown from './Dropdown.svelte';
 	import { ITEMS_PER_PAGE_OPTIONS } from '$lib/constants';
-	
+
 	interface PaginationProps {
 		currentPage: number;
 		totalItems: number;
@@ -111,13 +111,15 @@
 		}
 		onItemsPerPageChange(itemsPerPage);
 	}
-	
+
 	// 为 Dropdown 准备选项
-	let itemsPerPageDropdownOptions = $derived(itemsPerPageOptions.map(opt => ({
-		value: opt.toString(),
-		label: opt.toString()
-	})));
-	
+	let itemsPerPageDropdownOptions = $derived(
+		itemsPerPageOptions.map((opt) => ({
+			value: opt.toString(),
+			label: opt.toString()
+		}))
+	);
+
 	let itemsPerPageValue = $derived(itemsPerPage.toString());
 
 	// 当总数变化时，调整页码
@@ -131,7 +133,11 @@
 
 {#if totalItems > 0}
 	<!-- Pagination Controls -->
-	<div class="flex items-center justify-center space-x-6 overflow-visible {dropdownPosition === 'top' ? 'border-t border-gray-200 dark:border-gray-700 pt-4' : 'border-b border-gray-200 dark:border-gray-700 pb-4'}">
+	<div
+		class="flex items-center justify-center space-x-6 overflow-visible {dropdownPosition === 'top'
+			? 'border-t border-gray-200 dark:border-gray-700 pt-4'
+			: 'border-b border-gray-200 dark:border-gray-700 pb-4'}"
+	>
 		<!-- Pagination buttons -->
 		{#if getTotalPages() > 1}
 			<div class="flex items-center space-x-2">
@@ -149,8 +155,9 @@
 				{#each getPageNumbers() as pageNum}
 					<button
 						onclick={() => goToPage(pageNum)}
-						class="px-3 py-1.5 min-w-[40px] border rounded-md text-sm font-medium transition-colors duration-200 {currentPage === pageNum 
-							? 'bg-blue-600 text-white border-blue-600 dark:bg-blue-500 dark:text-white dark:border-blue-500' 
+						class="px-3 py-1.5 min-w-[40px] border rounded-md text-sm font-medium transition-colors duration-200 {currentPage ===
+						pageNum
+							? 'bg-blue-600 text-white border-blue-600 dark:bg-blue-500 dark:text-white dark:border-blue-500'
 							: 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 hover:border-gray-400 dark:hover:bg-gray-700 dark:hover:border-gray-500'}"
 					>
 						{pageNum}
@@ -172,7 +179,9 @@
 		<!-- Items per page selector -->
 		<div class="flex items-center space-x-2">
 			<span class="text-sm text-gray-600 dark:text-gray-400">
-				{m['administrator.manage_users.pagination.total']()} {totalItems} {m['administrator.manage_users.pagination.items']()}
+				{m['administrator.manage_users.pagination.total']()}
+				{totalItems}
+				{m['administrator.manage_users.pagination.items']()}
 			</span>
 			<span class="text-sm text-gray-700 dark:text-gray-300">
 				{m['administrator.manage_users.pagination.items_per_page']()}
@@ -182,10 +191,9 @@
 				options={itemsPerPageDropdownOptions}
 				placeholder=""
 				widthClass="w-20"
-				dropdownPosition={dropdownPosition}
-				on:change={(e) => handleItemsPerPageChange(e.detail)}
+				{dropdownPosition}
+				onchange={(v) => handleItemsPerPageChange(v)}
 			/>
 		</div>
 	</div>
 {/if}
-

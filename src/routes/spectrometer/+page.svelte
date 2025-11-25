@@ -12,7 +12,7 @@
 
 	// 光谱仪数据 - 创建可修改的本地副本
 	let spectrometers = $state(data.spectrometers);
-	
+
 	// 过滤状态
 	let searchQuery = $state('');
 	let searchTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -45,12 +45,12 @@
 	function handleSearchInput(event: Event) {
 		const target = event.target as HTMLInputElement;
 		searchQuery = target.value;
-		
+
 		// 清除之前的定时器
 		if (searchTimeout) {
 			clearTimeout(searchTimeout);
 		}
-		
+
 		// 设置新的定时器，0.5秒后触发搜索
 		searchTimeout = setTimeout(() => {
 			triggerFilter();
@@ -62,7 +62,7 @@
 		const filterData = {
 			search: searchQuery.trim() || null
 		};
-		
+
 		try {
 			const fd = new FormData();
 			fd.set('payload', JSON.stringify(filterData));
@@ -70,11 +70,11 @@
 				method: 'POST',
 				body: fd
 			});
-			
+
 			if (!response.ok) {
 				throw new Error(`HTTP error! status: ${response.status}`);
 			}
-			
+
 			let success = false;
 			let data: any = null;
 			try {
@@ -88,8 +88,8 @@
 						try {
 							data = devalueParse(data);
 						} catch {
-							try { 
-								data = JSON.parse(data); 
+							try {
+								data = JSON.parse(data);
 							} catch (e) {
 								console.error('Failed to parse data:', e);
 							}
@@ -102,7 +102,7 @@
 			} catch (e) {
 				console.error('Error parsing action envelope:', e);
 			}
-			
+
 			if (success && data) {
 				// 只提取 id 和 name 字段
 				const parsedSpectrometers = (data.spectrometers || []).map((s: any) => ({
@@ -115,7 +115,7 @@
 			console.error('Filter request failed:', error);
 		}
 	}
-	
+
 	// 当 data.spectrometers 变化时更新本地副本
 	$effect(() => {
 		spectrometers = [...data.spectrometers];
@@ -178,12 +178,12 @@
 
 				if (success) {
 					// 更新本地数据
-					const index = spectrometers.findIndex(s => s.id === spectrometerToRename.id);
+					const index = spectrometers.findIndex((s) => s.id === spectrometerToRename.id);
 					if (index !== -1) {
 						spectrometers[index].name = newName.trim();
 					}
 					closeRenameModal();
-					
+
 					// 显示成功 Toast
 					toastManager.showToast({
 						title: m['spectrometer.toasts.rename_success_title'](),
@@ -287,14 +287,14 @@
 				} catch {}
 
 				if (success) {
-					const index = spectrometers.findIndex(s => s.id === spectrometerToDelete.id);
+					const index = spectrometers.findIndex((s) => s.id === spectrometerToDelete.id);
 					if (index !== -1) {
 						spectrometers.splice(index, 1);
 					}
-					
+
 					const deletedName = spectrometerToDelete.name;
 					closeDeleteConfirm();
-					
+
 					// 显示成功 Toast
 					toastManager.showToast({
 						title: m['spectrometer.toasts.delete_success_title'](),
@@ -400,10 +400,10 @@
 					// 保存添加前的名称用于 Toast
 					const addedName = spectrometerName.trim();
 					closeAddModal();
-					
+
 					// 重新加载数据（使用当前的搜索条件）
 					await triggerFilter();
-					
+
 					// 显示成功 Toast
 					toastManager.showToast({
 						title: m['spectrometer.toasts.add_success_title'](),
@@ -462,7 +462,7 @@
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">
 	<!-- Navbar -->
 	<Navbar centerTitle="app.title" showBackButton={true} />
-	
+
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 		<!-- Header -->
 		<div class="mb-8">
@@ -493,7 +493,9 @@
 						<tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
 							<!-- 模糊搜索 -->
 							<tr>
-								<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-20">
+								<td
+									class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-20"
+								>
 									{m['spectrometer.filter.fuzzy_search']()}
 								</td>
 								<td class="px-6 py-4 whitespace-nowrap">
@@ -519,10 +521,14 @@
 					<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
 						<thead class="bg-gray-50 dark:bg-gray-700">
 							<tr>
-								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+								<th
+									class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+								>
 									{m['spectrometer.table.name']()}
 								</th>
-								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+								<th
+									class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+								>
 									{m['spectrometer.table.actions']()}
 								</th>
 							</tr>
@@ -530,10 +536,14 @@
 						<tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
 							{#each spectrometers as spectrometer}
 								<tr>
-									<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+									<td
+										class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white"
+									>
 										{spectrometer.name}
 									</td>
-									<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700 dark:text-gray-200">
+									<td
+										class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700 dark:text-gray-200"
+									>
 										<div class="flex space-x-2">
 											<button
 												onclick={() => openRenameModal(spectrometer)}
@@ -560,7 +570,9 @@
 				{#if spectrometers.length === 0}
 					<div class="text-center py-12">
 						<Icon icon="mdi:spectrometer" class="mx-auto h-12 w-12 text-gray-400" />
-						<h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">{m['spectrometer.empty_state.title']()}</h3>
+						<h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+							{m['spectrometer.empty_state.title']()}
+						</h3>
 						<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
 							{m['spectrometer.empty_state.description']()}
 						</p>
@@ -584,19 +596,22 @@
 <ConfirmModal
 	bind:isOpen={showDeleteConfirm}
 	title={m['spectrometer.confirmations.delete_title']()}
-	message={spectrometerToDelete ? m['spectrometer.confirmations.delete_message']({ name: spectrometerToDelete.name }) : ''}
+	message={spectrometerToDelete
+		? m['spectrometer.confirmations.delete_message']({ name: spectrometerToDelete.name })
+		: ''}
 	confirmText={m['spectrometer.confirmations.delete_confirm']()}
 	cancelText={m['spectrometer.confirmations.delete_cancel']()}
 	confirmButtonColor="bg-red-600 hover:bg-red-700"
 	iconName="mdi:delete-alert"
 	iconColor="text-red-500"
-	on:confirm={confirmDeleteSpectrometer}
-	on:cancel={closeDeleteConfirm}
+	isLoading={isDeleting}
+	onConfirm={confirmDeleteSpectrometer}
+	onCancel={closeDeleteConfirm}
 />
 
 <!-- Rename Modal -->
 {#if showRenameModal && spectrometerToRename}
-	<div 
+	<div
 		class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4"
 		onclick={(e) => e.target === e.currentTarget && closeRenameModal()}
 		onkeydown={(e) => e.key === 'Escape' && closeRenameModal()}
@@ -605,7 +620,9 @@
 		aria-labelledby="rename-modal-title"
 		tabindex="-1"
 	>
-		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full border border-gray-200 dark:border-gray-700">
+		<div
+			class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full border border-gray-200 dark:border-gray-700"
+		>
 			<!-- Header -->
 			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
 				<div class="flex items-center justify-between">
@@ -624,7 +641,10 @@
 
 			<!-- Body -->
 			<div class="px-6 py-4">
-				<label for="spectrometer-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+				<label
+					for="spectrometer-name"
+					class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+				>
 					{m['spectrometer.table.name']()}
 				</label>
 				<input
@@ -639,7 +659,9 @@
 			</div>
 
 			<!-- Footer -->
-			<div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+			<div
+				class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3"
+			>
 				<button
 					onclick={closeRenameModal}
 					disabled={isRenaming}
@@ -666,7 +688,7 @@
 
 <!-- Add Spectrometer Modal -->
 {#if showAddModal}
-	<div 
+	<div
 		class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4"
 		onclick={(e) => e.target === e.currentTarget && closeAddModal()}
 		onkeydown={(e) => e.key === 'Escape' && closeAddModal()}
@@ -675,11 +697,16 @@
 		aria-labelledby="add-spectrometer-modal-title"
 		tabindex="-1"
 	>
-		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full border border-gray-200 dark:border-gray-700">
+		<div
+			class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full border border-gray-200 dark:border-gray-700"
+		>
 			<!-- Header -->
 			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
 				<div class="flex items-center justify-between">
-					<h3 id="add-spectrometer-modal-title" class="text-lg font-medium text-gray-900 dark:text-white">
+					<h3
+						id="add-spectrometer-modal-title"
+						class="text-lg font-medium text-gray-900 dark:text-white"
+					>
 						{m['spectrometer.add_modal.title']()}
 					</h3>
 					<button
@@ -704,12 +731,18 @@
 					placeholder={m['spectrometer.add_modal.input_placeholder']()}
 					disabled={isAdding}
 					class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
-					onkeydown={(e) => { if (e.key === 'Enter' && !isAdding && spectrometerName.trim()) { confirmAddSpectrometer(); } }}
+					onkeydown={(e) => {
+						if (e.key === 'Enter' && !isAdding && spectrometerName.trim()) {
+							confirmAddSpectrometer();
+						}
+					}}
 				/>
 			</div>
 
 			<!-- Footer -->
-			<div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+			<div
+				class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3"
+			>
 				<button
 					onclick={closeAddModal}
 					disabled={isAdding}
@@ -736,4 +769,3 @@
 
 <!-- Toast Manager -->
 <ToastManager bind:this={toastManager} />
-

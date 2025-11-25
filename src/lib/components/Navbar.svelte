@@ -5,6 +5,7 @@
 	import { page } from '$app/stores';
 	import { setLocale, getLocale } from '$lib/paraglide/runtime.js';
 	import Dropdown from '$lib/components/Dropdown.svelte';
+	import { theme } from '$lib/stores/theme.svelte.js';
 
 	// Props
 	let {
@@ -25,9 +26,6 @@
 
 	let currentUser = $derived($page.data?.user ?? null);
 
-	// 主题模式状态
-	let currentTheme = $state('system'); // 'light', 'dark', 'system'
-
 	// 当前语言状态
 	let currentLanguage = $state('en'); // 默认英语
 
@@ -44,56 +42,14 @@
 		{ code: 'system', name: 'system', icon: 'mdi:monitor' }
 	];
 
-	// 应用主题（不保存到 localStorage）
-	function applyTheme(theme: string, saveToStorage: boolean = false) {
-		// 移除所有主题类
-		document.documentElement.classList.remove('light', 'dark');
-
-		if (theme === 'system') {
-			// 跟随系统
-			const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-			if (isSystemDark) {
-				document.documentElement.classList.add('dark');
-			} else {
-				document.documentElement.classList.add('light');
-			}
-		} else {
-			// 手动设置
-			document.documentElement.classList.add(theme);
-		}
-
-		// 根据参数决定是否保存到本地存储
-		if (saveToStorage) {
-			localStorage.setItem('theme', theme);
-		}
-	}
-
-	// 切换主题（用户主动操作）
-	function changeTheme(theme: string) {
-		currentTheme = theme;
-		applyTheme(theme, true);
-	}
-
-	// 获取当前主题的显示名称
-	function getThemeDisplayName(themeCode: string) {
-		return (m as any)['theme.' + themeCode]();
-	}
-
-	// 获取当前主题的图标
-	function getCurrentThemeIcon() {
-		const option = themeOptions.find((t) => t.code === currentTheme);
-		return option ? option.icon : 'mdi:monitor';
-	}
-
 	// 响应式获取主题显示名称
-	let currentThemeDisplayName = $derived((m as any)['theme.' + currentTheme]());
+	let currentThemeDisplayName = $derived((m as any)['theme.' + theme.current]());
 
 	// 响应式获取所有主题选项的本地化名称
 	let themeOptionsLocalized = $derived(
-		themeOptions.map((theme) => ({
-			...theme,
-			localizedName: (m as any)['theme.' + theme.code]()
+		themeOptions.map((t) => ({
+			...t,
+			localizedName: (m as any)['theme.' + t.code]()
 		}))
 	);
 
@@ -111,24 +67,11 @@
 		}
 	}
 
-	// 组件挂载时检查主题设置
+	// 组件挂载时初始化
 	onMount(() => {
 		try {
-			// 检查本地存储的主题设置
-			const savedTheme = localStorage.getItem('theme') || 'system';
-
-			// 设置 currentTheme
-			currentTheme = savedTheme;
-
-			// 检查当前 DOM 是否已经有主题类，如果有则不重新应用
-			const hasThemeClass =
-				document.documentElement.classList.contains('dark') ||
-				document.documentElement.classList.contains('light');
-
-			if (!hasThemeClass) {
-				// 只有在没有主题类时才应用主题
-				applyTheme(savedTheme, false);
-			}
+			// 初始化主题
+			theme.init();
 
 			// 获取当前语言
 			try {
@@ -137,18 +80,8 @@
 				console.error('🌐 获取语言失败:', error);
 				currentLanguage = 'en'; // 默认英语
 			}
-
-			// 监听系统主题变化
-			const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-			mediaQuery.addEventListener('change', (e) => {
-				// 只有在当前主题确实是 'system' 时才响应系统变化
-				if (currentTheme === 'system') {
-					applyTheme('system', false); // 不保存到 localStorage
-				}
-			});
 		} catch (error) {
-			console.error('❌ Failed to check theme:', error);
+			console.error('❌ Failed to init:', error);
 		}
 	});
 </script>
@@ -256,7 +189,7 @@
 							icon: t.icon
 						}))}
 						widthClass="w-36"
-						onchange={(v) => changeTheme(v)}
+						onchange={(v) => theme.setTheme(v as 'light' | 'dark' | 'system')}
 					/>
 				</div>
 			</div>

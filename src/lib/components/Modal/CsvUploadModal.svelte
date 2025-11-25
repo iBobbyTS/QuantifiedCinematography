@@ -372,7 +372,9 @@
 						<Icon icon="mdi:information-outline" class="h-6 w-6 flex-shrink-0" />
 						<div>
 							<h3 class="font-bold">
-								{m['camera.add.batch_add.upload_success']({ filename: uploadResult.file_name })}
+								{m['camera.add.batch_add.upload_success']({
+									filename: uploadResult.file_name || ''
+								})}
 							</h3>
 							<div class="text-sm">
 								{#if uploadResult.added_brands && uploadResult.added_brands.length > 0}
@@ -409,7 +411,7 @@
 												{failedItem.brand}
 												{failedItem.model}
 												<!-- @ts-ignore -->
-												({m[`camera.add.batch_add.errors.${failedItem.reason}`]?.() ||
+												({(m as any)[`camera.add.batch_add.errors.${failedItem.reason}`]?.() ||
 													failedItem.reason})
 											</li>
 										{/each}

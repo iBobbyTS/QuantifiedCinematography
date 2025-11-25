@@ -392,7 +392,7 @@
 	message={m['camera.manage.confirmations.delete_message']({ name: cameraToDelete?.name || '' })}
 	confirmText={m['camera.manage.confirmations.delete_confirm']()}
 	cancelText={m['camera.manage.confirmations.delete_cancel']()}
-	confirmButtonClass="bg-red-600 hover:bg-red-700 focus:ring-red-500"
+	confirmButtonColor="bg-red-600 hover:bg-red-700 focus:ring-red-500"
 	isLoading={isDeleting}
 	onConfirm={confirmDeleteCamera}
 	onCancel={closeDeleteConfirm}

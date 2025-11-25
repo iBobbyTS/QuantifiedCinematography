@@ -13,27 +13,26 @@
 			// 立即设置主题，避免 FOUC
 			(function() {
 				try {
-					const theme = localStorage.getItem('theme');
+					const theme = localStorage.getItem('theme') || 'system';
+					const root = document.documentElement;
 					
-					if (theme === 'dark') {
-						document.documentElement.classList.add('dark');
-					} else if (theme === 'light') {
-						document.documentElement.classList.add('light');
+					let targetTheme = 'light';
+					if (theme === 'system') {
+						targetTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 					} else {
-						// 没有主题设置或主题为 'system'，跟随系统
-						if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-							document.documentElement.classList.add('dark');
-						} else {
-							document.documentElement.classList.add('light');
-						}
+						targetTheme = theme === 'dark' ? 'dark' : 'light';
+					}
+
+					root.setAttribute('data-theme', targetTheme);
+					if (targetTheme === 'dark') {
+						root.classList.add('dark');
+						root.classList.remove('light');
+					} else {
+						root.classList.add('light');
+						root.classList.remove('dark');
 					}
 				} catch (e) {
-					// 如果 localStorage 不可用，使用系统主题
-					if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-						document.documentElement.classList.add('dark');
-					} else {
-						document.documentElement.classList.add('light');
-					}
+					console.error('Theme init error', e);
 				}
 			})();
 		</script>

@@ -21,7 +21,10 @@
 		confirmButtonColor = 'btn-error',
 		showIcon = true,
 		iconName = 'mdi:alert-circle',
-		iconColor = 'text-red-500'
+		iconColor = 'text-red-500',
+		isLoading = false,
+		onConfirm,
+		onCancel
 	} = $props<{
 		isOpen: boolean;
 		title?: string;
@@ -32,20 +35,17 @@
 		showIcon?: boolean;
 		iconName?: string;
 		iconColor?: string;
-	}>();
-
-	const dispatch = createEventDispatcher<{
-		confirm: void;
-		cancel: void;
+		isLoading?: boolean;
+		onConfirm?: () => void;
+		onCancel?: () => void;
 	}>();
 
 	function handleConfirm() {
-		dispatch('confirm');
-		isOpen = false;
+		onConfirm?.();
 	}
 
 	function handleCancel() {
-		dispatch('cancel');
+		onCancel?.();
 		isOpen = false;
 	}
 
@@ -64,7 +64,7 @@
 
 {#if isOpen}
 	<!-- Modal Backdrop -->
-	<div 
+	<div
 		class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4"
 		onclick={handleBackdropClick}
 		onkeydown={handleKeydown}
@@ -74,7 +74,9 @@
 		tabindex="-1"
 	>
 		<!-- Modal Content -->
-		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full border border-gray-200 dark:border-gray-700">
+		<div
+			class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full border border-gray-200 dark:border-gray-700"
+		>
 			<!-- Header -->
 			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
 				<div class="flex items-center space-x-3">
@@ -95,17 +97,24 @@
 			</div>
 
 			<!-- Footer -->
-			<div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+			<div
+				class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3"
+			>
 				<button
 					onclick={handleCancel}
-					class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+					disabled={isLoading}
+					class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
 				>
 					{cancelText}
 				</button>
 				<button
 					onclick={handleConfirm}
-					class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 {confirmButtonColor}"
+					disabled={isLoading}
+					class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 {confirmButtonColor} disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
 				>
+					{#if isLoading}
+						<Icon icon="mdi:loading" class="animate-spin -ml-1 mr-2 h-4 w-4" />
+					{/if}
 					{confirmText}
 				</button>
 			</div>

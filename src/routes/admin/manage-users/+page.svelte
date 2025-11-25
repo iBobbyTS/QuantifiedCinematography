@@ -18,10 +18,10 @@
 	// 用户数据 - 创建可修改的本地副本
 	let users = $state(data.users);
 	let totalUsers = $state(data.users.length); // 总用户数，用于分页组件
-	
+
 	// localStorage key for this page
 	const STORAGE_KEY = 'manage-users-items-per-page';
-	
+
 	// 初始化时从 localStorage 读取每页显示个数
 	let initialItemsPerPage = 5;
 	if (typeof window !== 'undefined') {
@@ -33,16 +33,16 @@
 			}
 		}
 	}
-	
+
 	// 分页状态
 	let currentPage = $state(1);
 	let itemsPerPage = $state(initialItemsPerPage);
 	const itemsPerPageOptions = ITEMS_PER_PAGE_OPTIONS;
-	
+
 	// 排序状态
 	let sortField = $state('status'); // 默认按状态排序
 	let sortDirection = $state<'asc' | 'desc'>('asc'); // 默认升序
-	
+
 	// 过滤状态
 	let searchQuery = $state('');
 	let selectedStatuses = $state(['enabled', 'disabled']); // 默认全选
@@ -82,12 +82,12 @@
 	function handleSearchInput(event: Event) {
 		const target = event.target as HTMLInputElement;
 		searchQuery = target.value;
-		
+
 		// 清除之前的定时器
 		if (searchTimeout) {
 			clearTimeout(searchTimeout);
 		}
-		
+
 		// 设置新的定时器，0.5秒后触发搜索
 		searchTimeout = setTimeout(() => {
 			triggerFilter();
@@ -103,16 +103,16 @@
 	// 权限过滤器变化处理
 	function handlePermissionChange(event: CustomEvent<(string | number)[]>) {
 		const newPermissions = event.detail as string[];
-		
+
 		// 处理互斥逻辑：无权限不能与其他权限同时选择
 		if (newPermissions.includes('none')) {
 			// 如果选择了"无权限"，清除其他权限选择
 			selectedPermissions = ['none'];
 		} else {
 			// 如果选择了其他权限，清除"无权限"选择
-			selectedPermissions = newPermissions.filter(p => p !== 'none');
+			selectedPermissions = newPermissions.filter((p) => p !== 'none');
 		}
-		
+
 		triggerFilter();
 	}
 
@@ -132,10 +132,10 @@
 			sortField = field;
 			sortDirection = 'asc';
 		}
-		
+
 		// 排序后切换到第一页
 		currentPage = 1;
-		
+
 		// 触发过滤（包含排序）
 		triggerFilter();
 	}
@@ -145,7 +145,7 @@
 		const sortedUsers = [...users].sort((a, b) => {
 			let aValue: any;
 			let bValue: any;
-			
+
 			switch (sortField) {
 				case 'status':
 					// 状态排序：enabled < disabled
@@ -172,7 +172,7 @@
 				default:
 					return 0;
 			}
-			
+
 			if (aValue < bValue) {
 				return sortDirection === 'asc' ? -1 : 1;
 			}
@@ -181,7 +181,7 @@
 			}
 			return 0;
 		});
-		
+
 		return sortedUsers;
 	}
 
@@ -214,7 +214,7 @@
 	async function triggerFilter() {
 		const filterData = collectFilterData();
 		console.log('Filter data:', filterData);
-		
+
 		try {
 			const fd = new FormData();
 			fd.set('payload', JSON.stringify(filterData));
@@ -222,11 +222,11 @@
 				method: 'POST',
 				body: fd
 			});
-			
+
 			if (!response.ok) {
 				throw new Error(`HTTP error! status: ${response.status}`);
 			}
-			
+
 			let success = false;
 			let data: any = null;
 			try {
@@ -240,7 +240,9 @@
 						try {
 							data = devalueParse(data);
 						} catch {
-							try { data = JSON.parse(data); } catch {}
+							try {
+								data = JSON.parse(data);
+							} catch {}
 						}
 					}
 				} else if (envelope?.type === 'failure') {
@@ -250,7 +252,7 @@
 			} catch (e) {
 				console.error('Error parsing action envelope:', e);
 			}
-			
+
 			if (success && data) {
 				users = data.users || [];
 				if (data.pagination) {
@@ -262,14 +264,14 @@
 			console.error('Filter request failed:', error);
 		}
 	}
-	
+
 	// 计算分页后的用户列表
 	let paginatedUsers = $derived(() => {
 		const startIndex = (currentPage - 1) * itemsPerPage;
 		const endIndex = startIndex + itemsPerPage;
 		return users.slice(startIndex, endIndex);
 	});
-	
+
 	// 当 data.users 变化时更新本地副本
 	$effect(() => {
 		users = [...data.users];
@@ -288,22 +290,24 @@
 	let showDeleteConfirm = $state(false);
 	let userToDelete: any = $state(null);
 	let isDeleting = $state(false);
-	
+
 	// 重置密码确认弹窗状态
 	let showResetPasswordConfirm = $state(false);
 	let userToResetPassword: any = $state(null);
 	let isResettingPassword = $state(false);
-	
+
 	// 密码显示弹窗状态
 	let showPasswordModal = $state(false);
 	let generatedPassword = $state('');
 	let resetUsername = $state('');
-	
+
 	// Toast 管理器引用
 	let toastManager: ToastManager;
 
 	// 检查编辑对象是否是当前用户
-	let isEditingCurrentUser = $derived(selectedUser && $page.data.user && selectedUser.id === $page.data.user.id);
+	let isEditingCurrentUser = $derived(
+		selectedUser && $page.data.user && selectedUser.id === $page.data.user.id
+	);
 
 	// 检查指定用户是否是当前用户
 	function isCurrentUser(userId: string): boolean {
@@ -313,9 +317,9 @@
 	// 响应式声明：当 originalPermissions 变化时重新初始化
 	$effect(() => {
 		if (originalPermissions !== undefined && !isPermissionModalInitialized) {
-		currentPermissions = originalPermissions;
-		isPermissionModalInitialized = true;
-	}
+			currentPermissions = originalPermissions;
+			isPermissionModalInitialized = true;
+		}
 	});
 
 	// 检查权限是否有变化
@@ -324,7 +328,7 @@
 	// 权限显示函数 - 使用国际化函数，响应语言变化
 	function getPermissionText(permission: number): string {
 		const permissionNames: string[] = [];
-		
+
 		if (UserPermissions.hasLightPermission(permission)) {
 			permissionNames.push(m[PERMISSION_OPTIONS[0].labelKey]());
 		}
@@ -337,8 +341,10 @@
 		if (UserPermissions.hasAdministratorPermission(permission)) {
 			permissionNames.push(m[PERMISSION_OPTIONS[3].labelKey]());
 		}
-		
-		return permissionNames.length > 0 ? permissionNames.join(', ') : m[PERMISSION_I18N_KEYS.permissions.none]();
+
+		return permissionNames.length > 0
+			? permissionNames.join(', ')
+			: m[PERMISSION_I18N_KEYS.permissions.none]();
 	}
 
 	// 添加用户
@@ -374,7 +380,7 @@
 	// 切换权限选择
 	function togglePermission(permission: number) {
 		let newPermissions: number;
-		
+
 		if (permission === USER_PERMISSIONS.ADMINISTRATOR) {
 			// Administrator 权限可以与其他权限组合
 			if (isPermissionSelected(permission)) {
@@ -390,7 +396,7 @@
 				newPermissions = currentPermissions | permission;
 			}
 		}
-		
+
 		// 更新权限并立即计算变化状态
 		currentPermissions = newPermissions;
 	}
@@ -419,7 +425,7 @@
 				try {
 					const envelope = await response.json();
 					console.log('Change permission response:', envelope);
-					
+
 					if (envelope?.type === 'failure') {
 						success = false;
 						// 处理错误消息
@@ -445,13 +451,13 @@
 				}
 
 				if (success) {
-				// 更新 users 数组中对应的用户权限
-				const userIndex = users.findIndex(u => u.id === selectedUser.id);
-				if (userIndex !== -1) {
-					users[userIndex].permission = currentPermissions;
-				}
-				closePermissionModal();
-			} else {
+					// 更新 users 数组中对应的用户权限
+					const userIndex = users.findIndex((u) => u.id === selectedUser.id);
+					if (userIndex !== -1) {
+						users[userIndex].permission = currentPermissions;
+					}
+					closePermissionModal();
+				} else {
 					permissionModalErrorMessage = errorMessage;
 				}
 			} else {
@@ -489,7 +495,7 @@
 	function onPermissionChanged(newPermissions: number) {
 		if (selectedUser) {
 			// 更新 users 数组中对应的用户权限
-			const userIndex = users.findIndex(u => u.id === selectedUser.id);
+			const userIndex = users.findIndex((u) => u.id === selectedUser.id);
 			if (userIndex !== -1) {
 				users[userIndex].permission = newPermissions;
 			}
@@ -502,116 +508,116 @@
 		const isCurrentlyDisabled = user.disabled === 1;
 		const actionText = isCurrentlyDisabled ? 'enable' : 'disable';
 		try {
-				const fd = new FormData();
-				fd.set('userId', user.id);
-				fd.set('disabled', (!isCurrentlyDisabled).toString());
-				
-				const response = await fetch('?/disableUser', {
-					method: 'POST',
-					body: fd
-				});
+			const fd = new FormData();
+			fd.set('userId', user.id);
+			fd.set('disabled', (!isCurrentlyDisabled).toString());
 
-				if (response.ok) {
-					// 解析 action envelope
-					let ok = true;
-					let errorMessage = `Failed to ${actionText} user`;
-					try {
-						const envelope = await response.json();
-						if (envelope?.type === 'failure') {
-							ok = false;
-							// SvelteKit fail() 返回的错误消息在 data 字段中
-							if (envelope.data && typeof envelope.data === 'object' && envelope.data.message) {
-								errorMessage = envelope.data.message;
-							} else if (Array.isArray(envelope.data) && envelope.data.length > 0) {
-								// 处理数组格式的错误消息
-								errorMessage = envelope.data[envelope.data.length - 1];
-							} else if (typeof envelope.data === 'string') {
-								// 处理字符串化的JSON数组格式
-								try {
-									const parsedData = JSON.parse(envelope.data);
-									if (Array.isArray(parsedData) && parsedData.length > 0) {
-										errorMessage = parsedData[parsedData.length - 1];
-									}
-								} catch (e) {
-									// 如果解析失败，使用原始字符串
-									errorMessage = envelope.data;
-								}
-							}
-						} else if (envelope?.type === 'success') {
-							ok = true;
-						}
-					} catch {}
-					
-					if (ok) {
-						// 更新本地用户状态
-						const userIndex = users.findIndex(u => u.id === user.id);
-						if (userIndex !== -1) {
-							users[userIndex].disabled = isCurrentlyDisabled ? 0 : 1;
-						}
-						
-						// 显示成功 Toast
-						toastManager.showToast({
-							title: m['administrator.manage_users.notifications.disable_success.title'](),
-							message: m['administrator.manage_users.notifications.disable_success.message']({ 
-								username: user.username,
-								action: isCurrentlyDisabled ? 'enabled' : 'disabled'
-							}),
-							iconName: 'mdi:check-circle',
-							iconColor: 'text-green-500',
-							duration: 3000,
-							showCountdown: true
-						});
-						closeDisableConfirm();
-						return;
-					} else {
-						// 处理 SvelteKit 服务器动作失败
-						toastManager.showToast({
-							title: m['administrator.manage_users.notifications.disable_failure.title'](),
-							message: m['administrator.manage_users.notifications.disable_failure.message']({ 
-								username: user.username, 
-								error: errorMessage 
-							}),
-							iconName: 'mdi:alert-circle',
-							iconColor: 'text-red-500',
-							duration: 5000,
-							showCountdown: true
-						});
-						return;
-					}
-				}
-				// 非 2xx 响应
-				let msg = `Failed to ${actionText} user`;
+			const response = await fetch('?/disableUser', {
+				method: 'POST',
+				body: fd
+			});
+
+			if (response.ok) {
+				// 解析 action envelope
+				let ok = true;
+				let errorMessage = `Failed to ${actionText} user`;
 				try {
-					const data = await response.json();
-					msg = data?.message || msg;
+					const envelope = await response.json();
+					if (envelope?.type === 'failure') {
+						ok = false;
+						// SvelteKit fail() 返回的错误消息在 data 字段中
+						if (envelope.data && typeof envelope.data === 'object' && envelope.data.message) {
+							errorMessage = envelope.data.message;
+						} else if (Array.isArray(envelope.data) && envelope.data.length > 0) {
+							// 处理数组格式的错误消息
+							errorMessage = envelope.data[envelope.data.length - 1];
+						} else if (typeof envelope.data === 'string') {
+							// 处理字符串化的JSON数组格式
+							try {
+								const parsedData = JSON.parse(envelope.data);
+								if (Array.isArray(parsedData) && parsedData.length > 0) {
+									errorMessage = parsedData[parsedData.length - 1];
+								}
+							} catch (e) {
+								// 如果解析失败，使用原始字符串
+								errorMessage = envelope.data;
+							}
+						}
+					} else if (envelope?.type === 'success') {
+						ok = true;
+					}
 				} catch {}
-				// 显示错误 Toast
-				toastManager.showToast({
-					title: m['administrator.manage_users.notifications.disable_failure.title'](),
-					message: m['administrator.manage_users.notifications.disable_failure.message']({ 
-						username: user.username, 
-						error: msg 
-					}),
-					iconName: 'mdi:alert-circle',
-					iconColor: 'text-red-500',
-					duration: 5000,
-					showCountdown: true
-				});
-			} catch (error) {
-				console.error('Error updating user disable status:', error);
-				// 显示网络错误 Toast
-				toastManager.showToast({
-					title: m['administrator.manage_users.notifications.disable_failure.title'](),
-					message: m['administrator.manage_users.notifications.disable_failure.message']({ 
-						username: user.username, 
-						error: 'Network error occurred while updating user status' 
-					}),
-					iconName: 'mdi:alert-circle',
-					iconColor: 'text-red-500',
-					duration: 5000,
-					showCountdown: true
-				});
+
+				if (ok) {
+					// 更新本地用户状态
+					const userIndex = users.findIndex((u) => u.id === user.id);
+					if (userIndex !== -1) {
+						users[userIndex].disabled = isCurrentlyDisabled ? 0 : 1;
+					}
+
+					// 显示成功 Toast
+					toastManager.showToast({
+						title: m['administrator.manage_users.notifications.disable_success.title'](),
+						message: m['administrator.manage_users.notifications.disable_success.message']({
+							username: user.username,
+							action: isCurrentlyDisabled ? 'enabled' : 'disabled'
+						}),
+						iconName: 'mdi:check-circle',
+						iconColor: 'text-green-500',
+						duration: 3000,
+						showCountdown: true
+					});
+					closeDisableConfirm();
+					return;
+				} else {
+					// 处理 SvelteKit 服务器动作失败
+					toastManager.showToast({
+						title: m['administrator.manage_users.notifications.disable_failure.title'](),
+						message: m['administrator.manage_users.notifications.disable_failure.message']({
+							username: user.username,
+							error: errorMessage
+						}),
+						iconName: 'mdi:alert-circle',
+						iconColor: 'text-red-500',
+						duration: 5000,
+						showCountdown: true
+					});
+					return;
+				}
 			}
+			// 非 2xx 响应
+			let msg = `Failed to ${actionText} user`;
+			try {
+				const data = await response.json();
+				msg = data?.message || msg;
+			} catch {}
+			// 显示错误 Toast
+			toastManager.showToast({
+				title: m['administrator.manage_users.notifications.disable_failure.title'](),
+				message: m['administrator.manage_users.notifications.disable_failure.message']({
+					username: user.username,
+					error: msg
+				}),
+				iconName: 'mdi:alert-circle',
+				iconColor: 'text-red-500',
+				duration: 5000,
+				showCountdown: true
+			});
+		} catch (error) {
+			console.error('Error updating user disable status:', error);
+			// 显示网络错误 Toast
+			toastManager.showToast({
+				title: m['administrator.manage_users.notifications.disable_failure.title'](),
+				message: m['administrator.manage_users.notifications.disable_failure.message']({
+					username: user.username,
+					error: 'Network error occurred while updating user status'
+				}),
+				iconName: 'mdi:alert-circle',
+				iconColor: 'text-red-500',
+				duration: 5000,
+				showCountdown: true
+			});
+		}
 	}
 
 	// 打开删除确认弹窗
@@ -660,7 +666,7 @@
 			const response = await fetch('/api/admin/user/reset-password', {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json',
+					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
 					userId: userToResetPassword.id
@@ -671,20 +677,20 @@
 				const data = await response.json();
 				generatedPassword = data.password;
 				resetUsername = userToResetPassword.username;
-				
+
 				// 关闭确认弹窗，打开密码显示弹窗
 				closeResetPasswordConfirm();
 				showPasswordModal = true;
 			} else {
 				const errorData = await response.json();
 				const errorMessage = errorData.message || 'Failed to reset password';
-				
+
 				// 显示错误 Toast
 				toastManager.showToast({
 					title: m['administrator.manage_users.notifications.reset_password_failure.title'](),
-					message: m['administrator.manage_users.notifications.reset_password_failure.message']({ 
-						username: userToResetPassword.username, 
-						error: errorMessage 
+					message: m['administrator.manage_users.notifications.reset_password_failure.message']({
+						username: userToResetPassword.username,
+						error: errorMessage
 					}),
 					iconName: 'mdi:alert-circle',
 					iconColor: 'text-red-500',
@@ -697,9 +703,9 @@
 			// 显示网络错误 Toast
 			toastManager.showToast({
 				title: m['administrator.manage_users.notifications.reset_password_failure.title'](),
-				message: m['administrator.manage_users.notifications.reset_password_failure.message']({ 
-					username: userToResetPassword.username, 
-					error: 'Network error occurred while resetting password' 
+				message: m['administrator.manage_users.notifications.reset_password_failure.message']({
+					username: userToResetPassword.username,
+					error: 'Network error occurred while resetting password'
 				}),
 				iconName: 'mdi:alert-circle',
 				iconColor: 'text-red-500',
@@ -755,35 +761,37 @@
 						ok = true;
 					}
 				} catch {}
-				
+
 				if (ok) {
-				const userIndex = users.findIndex(u => u.id === userToDelete.id);
-				if (userIndex !== -1) {
-					users.splice(userIndex, 1);
-				}
-					
+					const userIndex = users.findIndex((u) => u.id === userToDelete.id);
+					if (userIndex !== -1) {
+						users.splice(userIndex, 1);
+					}
+
 					// 在关闭确认弹窗前保存用户名
 					const deletedUsername = userToDelete.username;
-				closeDeleteConfirm();
-					
+					closeDeleteConfirm();
+
 					// 显示成功 Toast
 					toastManager.showToast({
 						title: m['administrator.manage_users.notifications.delete_success.title'](),
-						message: m['administrator.manage_users.notifications.delete_success.message']({ username: deletedUsername }),
+						message: m['administrator.manage_users.notifications.delete_success.message']({
+							username: deletedUsername
+						}),
 						iconName: 'mdi:check-circle',
 						iconColor: 'text-green-500',
 						duration: 3000,
 						showCountdown: true
 					});
 					return;
-			} else {
+				} else {
 					// 处理 SvelteKit 服务器动作失败
 					const failedUsername = userToDelete?.username || 'Unknown';
 					toastManager.showToast({
 						title: m['administrator.manage_users.notifications.delete_failure.title'](),
-						message: m['administrator.manage_users.notifications.delete_failure.message']({ 
-							username: failedUsername, 
-							error: errorMessage 
+						message: m['administrator.manage_users.notifications.delete_failure.message']({
+							username: failedUsername,
+							error: errorMessage
 						}),
 						iconName: 'mdi:alert-circle',
 						iconColor: 'text-red-500',
@@ -803,9 +811,9 @@
 			const failedUsername = userToDelete?.username || 'Unknown';
 			toastManager.showToast({
 				title: m['administrator.manage_users.notifications.delete_failure.title'](),
-				message: m['administrator.manage_users.notifications.delete_failure.message']({ 
-					username: failedUsername, 
-					error: msg 
+				message: m['administrator.manage_users.notifications.delete_failure.message']({
+					username: failedUsername,
+					error: msg
 				}),
 				iconName: 'mdi:alert-circle',
 				iconColor: 'text-red-500',
@@ -818,9 +826,9 @@
 			const networkFailedUsername = userToDelete?.username || 'Unknown';
 			toastManager.showToast({
 				title: m['administrator.manage_users.notifications.delete_failure.title'](),
-				message: m['administrator.manage_users.notifications.delete_failure.message']({ 
-					username: networkFailedUsername, 
-					error: 'Network error occurred while deleting user' 
+				message: m['administrator.manage_users.notifications.delete_failure.message']({
+					username: networkFailedUsername,
+					error: 'Network error occurred while deleting user'
 				}),
 				iconName: 'mdi:alert-circle',
 				iconColor: 'text-red-500',
@@ -831,7 +839,6 @@
 			isDeleting = false;
 		}
 	}
-
 </script>
 
 <svelte:head>
@@ -841,7 +848,7 @@
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">
 	<!-- Navbar -->
 	<Navbar centerTitle="app.title" showBackButton={true} />
-	
+
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 		<!-- Header -->
 		<div class="mb-8">
@@ -873,7 +880,9 @@
 						<tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
 							<!-- 第一行：模糊搜索 -->
 							<tr>
-								<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-20">
+								<td
+									class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-20"
+								>
 									{m['administrator.manage_users.filter.fuzzy_search']()}
 								</td>
 								<td class="px-6 py-4 whitespace-nowrap">
@@ -886,10 +895,12 @@
 									/>
 								</td>
 							</tr>
-							
+
 							<!-- 第二行：状态过滤 -->
 							<tr>
-								<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-20">
+								<td
+									class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-20"
+								>
 									{m['administrator.manage_users.table.status']()}
 								</td>
 								<td class="px-6 py-4 whitespace-nowrap">
@@ -901,7 +912,8 @@
 													class="checkbox checkbox-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400"
 													bind:group={selectedStatuses}
 													value={option.value}
-													onchange={() => handleStatusChange({ detail: selectedStatuses } as CustomEvent)}
+													onchange={() =>
+														handleStatusChange({ detail: selectedStatuses } as CustomEvent)}
 												/>
 												<span class="text-sm text-gray-700 dark:text-gray-300">{option.label}</span>
 											</label>
@@ -909,10 +921,12 @@
 									</div>
 								</td>
 							</tr>
-							
+
 							<!-- 第三行：权限过滤 -->
 							<tr>
-								<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-20">
+								<td
+									class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-20"
+								>
 									{m['administrator.manage_users.table.permissions']()}
 								</td>
 								<td class="px-6 py-4 whitespace-nowrap">
@@ -922,25 +936,31 @@
 											<div class="btn-group">
 												<button
 													type="button"
-													class="btn btn-sm {permissionMatchMode === 'any' 
-														? 'btn-active bg-blue-600 dark:bg-blue-500 text-white dark:text-white border-blue-600 dark:border-blue-500 shadow-md dark:shadow-blue-500/25' 
+													class="btn btn-sm {permissionMatchMode === 'any'
+														? 'btn-active bg-blue-600 dark:bg-blue-500 text-white dark:text-white border-blue-600 dark:border-blue-500 shadow-md dark:shadow-blue-500/25'
 														: 'btn-outline text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-300'} transition-all duration-200"
-													onclick={() => { permissionMatchMode = 'any'; handlePermissionMatchModeChange({ detail: 'any' } as CustomEvent); }}
+													onclick={() => {
+														permissionMatchMode = 'any';
+														handlePermissionMatchModeChange({ detail: 'any' } as CustomEvent);
+													}}
 												>
 													{m['administrator.manage_users.permission_modal.filter.any']()}
 												</button>
 												<button
 													type="button"
-													class="btn btn-sm {permissionMatchMode === 'all' 
-														? 'btn-active bg-blue-600 dark:bg-blue-500 text-white dark:text-white border-blue-600 dark:border-blue-500 shadow-md dark:shadow-blue-500/25' 
+													class="btn btn-sm {permissionMatchMode === 'all'
+														? 'btn-active bg-blue-600 dark:bg-blue-500 text-white dark:text-white border-blue-600 dark:border-blue-500 shadow-md dark:shadow-blue-500/25'
 														: 'btn-outline text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-300'} transition-all duration-200"
-													onclick={() => { permissionMatchMode = 'all'; handlePermissionMatchModeChange({ detail: 'all' } as CustomEvent); }}
+													onclick={() => {
+														permissionMatchMode = 'all';
+														handlePermissionMatchModeChange({ detail: 'all' } as CustomEvent);
+													}}
 												>
 													{m['administrator.manage_users.permission_modal.filter.all']()}
 												</button>
 											</div>
 										</div>
-										
+
 										<!-- 权限选项 -->
 										<div class="flex flex-wrap gap-3">
 											{#each permissionOptions as option}
@@ -950,9 +970,14 @@
 														class="checkbox checkbox-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400"
 														bind:group={selectedPermissions}
 														value={option.value}
-														onchange={() => handlePermissionChange({ detail: selectedPermissions } as CustomEvent)}
+														onchange={() =>
+															handlePermissionChange({
+																detail: selectedPermissions
+															} as CustomEvent)}
 													/>
-													<span class="text-sm text-gray-700 dark:text-gray-300">{option.label}</span>
+													<span class="text-sm text-gray-700 dark:text-gray-300"
+														>{option.label}</span
+													>
 												</label>
 											{/each}
 										</div>
@@ -969,11 +994,11 @@
 		{#if totalUsers > 0}
 			<div class="mb-4">
 				<Pagination
-					bind:currentPage={currentPage}
-					bind:itemsPerPage={itemsPerPage}
+					bind:currentPage
+					bind:itemsPerPage
 					totalItems={totalUsers}
 					storageKey={STORAGE_KEY}
-					itemsPerPageOptions={itemsPerPageOptions}
+					{itemsPerPageOptions}
 					dropdownPosition="bottom"
 				/>
 			</div>
@@ -986,57 +1011,89 @@
 					<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
 						<thead class="bg-gray-50 dark:bg-gray-700">
 							<tr>
-								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors" onclick={() => handleSort('username')}>
+								<th
+									class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+									onclick={() => handleSort('username')}
+								>
 									<div class="flex items-center gap-1">
 										{m['administrator.manage_users.table.username']()}
 										{#if sortField === 'username'}
-											<Icon icon={sortDirection === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'} class="w-3 h-3" />
+											<Icon
+												icon={sortDirection === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'}
+												class="w-3 h-3"
+											/>
 										{:else}
 											<Icon icon="mdi:unfold-more-horizontal" class="w-3 h-3 opacity-50" />
 										{/if}
 									</div>
 								</th>
-								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors" onclick={() => handleSort('nickname')}>
+								<th
+									class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+									onclick={() => handleSort('nickname')}
+								>
 									<div class="flex items-center gap-1">
 										{m['administrator.manage_users.table.nickname']()}
 										{#if sortField === 'nickname'}
-											<Icon icon={sortDirection === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'} class="w-3 h-3" />
+											<Icon
+												icon={sortDirection === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'}
+												class="w-3 h-3"
+											/>
 										{:else}
 											<Icon icon="mdi:unfold-more-horizontal" class="w-3 h-3 opacity-50" />
 										{/if}
 									</div>
 								</th>
-								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors" onclick={() => handleSort('email')}>
+								<th
+									class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+									onclick={() => handleSort('email')}
+								>
 									<div class="flex items-center gap-1">
 										{m['administrator.manage_users.table.email']()}
 										{#if sortField === 'email'}
-											<Icon icon={sortDirection === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'} class="w-3 h-3" />
+											<Icon
+												icon={sortDirection === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'}
+												class="w-3 h-3"
+											/>
 										{:else}
 											<Icon icon="mdi:unfold-more-horizontal" class="w-3 h-3 opacity-50" />
 										{/if}
 									</div>
 								</th>
-								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors" onclick={() => handleSort('permission')}>
+								<th
+									class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+									onclick={() => handleSort('permission')}
+								>
 									<div class="flex items-center gap-1">
 										{m['administrator.manage_users.table.permissions']()}
 										{#if sortField === 'permission'}
-											<Icon icon={sortDirection === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'} class="w-3 h-3" />
+											<Icon
+												icon={sortDirection === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'}
+												class="w-3 h-3"
+											/>
 										{:else}
 											<Icon icon="mdi:unfold-more-horizontal" class="w-3 h-3 opacity-50" />
 										{/if}
 									</div>
 								</th>
-								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors" onclick={() => handleSort('status')}>
+								<th
+									class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+									onclick={() => handleSort('status')}
+								>
 									<div class="flex items-center gap-1">
 										{m['administrator.manage_users.table.status']()}
 										{#if sortField === 'status'}
-											<Icon icon={sortDirection === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'} class="w-3 h-3" />
+											<Icon
+												icon={sortDirection === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'}
+												class="w-3 h-3"
+											/>
 										{:else}
 											<Icon icon="mdi:unfold-more-horizontal" class="w-3 h-3 opacity-50" />
 										{/if}
 									</div>
 								</th>
-								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+								<th
+									class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+								>
 									{m['administrator.manage_users.table.actions']()}
 								</th>
 							</tr>
@@ -1044,7 +1101,9 @@
 						<tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
 							{#each paginatedUsers() as user}
 								<tr>
-									<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+									<td
+										class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white"
+									>
 										{user.username}
 									</td>
 									<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
@@ -1063,17 +1122,31 @@
 										</button>
 									</td>
 									<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-											<button
-						onclick={() => openDisableConfirm(user)}
+										<button
+											onclick={() => openDisableConfirm(user)}
 											disabled={isCurrentUser(user.id)}
-											class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 {user.disabled === 1 ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800' : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800'}"
-											title={isCurrentUser(user.id) ? m['administrator.manage_users.actions.cannot_disable_self']() : (user.disabled === 1 ? m['administrator.manage_users.actions.enable_user']() : m['administrator.manage_users.actions.disable_user']())}
+											class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 {user.disabled ===
+											1
+												? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800'
+												: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800'}"
+											title={isCurrentUser(user.id)
+												? m['administrator.manage_users.actions.cannot_disable_self']()
+												: user.disabled === 1
+													? m['administrator.manage_users.actions.enable_user']()
+													: m['administrator.manage_users.actions.disable_user']()}
 										>
-											<Icon icon={user.disabled === 1 ? "mdi:account-off" : "mdi:account-check"} class="w-3 h-3 mr-1" />
-											{user.disabled === 1 ? m['administrator.manage_users.table.disabled']() : m['administrator.manage_users.table.enabled']()}
+											<Icon
+												icon={user.disabled === 1 ? 'mdi:account-off' : 'mdi:account-check'}
+												class="w-3 h-3 mr-1"
+											/>
+											{user.disabled === 1
+												? m['administrator.manage_users.table.disabled']()
+												: m['administrator.manage_users.table.enabled']()}
 										</button>
 									</td>
-									<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700 dark:text-gray-200">
+									<td
+										class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700 dark:text-gray-200"
+									>
 										<div class="flex space-x-2">
 											<button
 												onclick={() => openResetPasswordConfirm(user)}
@@ -1086,7 +1159,9 @@
 												onclick={() => openDeleteConfirm(user)}
 												disabled={isCurrentUser(user.id)}
 												class="p-2 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-red-600 dark:disabled:hover:text-red-400"
-												title={isCurrentUser(user.id) ? m['administrator.manage_users.actions.cannot_delete_self']() : m['administrator.manage_users.actions.delete_user']()}
+												title={isCurrentUser(user.id)
+													? m['administrator.manage_users.actions.cannot_delete_self']()
+													: m['administrator.manage_users.actions.delete_user']()}
 											>
 												<Icon icon="mdi:delete" class="w-5 h-5" />
 											</button>
@@ -1101,9 +1176,11 @@
 				{#if users.length === 0}
 					<div class="text-center py-12">
 						<Icon icon="mdi:account-group" class="mx-auto h-12 w-12 text-gray-400" />
-					<h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">{m['administrator.manage_users.empty_state.title']()}</h3>
+						<h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+							{m['administrator.manage_users.empty_state.title']()}
+						</h3>
 						<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-						{m['administrator.manage_users.empty_state.description']()}
+							{m['administrator.manage_users.empty_state.description']()}
 						</p>
 						<div class="mt-6">
 							<button
@@ -1111,23 +1188,23 @@
 								class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-500 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-400 dark:hover:border-blue-500"
 							>
 								<Icon icon="mdi:plus" class="w-4 h-4 mr-2" />
-							{m['administrator.manage_users.add_user']()}
+								{m['administrator.manage_users.add_user']()}
 							</button>
 						</div>
 					</div>
 				{/if}
 			</div>
 		</div>
-		
+
 		<!-- Pagination Component - Outside table container to allow dropdown to show -->
 		{#if totalUsers > 0}
 			<div class="mt-4">
 				<Pagination
-					bind:currentPage={currentPage}
-					bind:itemsPerPage={itemsPerPage}
+					bind:currentPage
+					bind:itemsPerPage
 					totalItems={totalUsers}
 					storageKey={STORAGE_KEY}
-					itemsPerPageOptions={itemsPerPageOptions}
+					{itemsPerPageOptions}
 					dropdownPosition="top"
 				/>
 			</div>
@@ -1138,7 +1215,7 @@
 <!-- Permission Modal -->
 {#if showPermissionModal && selectedUser}
 	<!-- Modal Backdrop -->
-	<div 
+	<div
 		class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4"
 		onclick={handlePermissionModalBackgroundClick}
 		onkeydown={(e) => e.key === 'Escape' && handlePermissionModalClose()}
@@ -1148,7 +1225,9 @@
 		tabindex="-1"
 	>
 		<!-- Modal Content -->
-		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700">
+		<div
+			class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700"
+		>
 			<!-- Header -->
 			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
 				<div class="flex items-center justify-between">
@@ -1164,7 +1243,10 @@
 					</button>
 				</div>
 				<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-					{m[PERMISSION_I18N_KEYS.modal.userInfo]({ nickname: selectedUser.nickname, username: selectedUser.username })}
+					{m[PERMISSION_I18N_KEYS.modal.userInfo]({
+						nickname: selectedUser.nickname,
+						username: selectedUser.username
+					})}
 				</p>
 			</div>
 
@@ -1188,14 +1270,19 @@
 								type="checkbox"
 								checked={isPermissionSelected(option.permission)}
 								onchange={() => togglePermission(option.permission)}
-								disabled={isPermissionModalLoading || (isEditingCurrentUser && option.permission === USER_PERMISSIONS.ADMINISTRATOR)}
+								disabled={isPermissionModalLoading ||
+									(isEditingCurrentUser && option.permission === USER_PERMISSIONS.ADMINISTRATOR)}
 								class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
 							/>
 							<div class="flex-1">
 								<div class="text-sm font-medium text-gray-900 dark:text-white">
 									{m[option.labelKey]()}
 									{#if isEditingCurrentUser && option.permission === USER_PERMISSIONS.ADMINISTRATOR}
-										<span class="text-xs text-gray-500 dark:text-gray-400 ml-1">{m[PERMISSION_I18N_KEYS.modal.permissionOptions.administrator.cannotModifyOwn]()}</span>
+										<span class="text-xs text-gray-500 dark:text-gray-400 ml-1"
+											>{m[
+												PERMISSION_I18N_KEYS.modal.permissionOptions.administrator.cannotModifyOwn
+											]()}</span
+										>
 									{/if}
 								</div>
 								<div class="text-xs text-gray-500 dark:text-gray-400">
@@ -1208,7 +1295,9 @@
 			</div>
 
 			<!-- Footer -->
-			<div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+			<div
+				class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3"
+			>
 				<button
 					onclick={handlePermissionModalClose}
 					disabled={isPermissionModalLoading}
@@ -1237,34 +1326,57 @@
 <ConfirmModal
 	bind:isOpen={showDeleteConfirm}
 	title={m['administrator.manage_users.confirmations.delete_user_title']()}
-	message={userToDelete ? m['administrator.manage_users.confirmations.delete_user_message']({ username: userToDelete.username, nickname: userToDelete.nickname }) : ''}
+	message={userToDelete
+		? m['administrator.manage_users.confirmations.delete_user_message']({
+				username: userToDelete.username,
+				nickname: userToDelete.nickname
+			})
+		: ''}
 	confirmText={m['administrator.manage_users.confirmations.delete_confirm']()}
 	cancelText={m['administrator.manage_users.confirmations.delete_cancel']()}
-	confirmButtonColor="bg-red-600 hover:bg-red-700"
+	confirmButtonColor="bg-red-600 hover:bg-red-700 focus:ring-red-500"
 	iconName="mdi:delete-alert"
 	iconColor="text-red-500"
-	on:confirm={confirmDeleteUser}
-	on:cancel={closeDeleteConfirm}
+	isLoading={isDeleting}
+	onConfirm={confirmDeleteUser}
+	onCancel={closeDeleteConfirm}
 />
 
 <!-- Disable/Enable Confirmation Modal -->
 <ConfirmModal
 	bind:isOpen={showDisableConfirm}
-	title={userToDisable?.disabled === 1 ? m['administrator.manage_users.confirmations.enable_user_title']() : m['administrator.manage_users.confirmations.disable_user_title']()}
-	message={userToDisable ? (userToDisable.disabled === 1 ? m['administrator.manage_users.confirmations.enable_user_message']({ username: userToDisable.username, nickname: userToDisable.nickname }) : m['administrator.manage_users.confirmations.disable_user_message']({ username: userToDisable.username, nickname: userToDisable.nickname })) : ''}
-	confirmText={userToDisable?.disabled === 1 ? m['administrator.manage_users.confirmations.enable_confirm']() : m['administrator.manage_users.confirmations.disable_confirm']()}
+	title={userToDisable?.disabled === 1
+		? m['administrator.manage_users.confirmations.enable_user_title']()
+		: m['administrator.manage_users.confirmations.disable_user_title']()}
+	message={userToDisable
+		? userToDisable.disabled === 1
+			? m['administrator.manage_users.confirmations.enable_user_message']({
+					username: userToDisable.username,
+					nickname: userToDisable.nickname
+				})
+			: m['administrator.manage_users.confirmations.disable_user_message']({
+					username: userToDisable.username,
+					nickname: userToDisable.nickname
+				})
+		: ''}
+	confirmText={userToDisable?.disabled === 1
+		? m['administrator.manage_users.confirmations.enable_confirm']()
+		: m['administrator.manage_users.confirmations.disable_confirm']()}
 	cancelText={m[PERMISSION_I18N_KEYS.modal.buttons.cancel]()}
-	confirmButtonColor={userToDisable && userToDisable.disabled === 1 ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}
-	iconName={userToDisable && userToDisable.disabled === 1 ? 'mdi:account-check' : 'mdi:account-cancel'}
+	confirmButtonColor="bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500"
+	iconName={userToDisable && userToDisable.disabled === 1
+		? 'mdi:account-check'
+		: 'mdi:account-cancel'}
 	iconColor={userToDisable && userToDisable.disabled === 1 ? 'text-green-500' : 'text-red-500'}
-	on:confirm={() => userToDisable && disableUser(userToDisable)}
-	on:cancel={closeDisableConfirm}
+	isLoading={false}
+	onConfirm={() => userToDisable && disableUser(userToDisable)}
+	onCancel={closeDisableConfirm}
 />
 
 <!-- Reset Password Confirmation Modal -->
 {#if showResetPasswordConfirm && userToResetPassword}
 	<!-- Modal Backdrop -->
-	<div 
+	<div
 		class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4"
 		onclick={(e) => e.target === e.currentTarget && closeResetPasswordConfirm()}
 		onkeydown={(e) => e.key === 'Escape' && closeResetPasswordConfirm()}
@@ -1274,12 +1386,17 @@
 		tabindex="-1"
 	>
 		<!-- Modal Content -->
-		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full border border-gray-200 dark:border-gray-700">
+		<div
+			class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full border border-gray-200 dark:border-gray-700"
+		>
 			<!-- Header -->
 			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
 				<div class="flex items-center space-x-3">
 					<Icon icon="mdi:key" class="w-6 h-6 text-blue-500" />
-					<h3 id="reset-password-modal-title" class="text-lg font-medium text-gray-900 dark:text-white">
+					<h3
+						id="reset-password-modal-title"
+						class="text-lg font-medium text-gray-900 dark:text-white"
+					>
 						{m['administrator.manage_users.confirmations.reset_password_title']()}
 					</h3>
 				</div>
@@ -1288,12 +1405,17 @@
 			<!-- Body -->
 			<div class="px-6 py-4">
 				<p class="text-sm text-gray-600 dark:text-gray-400">
-					{m['administrator.manage_users.confirmations.reset_password_message']({ username: userToResetPassword.username, nickname: userToResetPassword.nickname })}
+					{m['administrator.manage_users.confirmations.reset_password_message']({
+						username: userToResetPassword.username,
+						nickname: userToResetPassword.nickname
+					})}
 				</p>
 			</div>
 
 			<!-- Footer -->
-			<div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+			<div
+				class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3"
+			>
 				<button
 					onclick={closeResetPasswordConfirm}
 					disabled={isResettingPassword}
@@ -1321,7 +1443,7 @@
 <!-- Password Display Modal -->
 {#if showPasswordModal}
 	<!-- Modal Backdrop -->
-	<div 
+	<div
 		class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4"
 		onclick={(e) => e.target === e.currentTarget && closePasswordModal()}
 		onkeydown={(e) => e.key === 'Escape' && closePasswordModal()}
@@ -1331,7 +1453,9 @@
 		tabindex="-1"
 	>
 		<!-- Modal Content -->
-		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full border border-gray-200 dark:border-gray-700">
+		<div
+			class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full border border-gray-200 dark:border-gray-700"
+		>
 			<!-- Header -->
 			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
 				<h3 id="password-modal-title" class="text-lg font-medium text-gray-900 dark:text-white">
@@ -1343,7 +1467,9 @@
 			<div class="px-6 py-4">
 				<div class="mb-4">
 					<p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
-						{m['administrator.manage_users.password_modal.description']({ username: resetUsername })}
+						{m['administrator.manage_users.password_modal.description']({
+							username: resetUsername
+						})}
 					</p>
 					<p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
 						{m['administrator.manage_users.password_modal.password_warning']()}
@@ -1351,7 +1477,10 @@
 				</div>
 
 				<div class="mb-4">
-					<label for="generated-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					<label
+						for="generated-password"
+						class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+					>
 						{m['administrator.manage_users.password_modal.password_label']()}
 					</label>
 					<div class="flex">
@@ -1372,7 +1501,9 @@
 					</div>
 				</div>
 
-				<div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-3">
+				<div
+					class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-3"
+				>
 					<div class="flex">
 						<Icon icon="mdi:alert" class="h-5 w-5 text-yellow-400" />
 						<p class="ml-2 text-sm text-yellow-800 dark:text-yellow-200">
@@ -1383,7 +1514,9 @@
 			</div>
 
 			<!-- Footer -->
-			<div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+			<div
+				class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3"
+			>
 				<button
 					onclick={closePasswordModal}
 					class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-400 dark:hover:border-blue-500"

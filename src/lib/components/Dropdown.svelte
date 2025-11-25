@@ -59,7 +59,10 @@
 		}
 	});
 
-	let selectedLabel = $derived(options.find((o) => o.value === value)?.label || placeholder);
+	let selectedLabel = $derived(
+		options.find((o: { value: string; label: string; icon?: string }) => o.value === value)
+			?.label || placeholder
+	);
 </script>
 
 <div class={'relative ' + widthClass} bind:this={containerEl}>
