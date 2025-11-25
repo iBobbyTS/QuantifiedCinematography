@@ -409,6 +409,21 @@
 					"new": "New",
 					"duplicate": "Duplicate",
 					"model_exists_tooltip": "Camera model already exists, you can continue to submit, this camera will be automatically skipped, no error will occur."
+				},
+				"upload_success": "{filename} upload completed.",
+				"added_brands": "Added {count} new brands:",
+				"added_items": "Added {count} new cameras:",
+				"failed_items": "The following cameras were not added:",
+				"buttons": {
+					"cancel": "Cancel",
+					"upload": "Upload",
+					"upload_another": "Upload Another File"
+				},
+				"errors": {
+					"already_exists": "Already exists",
+					"brand_not_found": "Brand not found",
+					"create_brand_error": "Failed to create brand",
+					"db_error": "Database error"
 				}
 			},
 			"brand_search": {

@@ -59,6 +59,8 @@
 		existing_count: number;
 		total_processed: number;
 		added_items?: string[];
+		added_brands?: string[];
+		failed_items?: { brand: string; model: string; reason: string }[];
 		file_name?: string;
 	} | null = $state(null);
 	let validationData: any = $state(null);
@@ -175,6 +177,8 @@
 					existing_count: responseData.existing_count,
 					total_processed: responseData.total_processed,
 					added_items: responseData.added_items || [],
+					added_brands: responseData.added_brands || [],
+					failed_items: responseData.failed_items || [],
 					file_name: selectedFile.name
 				};
 
@@ -354,13 +358,29 @@
 				{/if}
 
 				{#if uploadResult}
-					<div class="alert alert-info">
+					<div class="alert alert-info dark:bg-blue-900 dark:border-blue-800 dark:text-blue-100">
 						<Icon icon="mdi:information-outline" class="h-6 w-6 flex-shrink-0" />
 						<div>
-							<h3 class="font-bold">{uploadResult.file_name} uploaded completed.</h3>
+							<h3 class="font-bold">
+								{m['camera.add.batch_add.upload_success']({ filename: uploadResult.file_name })}
+							</h3>
 							<div class="text-sm">
+								{#if uploadResult.added_brands && uploadResult.added_brands.length > 0}
+									<p>
+										{m['camera.add.batch_add.added_brands']({
+											count: uploadResult.added_brands.length
+										})}
+									</p>
+									<ul class="list-disc pl-5 mt-1">
+										{#each uploadResult.added_brands as brandName}
+											<li>{brandName}</li>
+										{/each}
+									</ul>
+								{/if}
 								{#if uploadResult.added_count > 0}
-									<p>Added {uploadResult.added_count} new {itemName}:</p>
+									<p class="mt-2">
+										{m['camera.add.batch_add.added_items']({ count: uploadResult.added_count })}
+									</p>
 									{#if uploadResult.added_items && uploadResult.added_items.length > 0}
 										<ul class="list-disc pl-5 mt-1">
 											{#each uploadResult.added_items as itemName}
@@ -369,22 +389,37 @@
 										</ul>
 									{/if}
 								{/if}
-								{#if uploadResult.existing_count > 0}
-									<p class="mt-2">• Skipped {uploadResult.existing_count} existing items</p>
+								{#if uploadResult.failed_items && uploadResult.failed_items.length > 0}
+									<p class="mt-2 text-yellow-700 dark:text-yellow-600 font-medium">
+										{m['camera.add.batch_add.failed_items']()}
+									</p>
+									<ul class="list-disc pl-5 mt-1 text-yellow-700 dark:text-yellow-600 font-medium">
+										{#each uploadResult.failed_items as failedItem}
+											<li>
+												{failedItem.brand}
+												{failedItem.model}
+												<!-- @ts-ignore -->
+												({m[`camera.add.batch_add.errors.${failedItem.reason}`]?.() ||
+													failedItem.reason})
+											</li>
+										{/each}
+									</ul>
 								{/if}
 							</div>
 						</div>
 					</div>
 				{/if}
 				<div class="flex justify-center gap-4 mt-4">
-					<button class="btn" onclick={closeModal}> Cancel </button>
+					<button class="btn" onclick={closeModal}>
+						{m['camera.add.batch_add.buttons.cancel']()}
+					</button>
 					{#if !uploadResult}
 						<button
 							class="btn btn-primary"
 							onclick={uploadFile}
 							disabled={validateEndpoint && !validationData}
 						>
-							Upload
+							{m['camera.add.batch_add.buttons.upload']()}
 						</button>
 					{:else}
 						<button
@@ -396,7 +431,7 @@
 								validationData = null;
 							}}
 						>
-							Upload Another File
+							{m['camera.add.batch_add.buttons.upload_another']()}
 						</button>
 					{/if}
 				</div>

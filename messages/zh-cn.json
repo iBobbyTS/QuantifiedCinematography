@@ -401,6 +401,21 @@
 					"new": "新增",
 					"duplicate": "重复",
 					"model_exists_tooltip": "相机型号已存在，你可以继续提交，这一个相机会自动跳过，不会出错。"
+				},
+				"upload_success": "{filename} 上传完成。",
+				"added_brands": "新增 {count} 个品牌：",
+				"added_items": "新增 {count} 个相机：",
+				"failed_items": "以下相机没有成功添加：",
+				"buttons": {
+					"cancel": "取消",
+					"upload": "上传",
+					"upload_another": "上传另一个文件"
+				},
+				"errors": {
+					"already_exists": "已存在",
+					"brand_not_found": "品牌未找到",
+					"create_brand_error": "创建品牌失败",
+					"db_error": "数据库错误"
 				}
 			},
 			"brand_search": {
