@@ -55,6 +55,7 @@
 	let isCinema = $state(initialIsCinema);
 
 	// Validation state
+	let isBrandValid = $state(initialBrandId !== null && initialBrandId > 0); // Brand is valid if initialBrandId is provided
 	let isNameValid = $state(true);
 	let nameErrorMessage = $state('');
 	let similarNames: string[] = $state([]);
@@ -83,10 +84,21 @@
 		const { id, title } = event.detail;
 		brandId = id;
 		brandName = title;
+		isBrandValid = true; // Brand is valid when selected
 
 		// Auto-select cinema camera based on brand
 		if (CINEMA_CAMERA_BRANDS.some((b) => title.toLowerCase().includes(b.toLowerCase()))) {
 			isCinema = true;
+		}
+	}
+
+	// Handle brand validation
+	function handleBrandValidation(event: CustomEvent) {
+		const { valid } = event.detail;
+		isBrandValid = valid === true;
+		if (!valid) {
+			brandId = null;
+			brandName = '';
 		}
 	}
 
@@ -174,6 +186,7 @@
 					initialBrandId={brandId ?? undefined}
 					initialBrandName={brandName}
 					on:select={handleBrandSelect}
+					on:validation={handleBrandValidation}
 					on:modal-close={handleModalClose}
 				/>
 			</div>
@@ -192,7 +205,8 @@
 							bind:this={modelInput}
 							id="model"
 							type="text"
-							class="appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white
+							disabled={!isBrandValid}
+							class="appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed
 							{isNameValid
 								? 'border-gray-300 dark:border-gray-600'
 								: 'border-red-500 focus:border-red-500 focus:ring-red-500'}"
@@ -251,7 +265,8 @@
 					type="number"
 					min="1901"
 					max={String(currentYear + 1)}
-					class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white"
+					disabled={!isBrandValid}
+					class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
 					bind:value={releaseYear}
 				/>
 			</div>
@@ -261,11 +276,12 @@
 				<span class="text-sm font-medium text-gray-700 dark:text-gray-300">
 					{m['camera.add.form.cinema']()}
 				</span>
-				<label class="flex items-center space-x-2 cursor-pointer">
+				<label class="flex items-center space-x-2 {isBrandValid ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}">
 					<input
 						type="checkbox"
 						bind:checked={isCinema}
-						class="checkbox checkbox-sm checkbox-primary"
+						disabled={!isBrandValid}
+						class="checkbox checkbox-sm checkbox-primary disabled:opacity-50 disabled:cursor-not-allowed"
 					/>
 					<span class="text-xs text-gray-500 dark:text-gray-400 select-none">
 						{m['camera.add.form.cinema_help']()}
@@ -278,7 +294,7 @@
 				<div class="relative group">
 					<button
 						type="submit"
-						disabled={isLoading || !isFormValid || !hasChanges}
+						disabled={isLoading || !isFormValid || !hasChanges || !isBrandValid}
 						class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-500 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-blue-500 dark:hover:bg-blue-400 dark:hover:border-blue-500"
 					>
 						{#if isLoading}
