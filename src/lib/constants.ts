@@ -1,5 +1,6 @@
 // Number of items per page options
-export const ITEMS_PER_PAGE_OPTIONS = [2, 5, 10, 20, 50];
+// Remove 2 and 5 in production
+export const ITEMS_PER_PAGE_OPTIONS = [2, 5, 10, 20, 50, 100, 200];
 
 // List of cinema camera brands, used for automaic cinema camera selection in add camera page. 
 export const CINEMA_CAMERA_BRANDS = ['ARRI', '阿莱', 'RED', 'Blackmagic', 'ZCAM'];
