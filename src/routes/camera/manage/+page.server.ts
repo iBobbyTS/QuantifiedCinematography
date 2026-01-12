@@ -46,62 +46,46 @@ function naturalCompare(a: string, b: string): number {
 }
 
 // Sort cameras using natural sort
+// Brand always exists and has highest priority
+// Name and year are mutually exclusive
 function sortCameras(
     cameras: any[],
-    sortConfig: { brand?: 'asc' | 'desc'; name?: 'asc' | 'desc'; year?: 'asc' | 'desc' }
+    sortConfig: { brand: 'asc' | 'desc'; name?: 'asc' | 'desc'; year?: 'asc' | 'desc' }
 ): any[] {
     const sorted = [...cameras];
 
     sorted.sort((a, b) => {
-        // Sort by brand (natural sort)
-        if (sortConfig.brand) {
-            const brandA = (a.brandName || '').trim();
-            const brandB = (b.brandName || '').trim();
-            const brandCompare = naturalCompare(brandA, brandB);
-            if (brandCompare !== 0) {
-                return sortConfig.brand === 'asc' ? brandCompare : -brandCompare;
-            }
-        } else {
-            // Default: brand ASC
-            const brandA = (a.brandName || '').trim();
-            const brandB = (b.brandName || '').trim();
-            const brandCompare = naturalCompare(brandA, brandB);
-            if (brandCompare !== 0) {
-                return brandCompare;
-            }
+        // Sort by brand (natural sort) - always exists, highest priority
+        const brandA = (a.brandName || '').trim();
+        const brandB = (b.brandName || '').trim();
+        const brandCompare = naturalCompare(brandA, brandB);
+        if (brandCompare !== 0) {
+            return sortConfig.brand === 'asc' ? brandCompare : -brandCompare;
         }
 
-        // Sort by name (natural sort)
+        // Sort by name or year (mutually exclusive)
         if (sortConfig.name) {
+            // Sort by name (natural sort)
             const nameA = (a.name || '').trim();
             const nameB = (b.name || '').trim();
             const nameCompare = naturalCompare(nameA, nameB);
             if (nameCompare !== 0) {
                 return sortConfig.name === 'asc' ? nameCompare : -nameCompare;
             }
-        } else {
-            // Default: name ASC
-            const nameA = (a.name || '').trim();
-            const nameB = (b.name || '').trim();
-            const nameCompare = naturalCompare(nameA, nameB);
-            if (nameCompare !== 0) {
-                return nameCompare;
-            }
-        }
-
-        // Sort by year
-        if (sortConfig.year) {
+        } else if (sortConfig.year) {
+            // Sort by year
             const yearA = a.releaseYear || 0;
             const yearB = b.releaseYear || 0;
             if (yearA !== yearB) {
                 return sortConfig.year === 'asc' ? yearA - yearB : yearB - yearA;
             }
         } else {
-            // Default: year DESC
-            const yearA = a.releaseYear || 0;
-            const yearB = b.releaseYear || 0;
-            if (yearA !== yearB) {
-                return yearB - yearA; // DESC
+            // Default: name ASC (if neither name nor year is specified)
+            const nameA = (a.name || '').trim();
+            const nameB = (b.name || '').trim();
+            const nameCompare = naturalCompare(nameA, nameB);
+            if (nameCompare !== 0) {
+                return nameCompare;
             }
         }
 
@@ -139,11 +123,10 @@ export const load: ServerLoad = async ({ locals }) => {
             .from(productCameras)
             .leftJoin(brands, eq(productCameras.brandId, brands.id));
 
-        // Sort using natural sort: brand ASC, name ASC, year DESC
+        // Sort using natural sort: brand ASC, name ASC (default)
         const sortedCameras = sortCameras(allCameras, {
             brand: 'asc',
-            name: 'asc',
-            year: 'desc'
+            name: 'asc'
         });
 
         return {

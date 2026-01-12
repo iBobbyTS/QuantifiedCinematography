@@ -40,15 +40,15 @@
 	let searchQuery = $state('');
 	let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
-	// Sort state - default: brand ASC, name ASC, year DESC
+	// Sort state - brand always exists, name and year are mutually exclusive
+	// Default: brand ASC, name ASC
 	let sortConfig = $state<{
 		brand: 'asc' | 'desc';
-		name: 'asc' | 'desc';
-		year: 'asc' | 'desc';
+		name?: 'asc' | 'desc';
+		year?: 'asc' | 'desc';
 	}>({
 		brand: 'asc',
-		name: 'asc',
-		year: 'desc'
+		name: 'asc'
 	});
 
 	// Delete confirm modal state
@@ -75,11 +75,31 @@
 
 	// Sort handler
 	function handleSort(field: 'brand' | 'name' | 'year') {
-		// Toggle sort direction for the clicked field
-		if (sortConfig[field] === 'asc') {
-			sortConfig[field] = 'desc';
-		} else {
-			sortConfig[field] = 'asc';
+		if (field === 'brand') {
+			// Brand always exists, just toggle direction
+			sortConfig.brand = sortConfig.brand === 'asc' ? 'desc' : 'asc';
+		} else if (field === 'name') {
+			// Name and year are mutually exclusive
+			if (sortConfig.name) {
+				// Currently sorting by name, toggle direction
+				sortConfig.name = sortConfig.name === 'asc' ? 'desc' : 'asc';
+			} else {
+				// Currently sorting by year (or neither), switch to name
+				sortConfig.name = 'asc';
+			}
+			// Remove year if it exists
+			delete sortConfig.year;
+		} else if (field === 'year') {
+			// Name and year are mutually exclusive
+			if (sortConfig.year) {
+				// Currently sorting by year, toggle direction
+				sortConfig.year = sortConfig.year === 'asc' ? 'desc' : 'asc';
+			} else {
+				// Currently sorting by name (or neither), switch to year
+				sortConfig.year = 'desc';
+			}
+			// Remove name if it exists
+			delete sortConfig.name;
 		}
 		// Reset to first page when sorting changes
 		currentPage = 1;
@@ -354,10 +374,14 @@
 							>
 								<div class="flex items-center gap-1">
 									{m['camera.manage.table.name']()}
-									<Icon
-										icon={sortConfig.name === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'}
-										class="w-3 h-3"
-									/>
+									{#if sortConfig.name}
+										<Icon
+											icon={sortConfig.name === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'}
+											class="w-3 h-3"
+										/>
+									{:else}
+										<Icon icon="mdi:unfold-more-horizontal" class="w-3 h-3 opacity-50" />
+									{/if}
 								</div>
 							</th>
 							<th
@@ -367,10 +391,14 @@
 							>
 								<div class="flex items-center gap-1">
 									{m['camera.manage.table.release_year']()}
-									<Icon
-										icon={sortConfig.year === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'}
-										class="w-3 h-3"
-									/>
+									{#if sortConfig.year}
+										<Icon
+											icon={sortConfig.year === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'}
+											class="w-3 h-3"
+										/>
+									{:else}
+										<Icon icon="mdi:unfold-more-horizontal" class="w-3 h-3 opacity-50" />
+									{/if}
 								</div>
 							</th>
 							<th
