@@ -7,15 +7,20 @@
 	import Card from '../lib/components/Card.svelte';
 	import { UserPermissions, USER_PERMISSIONS } from '../lib/permission/bitmask.js';
 	import { IS_DEVELOPING, COMPLETED_MODULES } from '../lib/constants.js';
+	import type { PageData } from './$types';
+
+	let { data }: { data: PageData } = $props();
 
 	// 根据 intro 标题是否可见，动态设置 Navbar 标题
-	let isIntroTitleVisible = true;
-	$: navbarCenterTitle = isIntroTitleVisible ? '' : 'app.title';
+	let isIntroTitleVisible = $state(true);
+	let navbarCenterTitle = $derived(isIntroTitleVisible ? '' : 'app.title');
 
 	// 产品数量状态
-	let productCount = 0;
-	let cameraCount = 0;
-	let cinemaCount = 0;
+	let productCount = $state(0);
+	
+	// 相机和摄影机数量从服务器加载
+	let cameraCount = $state(data.cameraCount ?? 0);
+	let cinemaCount = $state(data.cinemaCount ?? 0);
 
 	// 加载产品数量
 	async function loadProductCount() {
@@ -33,39 +38,23 @@
 		}
 	}
 
-	// 加载相机和摄影机数量
-	async function loadCameraCounts() {
-		try {
-			// 这里应该调用实际的API，现在先用模拟数据
-			// const response = await fetch('/api/cameras/count');
-			// const data = await response.json();
-			// cameraCount = data.cameraCount;
-			// cinemaCount = data.cinemaCount;
-
-			// 模拟数据
-			cameraCount = 15;
-			cinemaCount = 8;
-		} catch (error) {
-			console.error(m['app.networkError'](), error);
-			cameraCount = 0;
-			cinemaCount = 0;
-		}
-	}
-
 	// 检查用户是否为管理员
-	$: isAdministrator =
+	let isAdministrator = $derived(
 		$page.data.user &&
-		UserPermissions.hasPermission($page.data.user.permission, USER_PERMISSIONS.ADMINISTRATOR);
+		UserPermissions.hasPermission($page.data.user.permission, USER_PERMISSIONS.ADMINISTRATOR)
+	);
 
 	// 检查用户是否具有灯光权限
-	$: hasLightPermission =
+	let hasLightPermission = $derived(
 		$page.data.user &&
-		UserPermissions.hasPermission($page.data.user.permission, USER_PERMISSIONS.LIGHT);
+		UserPermissions.hasPermission($page.data.user.permission, USER_PERMISSIONS.LIGHT)
+	);
 
 	// 检查用户是否具有相机权限
-	$: hasCameraPermission =
+	let hasCameraPermission = $derived(
 		$page.data.user &&
-		UserPermissions.hasPermission($page.data.user.permission, USER_PERMISSIONS.CAMERA);
+		UserPermissions.hasPermission($page.data.user.permission, USER_PERMISSIONS.CAMERA)
+	);
 
 	// 检查模块是否应该显示
 	function shouldShowModule(moduleName: string): boolean {
@@ -76,7 +65,7 @@
 	}
 
 	// 管理员卡片配置数据
-	$: adminCards = [
+	let adminCards = $derived([
 		{
 			id: 'admin-user-management',
 			title: m['administrator.user_management.title'](),
@@ -90,10 +79,10 @@
 			],
 			color: 'red'
 		}
-	];
+	]);
 
 	// 数据提供方灯光卡片配置数据
-	$: dataProviderLightingCards = [
+	let dataProviderLightingCards = $derived([
 		{
 			id: 'data-provider-lighting-products',
 			title: m['data_provider_lighting.recorded_lighting_products.title']({
@@ -133,10 +122,10 @@
 			],
 			color: 'blue'
 		}
-	];
+	]);
 
 	// 数据提供方相机卡片配置数据
-	$: dataProviderCameraCards = [
+	let dataProviderCameraCards = $derived([
 		{
 			id: 'data-provider-camera-manage',
 			title: m['data_provider_camera.manage_camera.title'](),
@@ -162,10 +151,10 @@
 			],
 			color: 'blue'
 		}
-	];
+	]);
 
 	// 卡片配置数据
-	$: cards = [
+	let cards = $derived([
 		{
 			id: 'lighting-products',
 			title: m['lighting.products.title']({ count: productCount.toString() }),
@@ -234,10 +223,10 @@
 			],
 			color: 'purple'
 		}
-	];
+	]);
 
 	// 相机/摄影机卡片配置数据
-	$: cameraCards = [
+	let cameraCards = $derived([
 		{
 			id: 'camera-products',
 			title: m['camera.products.title']({
@@ -265,10 +254,10 @@
 			],
 			color: 'blue'
 		}
-	];
+	]);
 
 	// 导航项配置
-	$: navigationItems = [
+	let navigationItems = $derived([
 		...(isAdministrator
 			? [
 					{
@@ -314,7 +303,7 @@
 					}
 				]
 			: [])
-	];
+	]);
 
 	// 平滑滚动到锚点
 	function scrollToAnchor(anchorId: string) {
@@ -327,7 +316,6 @@
 	// 组件挂载时加载产品数量
 	onMount(() => {
 		loadProductCount();
-		loadCameraCounts();
 
 		// 观察 intro 标题可见性
 		const el = document.getElementById('introTitle');
