@@ -21,8 +21,13 @@
 		emptyStateDescription?: string;
 		emptyStateIcon?: string;
 		onSort: (field: 'brand' | 'name' | 'year') => void;
-		onEdit: (camera: Camera) => void;
-		onDelete: (camera: Camera) => void;
+		// For normal mode (edit/delete buttons)
+		onEdit?: (camera: Camera) => void;
+		onDelete?: (camera: Camera) => void;
+		// For checkbox mode
+		showCheckbox?: boolean;
+		selectedCameras?: Set<number>;
+		onSelectionChange?: (cameraId: number, selected: boolean) => void;
 	}
 
 	let {
@@ -33,8 +38,25 @@
 		emptyStateIcon = 'mdi:camera-off',
 		onSort,
 		onEdit,
-		onDelete
+		onDelete,
+		showCheckbox = false,
+		selectedCameras = $bindable(new Set<number>()),
+		onSelectionChange
 	}: Props = $props();
+
+	function handleCheckboxChange(camera: Camera, checked: boolean) {
+		// Create a new Set to trigger reactivity
+		const newSet = new Set(selectedCameras);
+		if (checked) {
+			newSet.add(camera.id);
+		} else {
+			newSet.delete(camera.id);
+		}
+		selectedCameras = newSet;
+		if (onSelectionChange) {
+			onSelectionChange(camera.id, checked);
+		}
+	}
 </script>
 
 <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
@@ -129,20 +151,33 @@
 								{camera.releaseYear || '-'}
 							</td>
 							<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-								<button
-									onclick={() => onEdit(camera)}
-									class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-4"
-									title={m['camera.manage.actions.edit']()}
-								>
-									<Icon icon="mdi:pencil" class="h-5 w-5" />
-								</button>
-								<button
-									onclick={() => onDelete(camera)}
-									class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-									title={m['camera.manage.actions.delete']()}
-								>
-									<Icon icon="mdi:delete" class="h-5 w-5" />
-								</button>
+								{#if showCheckbox}
+									<input
+										type="checkbox"
+										checked={selectedCameras.has(camera.id)}
+										onchange={(e) => handleCheckboxChange(camera, e.currentTarget.checked)}
+										class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+									/>
+								{:else}
+									{#if onEdit}
+										<button
+											onclick={() => onEdit(camera)}
+											class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-4"
+											title={m['camera.manage.actions.edit']()}
+										>
+											<Icon icon="mdi:pencil" class="h-5 w-5" />
+										</button>
+									{/if}
+									{#if onDelete}
+										<button
+											onclick={() => onDelete(camera)}
+											class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+											title={m['camera.manage.actions.delete']()}
+										>
+											<Icon icon="mdi:delete" class="h-5 w-5" />
+										</button>
+									{/if}
+								{/if}
 							</td>
 						</tr>
 					{/each}

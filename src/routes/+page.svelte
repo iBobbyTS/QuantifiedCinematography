@@ -146,7 +146,8 @@
 			buttons: [
 				{
 					text: m['data_provider_camera.data_upload.button'](),
-					color: 'blue'
+					color: 'blue',
+					onClick: () => goto('/camera/dynamic-range/upload')
 				}
 			],
 			color: 'blue'

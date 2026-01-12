@@ -380,6 +380,68 @@
 				"description": "Get started by adding your first camera or camcorder."
 			}
 		},
+		"dynamic_range_upload": {
+			"title": "Dynamic Range Data Upload",
+			"subtitle": "Select cameras to add data, click 'Next' in the top right corner, select columns to fill in the popup window, then click 'Download' button",
+			"next_button": "Next",
+			"modal": {
+				"title": "Upload Dynamic Range Data for the Following Cameras",
+				"subtitle": "Please select the data columns to upload",
+				"redownload": "Redownload",
+				"additional_note": "If the same camera has been tested for dynamic range data under multiple specifications, you can add rows yourself, ensuring the brand and model are consistent.",
+				"download_failed": "Download Failed",
+				"download_failed_message": "Failed to download template",
+				"network_error": "Network error",
+				"row1": {
+					"label": "EI, ISO",
+					"description": "**EI** or **ISO** at least one must be filled. If the other is the same, it can be left empty, or different values can be filled",
+					"default": "ISO"
+				},
+				"row2": {
+					"label": "Codec, Log Type, Bit Depth, Chroma Subsampling, Bitrate",
+					"description": "**Codec**: H264, H265, XFAVC All-I, XAVC HS, Cinema RAW Light, NRAW......\n**Log Type**: Leave empty if RAW or direct output;\n**Bit Depth**: Fill in numbers only, e.g. 8, 10;\n**Chroma Subsampling**: Fill in numbers only, e.g. 422, 420;\n**Bitrate** (Mbps): Recommended to fill",
+					"default": "Codec, Log Type, Bit Depth, Bitrate"
+				},
+				"row3": {
+					"label": "Resolution, Framerate, Crop",
+					"description": "**Resolution**: Use lowercase x instead of multiplication sign;\n**Framerate**: Distinguish non-integer and integer, e.g. 23.98/24, 59.94/60 etc.;\n**Crop**: Optional, can be left empty, fill APSC, S35 etc.",
+					"default": "Resolution, Framerate"
+				},
+				"row4": {
+					"label": "Slope-based, SNR=1, SNR=2, SNR=4, SNR=10, SNR=40",
+					"default": "Slope-based, SNR=1, SNR=2"
+				},
+				"fields": {
+					"ei": "EI",
+					"iso": "ISO",
+					"codec": "Codec",
+					"log": "Log Type",
+					"bit_depth": "Bit Depth",
+					"chroma_subsampling": "Chroma Subsampling",
+					"bitrate": "Bitrate",
+					"resolution": "Resolution",
+					"framerate": "Framerate",
+					"crop": "Crop",
+					"slope_based": "Slope-based",
+					"snr1": "SNR=1",
+					"snr2": "SNR=2",
+					"snr4": "SNR=4",
+					"snr10": "SNR=10",
+					"snr40": "SNR=40"
+				},
+				"buttons": {
+					"download": "Download",
+					"upload": "Upload",
+					"cancel": "Cancel"
+				},
+				"upload_file_label": "Upload CSV File",
+				"download_failed": "Download Failed",
+				"download_failed_message": "Failed to download template",
+				"network_error": "Network error",
+				"upload_success": "Data uploaded successfully",
+				"upload_failure": "Data upload failed: {error}"
+			}
+		},
 		"add": {
 			"title": "Add Camera/Camcorder",
 			"subtitle": "Add a new camera or camcorder to the database",

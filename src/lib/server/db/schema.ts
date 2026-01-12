@@ -189,6 +189,36 @@ export const productCameras = pgTable('product_cameras', {
 	check("product_cameras_brand_id_not_null", sql`NOT NULL brand_id`),
 ]);
 
+// Camera dynamic range data table
+export const cameraDynamicRangeData = pgTable('camera_dynamic_range_data', {
+	id: serial('id').primaryKey().notNull(),
+	cameraId: integer('camera_id').references(() => productCameras.id).notNull(),
+	userId: uuid('user_id').references(() => user.id).notNull(),
+	ei: integer('ei'),
+	iso: integer('iso'),
+	codec: text('codec'),
+	log: text('log'),
+	bitDepth: integer('bit_depth'),
+	chromaSubsampling: text('chroma_subsampling'),
+	bitrate: text('bitrate'),
+	resolution: text('resolution'),
+	framerate: text('framerate'),
+	crop: text('crop'),
+	slopeBased: real('slope_based'),
+	snr1: real('snr1'),
+	snr2: real('snr2'),
+	snr4: real('snr4'),
+	snr10: real('snr10'),
+	snr40: real('snr40'),
+	createdAt: timestamp('created_at').defaultNow(),
+}, (table) => [
+	index('camera_dynamic_range_data_camera_id_idx').on(table.cameraId),
+	index('camera_dynamic_range_data_user_id_idx').on(table.userId),
+	check("camera_dynamic_range_data_id_not_null", sql`NOT NULL id`),
+	check("camera_dynamic_range_data_camera_id_not_null", sql`NOT NULL camera_id`),
+	check("camera_dynamic_range_data_user_id_not_null", sql`NOT NULL user_id`),
+]);
+
 // Benchmark light white table
 export const benchmarkLightWhite = pgTable('benchmark_light_white', {
 	id: serial('id').primaryKey().notNull(),
@@ -236,6 +266,7 @@ export const benchmarkLightWhite = pgTable('benchmark_light_white', {
 export const usersRelations = relations(user, ({ many }) => ({
 	benchmarkLightWhite: many(benchmarkLightWhite),
 	userPublicInfo: many(userPublicInfo),
+	cameraDynamicRangeData: many(cameraDynamicRangeData),
 }));
 
 export const brandsRelations = relations(brands, ({ many }) => ({
@@ -305,10 +336,22 @@ export const userPublicInfoRelations = relations(userPublicInfo, ({ one }) => ({
 	}),
 }));
 
-export const productCamerasRelations = relations(productCameras, ({ one }) => ({
+export const productCamerasRelations = relations(productCameras, ({ one, many }) => ({
 	brand: one(brands, {
 		fields: [productCameras.brandId],
 		references: [brands.id],
+	}),
+	dynamicRangeData: many(cameraDynamicRangeData),
+}));
+
+export const cameraDynamicRangeDataRelations = relations(cameraDynamicRangeData, ({ one }) => ({
+	camera: one(productCameras, {
+		fields: [cameraDynamicRangeData.cameraId],
+		references: [productCameras.id],
+	}),
+	user: one(user, {
+		fields: [cameraDynamicRangeData.userId],
+		references: [user.id],
 	}),
 }));
 
@@ -333,3 +376,5 @@ export type BenchmarkLightWhite = typeof benchmarkLightWhite.$inferSelect;
 export type NewBenchmarkLightWhite = typeof benchmarkLightWhite.$inferInsert;
 export type ProductCamera = typeof productCameras.$inferSelect;
 export type NewProductCamera = typeof productCameras.$inferInsert;
+export type CameraDynamicRangeData = typeof cameraDynamicRangeData.$inferSelect;
+export type NewCameraDynamicRangeData = typeof cameraDynamicRangeData.$inferInsert;

@@ -372,6 +372,68 @@
 				"description": "开始添加您的第一个相机或摄影机。"
 			}
 		},
+		"dynamic_range_upload": {
+			"title": "动态范围数据上传",
+			"subtitle": "勾选要加数据的相机，点击网页右上角\"下一步\"，在弹出的窗口里选择想要填写的列，然后\"下载\"按钮",
+			"next_button": "下一步",
+			"modal": {
+				"title": "上传以下相机的动态范围数据",
+				"subtitle": "请勾选需要上传的数据栏目。",
+				"redownload": "重新下载",
+				"additional_note": "如果同一个相机在多个规格下测试了动态范围数据，可以自行增加行，保证品牌和型号一致即可。",
+				"download_failed": "下载失败",
+				"download_failed_message": "下载模板失败",
+				"network_error": "网络错误",
+				"row1": {
+					"label": "EI、ISO",
+					"description": "**EI**或**ISO**至少填写一个，另一个如果一样可以留空，也可以填写不同数值",
+					"default": "ISO"
+				},
+				"row2": {
+					"label": "编码、Log类型、位深、色度采样、码率",
+					"description": "**编码**：H264, H265, XFAVC All-I, XAVC HS, Cinema RAW Light, NRAW......\n**Log类型**：如果是RAW或直出则留空；\n**位深**：填写纯数字，比如8、10；\n**色度采样**：填写纯数字，比如422, 420；\n**码率**(Mbps)：建议填写",
+					"default": "编码、Log类型、位深、码率"
+				},
+				"row3": {
+					"label": "分辨率、帧率、画幅/裁切",
+					"description": "**分辨率**：用小写字母x代替乘号；\n**帧率**：需区分非整数和整数，如23.98/24, 59.94/60等；\n**裁切**：选填，可以不填、填APSC、S35等",
+					"default": "分辨率、帧率"
+				},
+				"row4": {
+					"label": "Slope-based, SNR=1, SNR=2, SNR=4, SNR=10, SNR=40",
+					"default": "Slope-based, SNR=1, SNR=2"
+				},
+				"fields": {
+					"ei": "EI",
+					"iso": "ISO",
+					"codec": "编码",
+					"log": "Log类型",
+					"bit_depth": "位深",
+					"chroma_subsampling": "色度采样",
+					"bitrate": "码率",
+					"resolution": "分辨率",
+					"framerate": "帧率",
+					"crop": "画幅/裁切",
+					"slope_based": "Slope-based",
+					"snr1": "SNR=1",
+					"snr2": "SNR=2",
+					"snr4": "SNR=4",
+					"snr10": "SNR=10",
+					"snr40": "SNR=40"
+				},
+				"buttons": {
+					"download": "下载",
+					"upload": "上传",
+					"cancel": "取消"
+				},
+				"upload_file_label": "上传CSV文件",
+				"download_failed": "下载失败",
+				"download_failed_message": "下载模板失败",
+				"network_error": "网络错误",
+				"upload_success": "数据上传成功",
+				"upload_failure": "数据上传失败：{error}"
+			}
+		},
 		"add": {
 			"title": "添加相机/摄影机",
 			"subtitle": "添加新的相机或摄影机到数据库",

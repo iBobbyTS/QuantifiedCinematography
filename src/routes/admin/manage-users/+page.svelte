@@ -317,9 +317,9 @@
 	// 响应式声明：当 originalPermissions 变化时重新初始化
 	$effect(() => {
 		if (originalPermissions !== undefined && !isPermissionModalInitialized) {
-			currentPermissions = originalPermissions;
-			isPermissionModalInitialized = true;
-		}
+		currentPermissions = originalPermissions;
+		isPermissionModalInitialized = true;
+	}
 	});
 
 	// 检查权限是否有变化
@@ -328,7 +328,7 @@
 	// 权限显示函数 - 使用国际化函数，响应语言变化
 	function getPermissionText(permission: number): string {
 		const permissionNames: string[] = [];
-
+		
 		if (UserPermissions.hasLightPermission(permission)) {
 			permissionNames.push(m[PERMISSION_OPTIONS[0].labelKey]());
 		}
@@ -380,7 +380,7 @@
 	// 切换权限选择
 	function togglePermission(permission: number) {
 		let newPermissions: number;
-
+		
 		if (permission === USER_PERMISSIONS.ADMINISTRATOR) {
 			// Administrator 权限可以与其他权限组合
 			if (isPermissionSelected(permission)) {
@@ -396,7 +396,7 @@
 				newPermissions = currentPermissions | permission;
 			}
 		}
-
+		
 		// 更新权限并立即计算变化状态
 		currentPermissions = newPermissions;
 	}
@@ -451,13 +451,13 @@
 				}
 
 				if (success) {
-					// 更新 users 数组中对应的用户权限
+				// 更新 users 数组中对应的用户权限
 					const userIndex = users.findIndex((u) => u.id === selectedUser.id);
-					if (userIndex !== -1) {
-						users[userIndex].permission = currentPermissions;
-					}
-					closePermissionModal();
-				} else {
+				if (userIndex !== -1) {
+					users[userIndex].permission = currentPermissions;
+				}
+				closePermissionModal();
+			} else {
 					permissionModalErrorMessage = errorMessage;
 				}
 			} else {
@@ -764,13 +764,13 @@
 
 				if (ok) {
 					const userIndex = users.findIndex((u) => u.id === userToDelete.id);
-					if (userIndex !== -1) {
-						users.splice(userIndex, 1);
-					}
+				if (userIndex !== -1) {
+					users.splice(userIndex, 1);
+				}
 
 					// 在关闭确认弹窗前保存用户名
 					const deletedUsername = userToDelete.username;
-					closeDeleteConfirm();
+				closeDeleteConfirm();
 
 					// 显示成功 Toast
 					toastManager.showToast({
@@ -784,7 +784,7 @@
 						showCountdown: true
 					});
 					return;
-				} else {
+			} else {
 					// 处理 SvelteKit 服务器动作失败
 					const failedUsername = userToDelete?.username || 'Unknown';
 					toastManager.showToast({
@@ -848,7 +848,7 @@
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">
 	<!-- Navbar -->
 	<Navbar centerTitle="app.title" showBackButton={true} />
-
+	
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 		<!-- Header -->
 		<div class="mb-8">
@@ -1122,7 +1122,7 @@
 										</button>
 									</td>
 									<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-										<button
+											<button
 											onclick={() => openDisableConfirm(user)}
 											disabled={isCurrentUser(user.id)}
 											class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 {user.disabled ===
@@ -1215,7 +1215,7 @@
 <!-- Permission Modal -->
 {#if showPermissionModal && selectedUser}
 	<!-- Modal Backdrop -->
-	<div
+	<div 
 		class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4"
 		onclick={handlePermissionModalBackgroundClick}
 		onkeydown={(e) => e.key === 'Escape' && handlePermissionModalClose()}
