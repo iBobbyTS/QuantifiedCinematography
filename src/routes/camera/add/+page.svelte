@@ -6,14 +6,16 @@
 	import ToastManager from '$lib/components/Toast/ToastManager.svelte';
 	import CameraForm from '$lib/components/CameraForm.svelte';
 	import CsvUploadModal from '$lib/components/Modal/CsvUploadModal.svelte';
+	import type { PageData } from './$types';
 
-	export let data;
-	let isLoading = false;
+	let { data }: { data: PageData } = $props();
+	let isLoading = $state(false);
 	let toastManager: ToastManager;
-	let showBatchModal = false;
+	let showBatchModal = $state(false);
+	let formKey = $state(0); // Key to force form reset
 
-	$: existingBrands = data.brands ? data.brands.map((b: any) => b.name) : [];
-	$: formattedBrands = `<span class="font-bold text-base">${existingBrands.join((m as any)['camera.add.batch_add.brand_separator']())}</span>`;
+	let existingBrands = $derived(data.brands ? data.brands.map((b: any) => b.name) : []);
+	let formattedBrands = $derived(`<span class="font-bold text-base">${existingBrands.join((m as any)['camera.add.batch_add.brand_separator']())}</span>`);
 
 	async function handleSubmit(formData: {
 		brandId: number;
@@ -55,8 +57,8 @@
 						duration: 3000,
 						showCountdown: true
 					});
-					// Reset form by reloading the page or resetting the component
-					// For now, we'll just show success and let user add another
+					// Reset form by changing key to force re-render
+					formKey++;
 				} else {
 					toastManager.showToast({
 						title: m['camera.add.failure'](),
@@ -118,12 +120,14 @@
 				</div>
 
 				<!-- Form -->
-				<CameraForm
-					onSubmit={handleSubmit}
-					isLoading={isLoading}
-					submitButtonText={m['camera.add.buttons.add']()}
-					submitButtonLoadingText={m['camera.add.buttons.adding']()}
-				/>
+				{#key formKey}
+					<CameraForm
+						onSubmit={handleSubmit}
+						isLoading={isLoading}
+						submitButtonText={m['camera.add.buttons.add']()}
+						submitButtonLoadingText={m['camera.add.buttons.adding']()}
+					/>
+				{/key}
 			</div>
 
 			<!-- Right Column: Batch Add -->
