@@ -5,6 +5,112 @@ import { productCameras, brands } from '$lib/server/db/schema.js';
 import { UserPermissions, USER_PERMISSIONS } from '$lib/permission/bitmask.js';
 import { and, or, like, eq, sql, desc, asc } from 'drizzle-orm';
 
+// Natural sort comparison function for strings with numbers
+// Example: "R5 Mark II" < "R50" (5 < 50 numerically)
+function naturalCompare(a: string, b: string): number {
+    if (!a && !b) return 0;
+    if (!a) return 1;
+    if (!b) return -1;
+
+    // Split strings into parts (text and numbers)
+    const aParts = a.match(/(\d+|\D+)/g) || [];
+    const bParts = b.match(/(\d+|\D+)/g) || [];
+
+    const minLength = Math.min(aParts.length, bParts.length);
+
+    for (let i = 0; i < minLength; i++) {
+        const aPart = aParts[i];
+        const bPart = bParts[i];
+
+        // Check if both parts are numbers
+        const aNum = parseInt(aPart, 10);
+        const bNum = parseInt(bPart, 10);
+
+        if (!isNaN(aNum) && !isNaN(bNum)) {
+            // Both are numbers, compare numerically
+            if (aNum !== bNum) {
+                return aNum - bNum;
+            }
+        } else {
+            // At least one is text, compare as strings (case-insensitive)
+            const aLower = aPart.toLowerCase();
+            const bLower = bPart.toLowerCase();
+            if (aLower !== bLower) {
+                return aLower < bLower ? -1 : 1;
+            }
+        }
+    }
+
+    // If all compared parts are equal, shorter string comes first
+    return aParts.length - bParts.length;
+}
+
+// Sort cameras using natural sort
+function sortCameras(
+    cameras: any[],
+    sortConfig: { brand?: 'asc' | 'desc'; name?: 'asc' | 'desc'; year?: 'asc' | 'desc' }
+): any[] {
+    const sorted = [...cameras];
+
+    sorted.sort((a, b) => {
+        // Sort by brand (natural sort)
+        if (sortConfig.brand) {
+            const brandA = (a.brandName || '').trim();
+            const brandB = (b.brandName || '').trim();
+            const brandCompare = naturalCompare(brandA, brandB);
+            if (brandCompare !== 0) {
+                return sortConfig.brand === 'asc' ? brandCompare : -brandCompare;
+            }
+        } else {
+            // Default: brand ASC
+            const brandA = (a.brandName || '').trim();
+            const brandB = (b.brandName || '').trim();
+            const brandCompare = naturalCompare(brandA, brandB);
+            if (brandCompare !== 0) {
+                return brandCompare;
+            }
+        }
+
+        // Sort by name (natural sort)
+        if (sortConfig.name) {
+            const nameA = (a.name || '').trim();
+            const nameB = (b.name || '').trim();
+            const nameCompare = naturalCompare(nameA, nameB);
+            if (nameCompare !== 0) {
+                return sortConfig.name === 'asc' ? nameCompare : -nameCompare;
+            }
+        } else {
+            // Default: name ASC
+            const nameA = (a.name || '').trim();
+            const nameB = (b.name || '').trim();
+            const nameCompare = naturalCompare(nameA, nameB);
+            if (nameCompare !== 0) {
+                return nameCompare;
+            }
+        }
+
+        // Sort by year
+        if (sortConfig.year) {
+            const yearA = a.releaseYear || 0;
+            const yearB = b.releaseYear || 0;
+            if (yearA !== yearB) {
+                return sortConfig.year === 'asc' ? yearA - yearB : yearB - yearA;
+            }
+        } else {
+            // Default: year DESC
+            const yearA = a.releaseYear || 0;
+            const yearB = b.releaseYear || 0;
+            if (yearA !== yearB) {
+                return yearB - yearA; // DESC
+            }
+        }
+
+        return 0;
+    });
+
+    return sorted;
+}
+
 export const load: ServerLoad = async ({ locals }) => {
     // Check login
     if (!locals.user) {
@@ -20,8 +126,7 @@ export const load: ServerLoad = async ({ locals }) => {
     }
 
     try {
-        // Fetch all cameras with brand info
-        // Default sorting: brand ASC, name ASC, year DESC
+        // Fetch all cameras with brand info (no database sorting, will sort in JS)
         const allCameras = await db.select({
             id: productCameras.id,
             name: productCameras.name,
@@ -32,11 +137,17 @@ export const load: ServerLoad = async ({ locals }) => {
             updatedAt: productCameras.updatedAt
         })
             .from(productCameras)
-            .leftJoin(brands, eq(productCameras.brandId, brands.id))
-            .orderBy(brands.name, productCameras.name, desc(productCameras.releaseYear));
+            .leftJoin(brands, eq(productCameras.brandId, brands.id));
+
+        // Sort using natural sort: brand ASC, name ASC, year DESC
+        const sortedCameras = sortCameras(allCameras, {
+            brand: 'asc',
+            name: 'asc',
+            year: 'desc'
+        });
 
         return {
-            cameras: allCameras
+            cameras: sortedCameras
         };
     } catch (err) {
         console.error('Failed to load cameras:', err);
@@ -96,32 +207,9 @@ export const actions: Actions = {
 
             const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-            // Build orderBy clause - default: brand ASC, name ASC, year DESC
-            let orderByClause: any[] = [];
-            if (sort && typeof sort === 'object') {
-                // Multi-field sorting: brand, name, year
-                if (sort.brand) {
-                    orderByClause.push(sort.brand === 'asc' ? brands.name : desc(brands.name));
-                }
-                if (sort.name) {
-                    orderByClause.push(sort.name === 'asc' ? productCameras.name : desc(productCameras.name));
-                }
-                if (sort.year) {
-                    orderByClause.push(sort.year === 'asc' ? productCameras.releaseYear : desc(productCameras.releaseYear));
-                }
-            }
-            
-            // Default sorting if no sort config provided
-            if (orderByClause.length === 0) {
-                orderByClause = [
-                    brands.name, // brand ASC
-                    productCameras.name, // name ASC
-                    desc(productCameras.releaseYear) // year DESC
-                ];
-            }
-
-            // Fetch filtered data
-            const filteredCameras = await db
+            // Fetch filtered data (no database sorting, will sort in JS)
+            // Note: We need to fetch all matching records to sort properly, then paginate
+            const allFilteredCameras = await db
                 .select({
                     id: productCameras.id,
                     name: productCameras.name,
@@ -133,10 +221,18 @@ export const actions: Actions = {
                 })
                 .from(productCameras)
                 .leftJoin(brands, eq(productCameras.brandId, brands.id))
-                .where(whereClause)
-                .orderBy(...orderByClause)
-                .limit(limit)
-                .offset(offset);
+                .where(whereClause);
+
+            // Sort using natural sort
+            const sortConfig = sort && typeof sort === 'object' ? sort : {
+                brand: 'asc' as const,
+                name: 'asc' as const,
+                year: 'desc' as const
+            };
+            const sortedCameras = sortCameras(allFilteredCameras, sortConfig);
+
+            // Apply pagination after sorting
+            const filteredCameras = sortedCameras.slice(offset, offset + limit);
 
             // Count total
             const totalCountRows = await db
