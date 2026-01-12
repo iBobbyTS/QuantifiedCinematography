@@ -160,6 +160,21 @@
 		}
 	}
 
+	export function setValidated(id: string | number, title: string) {
+		validated = true;
+		valid = true;
+		selectedId = id;
+		inputValue = title;
+		inputClass =
+			'input input-bordered w-full border-emerald-600 focus:border-emerald-600 bg-white dark:bg-gray-700';
+		// Dispatch validation event
+		dispatch('validation', {
+			valid: true,
+			result: { valid: true, id, title }
+		});
+		dispatch('select', { id, title });
+	}
+
 	export function closeDropdown() {
 		showDropdown = false;
 	}

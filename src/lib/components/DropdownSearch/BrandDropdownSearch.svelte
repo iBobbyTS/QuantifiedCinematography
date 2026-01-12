@@ -39,14 +39,16 @@
 	onMount(async () => {
 		if (initialBrandName && initialBrandId > 0) {
 			await tick();
-			dropdownSearchComponent?.setInputValue?.(initialBrandName);
+			// Directly set as validated since data from database is inherently valid
+			dropdownSearchComponent?.setValidated?.(initialBrandId, initialBrandName);
 		}
 	});
 
 	// Ensure input retains value when toggling readonly
 	$effect(() => {
 		if (!readonly && dropdownSearchComponent && initialBrandName && initialBrandId > 0) {
-			dropdownSearchComponent.setInputValue?.(initialBrandName);
+			// Directly set as validated since data from database is inherently valid
+			dropdownSearchComponent.setValidated?.(initialBrandId, initialBrandName);
 		}
 	});
 
