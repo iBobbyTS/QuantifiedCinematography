@@ -3,7 +3,7 @@ import type { ServerLoad, Actions } from '@sveltejs/kit';
 import { db } from '$lib/server/db/index.js';
 import { productCameras, brands } from '$lib/server/db/schema.js';
 import { UserPermissions, USER_PERMISSIONS } from '$lib/permission/bitmask.js';
-import { and, or, like, eq, sql, desc } from 'drizzle-orm';
+import { and, or, like, eq, sql, desc, asc } from 'drizzle-orm';
 
 export const load: ServerLoad = async ({ locals }) => {
     // Check login
@@ -21,6 +21,7 @@ export const load: ServerLoad = async ({ locals }) => {
 
     try {
         // Fetch all cameras with brand info
+        // Default sorting: brand ASC, name ASC, year DESC
         const allCameras = await db.select({
             id: productCameras.id,
             name: productCameras.name,
@@ -32,7 +33,7 @@ export const load: ServerLoad = async ({ locals }) => {
         })
             .from(productCameras)
             .leftJoin(brands, eq(productCameras.brandId, brands.id))
-            .orderBy(desc(productCameras.createdAt));
+            .orderBy(brands.name, productCameras.name, desc(productCameras.releaseYear));
 
         return {
             cameras: allCameras
@@ -72,7 +73,7 @@ export const actions: Actions = {
                 }
             }
 
-            const { search, pagination } = payload || {};
+            const { search, sort, pagination } = payload || {};
 
             // Build conditions
             const conditions: any[] = [];
@@ -95,6 +96,30 @@ export const actions: Actions = {
 
             const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
+            // Build orderBy clause - default: brand ASC, name ASC, year DESC
+            let orderByClause: any[] = [];
+            if (sort && typeof sort === 'object') {
+                // Multi-field sorting: brand, name, year
+                if (sort.brand) {
+                    orderByClause.push(sort.brand === 'asc' ? brands.name : desc(brands.name));
+                }
+                if (sort.name) {
+                    orderByClause.push(sort.name === 'asc' ? productCameras.name : desc(productCameras.name));
+                }
+                if (sort.year) {
+                    orderByClause.push(sort.year === 'asc' ? productCameras.releaseYear : desc(productCameras.releaseYear));
+                }
+            }
+            
+            // Default sorting if no sort config provided
+            if (orderByClause.length === 0) {
+                orderByClause = [
+                    brands.name, // brand ASC
+                    productCameras.name, // name ASC
+                    desc(productCameras.releaseYear) // year DESC
+                ];
+            }
+
             // Fetch filtered data
             const filteredCameras = await db
                 .select({
@@ -109,7 +134,7 @@ export const actions: Actions = {
                 .from(productCameras)
                 .leftJoin(brands, eq(productCameras.brandId, brands.id))
                 .where(whereClause)
-                .orderBy(desc(productCameras.createdAt))
+                .orderBy(...orderByClause)
                 .limit(limit)
                 .offset(offset);
 

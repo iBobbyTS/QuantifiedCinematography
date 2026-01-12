@@ -40,6 +40,17 @@
 	let searchQuery = $state('');
 	let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
+	// Sort state - default: brand ASC, name ASC, year DESC
+	let sortConfig = $state<{
+		brand: 'asc' | 'desc';
+		name: 'asc' | 'desc';
+		year: 'asc' | 'desc';
+	}>({
+		brand: 'asc',
+		name: 'asc',
+		year: 'desc'
+	});
+
 	// Delete confirm modal state
 	let showDeleteConfirm = $state(false);
 	let cameraToDelete: any = $state(null);
@@ -62,10 +73,25 @@
 		}, 500);
 	}
 
+	// Sort handler
+	function handleSort(field: 'brand' | 'name' | 'year') {
+		// Toggle sort direction for the clicked field
+		if (sortConfig[field] === 'asc') {
+			sortConfig[field] = 'desc';
+		} else {
+			sortConfig[field] = 'asc';
+		}
+		// Reset to first page when sorting changes
+		currentPage = 1;
+		// Trigger filter
+		triggerFilter();
+	}
+
 	// Collect filter data
 	function collectFilterData() {
 		const filterData = {
 			search: searchQuery.trim() || null,
+			sort: sortConfig,
 			pagination: {
 				page: currentPage,
 				limit: itemsPerPage
@@ -310,21 +336,42 @@
 						<tr>
 							<th
 								scope="col"
-								class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+								class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+								onclick={() => handleSort('brand')}
 							>
-								{m['camera.manage.table.brand']()}
+								<div class="flex items-center gap-1">
+									{m['camera.manage.table.brand']()}
+									<Icon
+										icon={sortConfig.brand === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'}
+										class="w-3 h-3"
+									/>
+								</div>
 							</th>
 							<th
 								scope="col"
-								class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+								class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+								onclick={() => handleSort('name')}
 							>
-								{m['camera.manage.table.name']()}
+								<div class="flex items-center gap-1">
+									{m['camera.manage.table.name']()}
+									<Icon
+										icon={sortConfig.name === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'}
+										class="w-3 h-3"
+									/>
+								</div>
 							</th>
 							<th
 								scope="col"
-								class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+								class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+								onclick={() => handleSort('year')}
 							>
-								{m['camera.manage.table.release_year']()}
+								<div class="flex items-center gap-1">
+									{m['camera.manage.table.release_year']()}
+									<Icon
+										icon={sortConfig.year === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'}
+										class="w-3 h-3"
+									/>
+								</div>
 							</th>
 							<th
 								scope="col"
