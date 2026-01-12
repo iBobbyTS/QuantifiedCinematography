@@ -424,7 +424,11 @@
 							</tr>
 						{:else}
 							{#each cameras as camera}
-								<tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+								<tr
+									class="transition-colors {camera.cinema
+										? 'bg-gray-100 dark:bg-gray-700/50 hover:bg-gray-200 dark:hover:bg-gray-700'
+										: 'hover:bg-gray-50 dark:hover:bg-gray-700'}"
+								>
 									<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
 										{camera.brandName || '-'}
 									</td>

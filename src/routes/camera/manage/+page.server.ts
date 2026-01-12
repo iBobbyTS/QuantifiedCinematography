@@ -117,6 +117,7 @@ export const load: ServerLoad = async ({ locals }) => {
             brandId: productCameras.brandId,
             brandName: brands.name,
             releaseYear: productCameras.releaseYear,
+            cinema: productCameras.cinema,
             createdAt: productCameras.createdAt,
             updatedAt: productCameras.updatedAt
         })
@@ -199,6 +200,7 @@ export const actions: Actions = {
                     brandId: productCameras.brandId,
                     brandName: brands.name,
                     releaseYear: productCameras.releaseYear,
+                    cinema: productCameras.cinema,
                     createdAt: productCameras.createdAt,
                     updatedAt: productCameras.updatedAt
                 })
