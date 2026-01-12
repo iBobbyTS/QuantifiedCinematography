@@ -451,6 +451,20 @@
 			"failure": "添加相机失败",
 			"network_error": "网络错误，请重试"
 		},
+		"edit": {
+			"title": "编辑相机/摄影机",
+			"subtitle": "编辑相机或摄影机信息",
+			"buttons": {
+				"update": "更新相机",
+				"updating": "更新中..."
+			},
+			"tooltip": {
+				"no_changes": "内容没有更改"
+			},
+			"success": "相机更新成功",
+			"failure": "更新相机失败",
+			"network_error": "网络错误，请重试"
+		},
 		"products": {
 			"title": "已收录{cameraCount}款相机、{cinemaCount}款摄影机",
 			"button": "浏览所有相机和摄影机"

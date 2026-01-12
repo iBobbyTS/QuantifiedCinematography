@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { db } from '$lib/server/db/index.js';
 import { productCameras } from '$lib/server/db/schema.js';
-import { ilike, sql } from 'drizzle-orm';
+import { ilike, sql, and, ne } from 'drizzle-orm';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
     // Check login
@@ -11,7 +11,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     }
 
     try {
-        const { name } = await request.json();
+        const { name, excludeId } = await request.json();
 
         if (!name || typeof name !== 'string') {
             return json({ exists: false, similar: [] });
@@ -20,12 +20,17 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         const trimmedName = name.trim();
 
         // Check for exact match (case-insensitive)
+        // If excludeId is provided, exclude that camera from the check (for edit mode)
+        let whereCondition = ilike(productCameras.name, trimmedName);
+        if (excludeId && typeof excludeId === 'number') {
+            whereCondition = and(ilike(productCameras.name, trimmedName), ne(productCameras.id, excludeId)) as any;
+        }
+
         const exactMatch = await db
             .select()
             .from(productCameras)
-            .where(ilike(productCameras.name, trimmedName))
+            .where(whereCondition)
             .limit(1);
-
         const exists = exactMatch.length > 0;
 
         // Check for similar names using trigram similarity or just simple like for now

@@ -459,6 +459,20 @@
 			"failure": "Failed to add camera",
 			"network_error": "Network error, please try again"
 		},
+		"edit": {
+			"title": "Edit Camera/Cinema Camera",
+			"subtitle": "Edit camera or cinema camera information",
+			"buttons": {
+				"update": "Update Camera",
+				"updating": "Updating..."
+			},
+			"tooltip": {
+				"no_changes": "No changes made"
+			},
+			"success": "Camera updated successfully",
+			"failure": "Failed to update camera",
+			"network_error": "Network error, please try again"
+		},
 		"products": {
 			"title": "Recorded {cameraCount} cameras, {cinemaCount} cinema cameras",
 			"button": "Browse All Cameras and Cinema Cameras"
