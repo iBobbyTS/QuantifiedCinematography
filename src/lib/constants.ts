@@ -10,3 +10,14 @@ export const CINEMA_CAMERA_MODEL_KEYWORDS = {
     'Sony': ['FX', 'FS', 'Venice', 'CineAlta'],
     'DJI': ['Inspire', 'Ronin']
 };
+
+// Whether the project is currently under development
+export const IS_DEVELOPING = false;
+
+// List of completed development modules
+// data-provider-camera: Camera data upload module
+// camera: Camera module
+// data-provider-lighting: Lighting data upload module
+// lighting: Lighting module
+export const COMPLETED_MODULES: string[] = ['data-provider-camera', 'camera'];
+

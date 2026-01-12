@@ -6,6 +6,7 @@
 	import Navbar from '../lib/components/Navbar.svelte';
 	import Card from '../lib/components/Card.svelte';
 	import { UserPermissions, USER_PERMISSIONS } from '../lib/permission/bitmask.js';
+	import { IS_DEVELOPING, COMPLETED_MODULES } from '../lib/constants.js';
 
 	// 根据 intro 标题是否可见，动态设置 Navbar 标题
 	let isIntroTitleVisible = true;
@@ -65,6 +66,14 @@
 	$: hasCameraPermission =
 		$page.data.user &&
 		UserPermissions.hasPermission($page.data.user.permission, USER_PERMISSIONS.CAMERA);
+
+	// 检查模块是否应该显示
+	function shouldShowModule(moduleName: string): boolean {
+		if (IS_DEVELOPING) {
+			return true; // 开发模式下显示所有模块
+		}
+		return COMPLETED_MODULES.includes(moduleName); // 非开发模式下只显示已完成的模块
+	}
 
 	// 管理员卡片配置数据
 	$: adminCards = [
@@ -269,7 +278,7 @@
 					}
 				]
 			: []),
-		...(hasCameraPermission
+		...(hasCameraPermission && shouldShowModule('data-provider-camera')
 			? [
 					{
 						section: m['data_provider_camera.title'](),
@@ -278,7 +287,7 @@
 					}
 				]
 			: []),
-		...(hasLightPermission
+		...(hasLightPermission && shouldShowModule('data-provider-lighting')
 			? [
 					{
 						section: m['data_provider_lighting.title'](),
@@ -287,16 +296,24 @@
 					}
 				]
 			: []),
-		{
-			section: m['camera.title'](),
-			sectionId: 'section-camera',
-			cards: cameraCards.map((card) => ({ id: card.id, title: card.title }))
-		},
-		{
-			section: m['lighting.title'](),
-			sectionId: 'section-lighting',
-			cards: cards.map((card) => ({ id: card.id, title: card.title }))
-		}
+		...(shouldShowModule('camera')
+			? [
+					{
+						section: m['camera.title'](),
+						sectionId: 'section-camera',
+						cards: cameraCards.map((card) => ({ id: card.id, title: card.title }))
+					}
+				]
+			: []),
+		...(shouldShowModule('lighting')
+			? [
+					{
+						section: m['lighting.title'](),
+						sectionId: 'section-lighting',
+						cards: cards.map((card) => ({ id: card.id, title: card.title }))
+					}
+				]
+			: [])
 	];
 
 	// 平滑滚动到锚点
@@ -408,7 +425,7 @@
 			{/if}
 
 			<!-- Data Provider - Camera Section (Only visible to users with CAMERA permission) -->
-			{#if hasCameraPermission}
+			{#if hasCameraPermission && shouldShowModule('data-provider-camera')}
 				<div id="section-data-provider-camera" class="mb-12 scroll-mt-24">
 					<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
 						{m['data_provider_camera.title']()}
@@ -432,7 +449,7 @@
 			{/if}
 
 			<!-- Data Provider - Lighting Section (Only visible to users with LIGHT permission) -->
-			{#if hasLightPermission}
+			{#if hasLightPermission && shouldShowModule('data-provider-lighting')}
 				<div id="section-data-provider-lighting" class="mb-12 scroll-mt-24">
 					<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
 						{m['data_provider_lighting.title']()}
@@ -456,48 +473,52 @@
 			{/if}
 
 			<!-- Camera Section -->
-			<div id="section-camera" class="mb-12 scroll-mt-24">
-				<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
-					{m['camera.title']()}
-				</h2>
+			{#if shouldShowModule('camera')}
+				<div id="section-camera" class="mb-12 scroll-mt-24">
+					<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+						{m['camera.title']()}
+					</h2>
 
-				<!-- Camera Cards Grid Container -->
-				<div
-					class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6"
-				>
-					{#each cameraCards as card}
-						<Card
-							id={card.id}
-							title={card.title}
-							description={card.description}
-							buttons={card.buttons}
-							color={card.color}
-						/>
-					{/each}
+					<!-- Camera Cards Grid Container -->
+					<div
+						class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6"
+					>
+						{#each cameraCards as card}
+							<Card
+								id={card.id}
+								title={card.title}
+								description={card.description}
+								buttons={card.buttons}
+								color={card.color}
+							/>
+						{/each}
+					</div>
 				</div>
-			</div>
+			{/if}
 
 			<!-- Lighting Section -->
-			<div id="section-lighting" class="mb-12 scroll-mt-24">
-				<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
-					{m['lighting.title']()}
-				</h2>
+			{#if shouldShowModule('lighting')}
+				<div id="section-lighting" class="mb-12 scroll-mt-24">
+					<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+						{m['lighting.title']()}
+					</h2>
 
-				<!-- Cards Grid Container -->
-				<div
-					class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6"
-				>
-					{#each cards as card}
-						<Card
-							id={card.id}
-							title={card.title}
-							description={card.description}
-							buttons={card.buttons}
-							color={card.color}
-						/>
-					{/each}
+					<!-- Cards Grid Container -->
+					<div
+						class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6"
+					>
+						{#each cards as card}
+							<Card
+								id={card.id}
+								title={card.title}
+								description={card.description}
+								buttons={card.buttons}
+								color={card.color}
+							/>
+						{/each}
+					</div>
 				</div>
-			</div>
+			{/if}
 		</main>
 	</div>
 </div>
