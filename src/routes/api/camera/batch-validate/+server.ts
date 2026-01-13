@@ -24,24 +24,51 @@ export const POST: RequestHandler = async ({ request }) => {
     const validationResults = [];
     let validCount = 0;
 
+    // CSV parsing function that handles quoted fields
+    function parseCSVLine(line: string): string[] {
+        const result: string[] = [];
+        let current = '';
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            if (char === '"') {
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+                result.push(current.trim());
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+        result.push(current.trim());
+        return result;
+    }
+
     // Simple CSV parsing
     for (let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
         if (!line) continue;
 
-        const values = line.split(',').map((v) => v.trim());
+        const values = parseCSVLine(line);
         if (values.length < 4) continue;
 
-        const brand = values[0];
-        const model = values[1];
-        const year = values[2];
-        const cinemaRaw = values[3];
+        const brand = values[0].replace(/^"|"$/g, ''); // Remove surrounding quotes
+        const model = values[1].replace(/^"|"$/g, '');
+        const year = values[2].replace(/^"|"$/g, '');
+        const cinemaRaw = values[3].replace(/^"|"$/g, '').trim();
 
+        // Parse cinema field: convert various string formats to boolean
         let isCinema = false;
         if (cinemaRaw) {
-            const lower = cinemaRaw.toLowerCase();
-            if (lower === 'y' || lower === 'true') isCinema = true;
-            else if (lower === 'n' || lower === 'false') isCinema = false;
+            const trimmed = cinemaRaw.trim();
+            const lower = trimmed.toLowerCase();
+            // Accept: 1, T, t, True, true, Y, y, Yes, YES, yes
+            if (lower === '1' || lower === 't' || lower === 'true' || lower === 'y' || lower === 'yes') {
+                isCinema = true;
+            } else if (lower === '0' || lower === 'f' || lower === 'false' || lower === 'n' || lower === 'no') {
+                isCinema = false;
+            }
+            // Default is false if not recognized
         }
 
         const brandExists = existingBrandNames.has(brand.toLowerCase());
