@@ -306,6 +306,7 @@ export const actions: Actions = {
                 const fieldMap: Record<string, string> = {
                     'EI': 'ei',
                     'ISO': 'iso',
+                    'Special Mode': 'specialMode',
                     'Codec': 'codec',
                     'Log Type': 'log',
                     'Bit Depth': 'bitDepth',
@@ -322,12 +323,39 @@ export const actions: Actions = {
                     'SNR=40': 'snr40'
                 };
 
+                // Map localized headers to English field names
+                const localizedFieldMap: Record<string, string> = {
+                    // Chinese headers
+                    '特殊模式': 'Special Mode',
+                    '编码': 'Codec',
+                    'Log类型': 'Log Type',
+                    '位深': 'Bit Depth',
+                    '色度采样': 'Chroma Subsampling',
+                    '码率(Mbps)': 'Bitrate',
+                    '分辨率': 'Resolution',
+                    '帧率': 'Framerate',
+                    '裁切(画幅)': 'Crop',
+                    // English headers (keep as is)
+                    'Special Mode': 'Special Mode',
+                    'Codec': 'Codec',
+                    'Log Type': 'Log Type',
+                    'Bit Depth': 'Bit Depth',
+                    'Chroma Subsampling': 'Chroma Subsampling',
+                    'Bitrate (Mbps)': 'Bitrate',
+                    'Resolution': 'Resolution',
+                    'Framerate': 'Framerate',
+                    'Crop': 'Crop'
+                };
+
                 headers.forEach((header, index) => {
-                    if (header === 'Camera ID' || header === 'Brand' || header === 'Camera Name') {
+                    if (header === 'Camera ID' || header === 'Brand' || header === 'Camera Name' || 
+                        header === '品牌' || header === '相机型号') {
                         return; // Skip these columns
                     }
 
-                    const dbField = fieldMap[header];
+                    // Convert localized header to English field name if needed
+                    const englishHeader = localizedFieldMap[header] || header;
+                    const dbField = fieldMap[englishHeader];
                     if (dbField && values[index]) {
                         const value = values[index].trim();
                         if (value) {

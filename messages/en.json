@@ -401,7 +401,7 @@
 				"network_error": "Network error",
 				"row1": {
 					"label": "EI, ISO",
-					"description": "**EI** or **ISO** at least one must be filled. If the other is the same, it can be left empty, or different values can be filled"
+					"description": "**EI** or **ISO** at least one must be filled. If the other is the same, it can be left empty, or different values can be filled.\nSpecial modes such as RED's \"Highlight Extension\", DJI's \"Extended Dynamic Range\", and Panasonic's \"DGO\""
 				},
 				"row2": {
 					"label": "Codec, Log Type, Bit Depth, Chroma Subsampling, Bitrate",

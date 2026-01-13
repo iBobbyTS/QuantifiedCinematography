@@ -218,7 +218,7 @@
 			const fd = new FormData();
 			fd.set('cameraIds', JSON.stringify(Array.from(selectedCameras)));
 			// Use all available fields for the template
-			const allFields = ['EI', 'ISO', 'Codec', 'Log Type', 'Bit Depth', 'Chroma Subsampling', 'Bitrate', 'Resolution', 'Framerate', 'Crop', 'Slope-based', 'SNR=1', 'SNR=2', 'SNR=4', 'SNR=10', 'SNR=40'];
+			const allFields = ['EI', 'ISO', 'Special Mode', 'Codec', 'Log Type', 'Bit Depth', 'Chroma Subsampling', 'Bitrate', 'Resolution', 'Framerate', 'Crop', 'Slope-based', 'SNR=1', 'SNR=2', 'SNR=4', 'SNR=10', 'SNR=40'];
 			fd.set('selectedFields', JSON.stringify(allFields));
 			// Add locale for CSV header localization
 			fd.set('locale', getLocale());
@@ -287,7 +287,7 @@
 		try {
 			const fd = new FormData();
 			fd.set('cameraIds', JSON.stringify(Array.from(selectedCameras)));
-			const allFields = ['EI', 'ISO', 'Codec', 'Log Type', 'Bit Depth', 'Chroma Subsampling', 'Bitrate', 'Resolution', 'Framerate', 'Crop', 'Slope-based', 'SNR=1', 'SNR=2', 'SNR=4', 'SNR=10', 'SNR=40'];
+			const allFields = ['EI', 'ISO', 'Special Mode', 'Codec', 'Log Type', 'Bit Depth', 'Chroma Subsampling', 'Bitrate', 'Resolution', 'Framerate', 'Crop', 'Slope-based', 'SNR=1', 'SNR=2', 'SNR=4', 'SNR=10', 'SNR=40'];
 			fd.set('selectedFields', JSON.stringify(allFields));
 			// Add locale for CSV header localization
 			fd.set('locale', getLocale());

@@ -13,6 +13,7 @@ const CSV_HEADERS = {
         'Camera Name': 'Camera Name',
         'EI': 'EI',
         'ISO': 'ISO',
+        'Special Mode': 'Special Mode',
         'Codec': 'Codec',
         'Log Type': 'Log Type',
         'Bit Depth': 'Bit Depth',
@@ -34,6 +35,7 @@ const CSV_HEADERS = {
         'Camera Name': '相机型号',
         'EI': 'EI',
         'ISO': 'ISO',
+        'Special Mode': '特殊模式',
         'Codec': '编码',
         'Log Type': 'Log类型',
         'Bit Depth': '位深',
@@ -99,7 +101,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
             headerMap['Brand'],
             headerMap['Camera Name']
         ];
-        const fieldHeaders = selectedFields.map(field => headerMap[field] || field);
+        const fieldHeaders = selectedFields.map(field => (headerMap as Record<string, string>)[field] || field);
         const headers = [...baseHeaders, ...fieldHeaders];
         const rows = cameras.map(camera => {
             const row: (string | number)[] = [camera.id, camera.brandName || '', camera.name];

@@ -196,6 +196,7 @@ export const cameraDynamicRangeData = pgTable('camera_dynamic_range_data', {
 	userId: uuid('user_id').references(() => user.id).notNull(),
 	ei: integer('ei'),
 	iso: integer('iso'),
+	specialMode: text('special_mode'),
 	codec: text('codec'),
 	log: text('log'),
 	bitDepth: integer('bit_depth'),
