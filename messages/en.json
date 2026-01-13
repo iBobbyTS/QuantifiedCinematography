@@ -389,6 +389,7 @@
 			"modal": {
 				"title": "Upload Dynamic Range Data for the Following Cameras",
 				"subtitle": "Please select the data columns to upload",
+				"selected_cameras": "Selected Cameras",
 				"redownload": "Redownload",
 				"additional_note": "If the same camera has been tested for dynamic range data under multiple specifications, you can add rows yourself, ensuring the brand and model are consistent.",
 				"download_failed": "Download Failed",

@@ -547,18 +547,10 @@
 			<!-- Header -->
 			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
 				<div class="flex items-center justify-between">
-					<div class="flex-1">
+					<div>
 						<h3 id="upload-modal-title" class="text-lg font-medium text-gray-900 dark:text-white">
 							{m['camera.dynamic_range_upload.modal.title']()}
 						</h3>
-						<!-- Selected cameras list -->
-						<div class="mt-2 space-y-1">
-							{#each selectedCamerasInfo as camera}
-								<p class="text-sm text-gray-600 dark:text-gray-400">
-									{camera.brandName || ''} {camera.name}
-								</p>
-							{/each}
-						</div>
 					</div>
 					<button
 						onclick={closeModal}
@@ -572,6 +564,20 @@
 
 			<!-- Body -->
 			<div class="px-6 py-4 space-y-6">
+				<!-- Selected cameras list section -->
+				<div>
+					<h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+						{m['camera.dynamic_range_upload.modal.selected_cameras']()}
+					</h4>
+					<div class="space-y-1">
+						{#each selectedCamerasInfo as camera}
+							<p class="text-sm text-gray-600 dark:text-gray-400">
+								{camera.brandName || ''} {camera.name}
+							</p>
+						{/each}
+					</div>
+				</div>
+
 				<!-- Redownload Section -->
 				<div>
 					<button
