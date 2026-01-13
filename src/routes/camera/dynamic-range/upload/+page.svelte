@@ -657,8 +657,11 @@
 					<h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
 						{m['camera.dynamic_range_upload.modal.notes_section_title']()}
 					</h4>
-					<!-- Additional note at the top -->
+					<!-- Notes list -->
 					<div class="space-y-2">
+						<p class="text-xs text-gray-500 dark:text-gray-400">
+							{m['camera.dynamic_range_upload.modal.note_do_not_modify_camera_id']()}
+						</p>
 						<p class="text-xs text-gray-500 dark:text-gray-400">
 							{m['camera.dynamic_range_upload.modal.additional_note']()}
 						</p>
@@ -667,7 +670,7 @@
 						{#if group.description}
 							<div class="space-y-2">
 								<p class="text-xs text-gray-500 dark:text-gray-400 whitespace-pre-line">
-									{@html group.description.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}
+									{@html group.description.replace(/\*\*(.*?)\*\*/g, '<strong style="text-decoration: underline;">$1</strong>')}
 								</p>
 							</div>
 						{/if}

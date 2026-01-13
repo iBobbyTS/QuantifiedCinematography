@@ -394,7 +394,8 @@
 				"redownload": "Download",
 				"upload_section_title": "Upload CSV File",
 				"notes_section_title": "Notes",
-				"additional_note": "If the same camera has been tested for dynamic range data under multiple specifications, you can add rows yourself, ensuring the brand and model are consistent.",
+				"note_do_not_modify_camera_id": "Do not modify the Camera ID column.",
+				"additional_note": "If the same camera has been tested for dynamic range data under multiple specifications, you can add rows yourself, ensuring the Camera ID, brand, and model are consistent.",
 				"download_failed": "Download Failed",
 				"download_failed_message": "Failed to download template",
 				"network_error": "Network error",
@@ -405,7 +406,7 @@
 				},
 				"row2": {
 					"label": "Codec, Log Type, Bit Depth, Chroma Subsampling, Bitrate",
-					"description": "**Codec**: H264, H265, XFAVC All-I, XAVC HS, Cinema RAW Light, NRAW......\n**Log Type**: Leave empty if RAW or direct output;\n**Bit Depth**: Fill in numbers only, e.g. 8, 10;\n**Chroma Subsampling**: Fill in numbers only, e.g. 422, 420;\n**Bitrate** (Mbps): Recommended to fill",
+					"description": "**Codec**: H.264, H.265, XFAVC All-I, XAVC HS, Cinema RAW Light, NRAW......\n**Log Type**: Leave empty if RAW or direct output;\n**Bit Depth**: Fill in numbers only, e.g. 8, 10;\n**Chroma Subsampling**: Fill in numbers only, e.g. 422, 420;\n**Bitrate** (Mbps): Recommended to fill",
 					"default": "Codec, Log Type, Bit Depth, Bitrate"
 				},
 				"row3": {
