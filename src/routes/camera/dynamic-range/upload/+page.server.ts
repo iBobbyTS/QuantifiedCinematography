@@ -5,6 +5,54 @@ import { productCameras, brands, cameraDynamicRangeData } from '$lib/server/db/s
 import { UserPermissions, USER_PERMISSIONS } from '$lib/permission/bitmask.js';
 import { and, or, like, eq, sql, inArray } from 'drizzle-orm';
 
+// Helper function to get record counts for cameras
+async function getRecordCounts(cameraIds: number[], userId: string): Promise<Map<number, number>> {
+    if (cameraIds.length === 0) {
+        return new Map();
+    }
+
+    try {
+        const counts = await db
+            .select({
+                cameraId: cameraDynamicRangeData.cameraId,
+                count: sql<number>`count(*)`
+            })
+            .from(cameraDynamicRangeData)
+            .where(
+                and(
+                    inArray(cameraDynamicRangeData.cameraId, cameraIds),
+                    eq(cameraDynamicRangeData.userId, userId)
+                )
+            )
+            .groupBy(cameraDynamicRangeData.cameraId);
+
+        const countMap = new Map<number, number>();
+        counts.forEach(({ cameraId, count }) => {
+            countMap.set(cameraId, count);
+        });
+
+        // Set 0 for cameras without records
+        cameraIds.forEach(id => {
+            if (!countMap.has(id)) {
+                countMap.set(id, 0);
+            }
+        });
+
+        return countMap;
+    } catch (err: any) {
+        // If table doesn't exist, return all zeros
+        if (err?.code === '42P01' || err?.message?.includes('does not exist')) {
+            console.warn('camera_dynamic_range_data table does not exist yet, returning zero counts');
+            const countMap = new Map<number, number>();
+            cameraIds.forEach(id => {
+                countMap.set(id, 0);
+            });
+            return countMap;
+        }
+        throw err;
+    }
+}
+
 // Natural sort comparison function for strings with numbers
 function naturalCompare(a: string, b: string): number {
     if (!a && !b) return 0;
@@ -120,8 +168,18 @@ export const load: ServerLoad = async ({ locals }) => {
             name: 'asc'
         });
 
+        // Get record counts for all cameras
+        const cameraIds = sortedCameras.map(c => c.id);
+        const recordCounts = await getRecordCounts(cameraIds, locals.user.id);
+
+        // Add record count to each camera
+        const camerasWithCounts = sortedCameras.map(camera => ({
+            ...camera,
+            recordCount: recordCounts.get(camera.id) || 0
+        }));
+
         return {
-            cameras: sortedCameras
+            cameras: camerasWithCounts
         };
     } catch (err) {
         console.error('Failed to load cameras:', err);
@@ -208,6 +266,16 @@ export const actions: Actions = {
             // Apply pagination after sorting
             const filteredCameras = sortedCameras.slice(offset, offset + limit);
 
+            // Get record counts for filtered cameras
+            const cameraIds = filteredCameras.map(c => c.id);
+            const recordCounts = await getRecordCounts(cameraIds, locals.user!.id);
+
+            // Add record count to each camera
+            const camerasWithCounts = filteredCameras.map(camera => ({
+                ...camera,
+                recordCount: recordCounts.get(camera.id) || 0
+            }));
+
             // Count total
             const totalCountRows = await db
                 .select({ count: sql<number>`count(*)` })
@@ -218,7 +286,7 @@ export const actions: Actions = {
 
             return {
                 success: true,
-                cameras: filteredCameras,
+                cameras: camerasWithCounts,
                 pagination: {
                     page,
                     limit,

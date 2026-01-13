@@ -215,9 +215,6 @@ export const cameraDynamicRangeData = pgTable('camera_dynamic_range_data', {
 }, (table) => [
 	index('camera_dynamic_range_data_camera_id_idx').on(table.cameraId),
 	index('camera_dynamic_range_data_user_id_idx').on(table.userId),
-	check("camera_dynamic_range_data_id_not_null", sql`NOT NULL id`),
-	check("camera_dynamic_range_data_camera_id_not_null", sql`NOT NULL camera_id`),
-	check("camera_dynamic_range_data_user_id_not_null", sql`NOT NULL user_id`),
 ]);
 
 // Benchmark light white table

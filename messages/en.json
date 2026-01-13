@@ -386,6 +386,9 @@
 			"title": "Dynamic Range Data Upload",
 			"subtitle": "Select cameras to add data, click 'Next' in the top right corner, select columns to fill in the popup window, then click 'Download' button",
 			"next_button": "Next",
+			"table": {
+				"record_count": "Recorded Count"
+			},
 			"modal": {
 				"title": "Upload Dynamic Range Data for the Following Cameras",
 				"subtitle": "Please select the data columns to upload",

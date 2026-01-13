@@ -8,6 +8,7 @@
 		brandName: string | null;
 		releaseYear: number | null;
 		cinema: boolean;
+		recordCount?: number; // Optional: number of records uploaded by current user
 	}
 
 	interface Props {
@@ -85,7 +86,7 @@
 	);
 
 	// Reference to the select all checkbox
-	let selectAllCheckbox: HTMLInputElement;
+	let selectAllCheckbox = $state<HTMLInputElement | null>(null);
 
 	// Set indeterminate state
 	$effect(() => {
@@ -147,6 +148,14 @@
 							{/if}
 						</div>
 					</th>
+					{#if showCheckbox && cameras.some(c => c.recordCount !== undefined)}
+						<th
+							scope="col"
+							class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+						>
+							{m['camera.dynamic_range_upload.table.record_count']()}
+						</th>
+					{/if}
 					<th
 						scope="col"
 						class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
@@ -200,6 +209,11 @@
 							<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
 								{camera.releaseYear || '-'}
 							</td>
+							{#if showCheckbox && camera.recordCount !== undefined}
+								<td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
+									{camera.recordCount}
+								</td>
+							{/if}
 							<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
 								{#if showCheckbox}
 									<input
