@@ -14,7 +14,8 @@
 		showBackButton = false,
 		backButtonUrl = '/',
 		backButtonText = 'navbar.backToHome',
-		hideLoginButton = false
+		hideLoginButton = false,
+		centerTitleDirect = false
 	} = $props<{
 		centerTitle?: string;
 		centerTitleSize?: string;
@@ -22,6 +23,7 @@
 		backButtonUrl?: string;
 		backButtonText?: string;
 		hideLoginButton?: boolean;
+		centerTitleDirect?: boolean;
 	}>();
 
 	let currentUser = $derived($page.data?.user ?? null);
@@ -120,7 +122,11 @@
 					<h1
 						class="text-{centerTitleSize} font-semibold text-gray-900 dark:text-gray-100 text-center"
 					>
-						{(m as any)[centerTitle]()}
+						{#if centerTitleDirect}
+							{centerTitle}
+						{:else}
+							{(m as any)[centerTitle]()}
+						{/if}
 					</h1>
 				{:else}
 					<!-- 占位元素，保持三列布局不变 -->

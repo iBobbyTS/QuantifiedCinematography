@@ -9,6 +9,7 @@
 	import { ITEMS_PER_PAGE_OPTIONS } from '$lib/constants';
 	import { parse as devalueParse } from 'devalue';
 	import { getLocale } from '$lib/paraglide/runtime.js';
+	import { goto } from '$app/navigation';
 
 	let { data }: { data: PageData } = $props();
 
@@ -527,6 +528,7 @@
 			showCheckbox={true}
 			bind:selectedCameras
 			onSelectionChange={handleSelectionChange}
+			onRecordCountClick={(camera) => goto(`/camera/dynamic-range/manage/${camera.id}`)}
 		/>
 
 		<!-- Bottom Pagination Component -->

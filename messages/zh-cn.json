@@ -412,6 +412,7 @@
 				"fields": {
 					"ei": "EI",
 					"iso": "ISO",
+					"special_mode": "特殊模式",
 					"codec": "编码",
 					"log": "Log类型",
 					"bit_depth": "位深",
@@ -439,11 +440,24 @@
 					"upload": "上传",
 					"cancel": "取消"
 				},
-				"upload_file_label": "上传CSV文件",
-				"upload_success": "数据上传成功",
-				"upload_failure": "数据上传失败：{error}"
-			}
+			"upload_file_label": "上传CSV文件",
+			"upload_success": "数据上传成功",
+			"upload_failure": "数据上传失败：{error}"
 		},
+		"dynamic_range_manage": {
+			"title": "动态范围数据查看和编辑",
+			"view_mode": "查看",
+			"edit_mode": "编辑",
+			"update_button": "更新",
+			"update_success": "数据更新成功",
+			"update_failure": "数据更新失败",
+			"update_error": "更新数据时发生错误",
+			"empty_state": {
+				"title": "暂无数据",
+				"description": "该相机还没有上传任何动态范围数据。"
+			}
+		}
+	},
 		"add": {
 			"title": "添加相机/摄影机",
 			"subtitle": "添加新的相机或摄影机到数据库",

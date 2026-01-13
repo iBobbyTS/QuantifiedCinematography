@@ -420,6 +420,7 @@
 				"fields": {
 					"ei": "EI",
 					"iso": "ISO",
+					"special_mode": "Special Mode",
 					"codec": "Codec",
 					"log": "Log Type",
 					"bit_depth": "Bit Depth",
@@ -450,6 +451,19 @@
 				"upload_file_label": "Upload CSV File",
 				"upload_success": "Data uploaded successfully",
 				"upload_failure": "Data upload failed: {error}"
+			},
+			"dynamic_range_manage": {
+				"title": "Dynamic Range Data View and Edit",
+				"view_mode": "View",
+				"edit_mode": "Edit",
+				"update_button": "Update",
+				"update_success": "Data updated successfully",
+				"update_failure": "Data update failed",
+				"update_error": "An error occurred while updating data",
+				"empty_state": {
+					"title": "No Data",
+					"description": "No dynamic range data has been uploaded for this camera yet."
+				}
 			}
 		},
 		"add": {

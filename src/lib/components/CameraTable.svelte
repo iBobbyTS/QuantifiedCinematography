@@ -29,6 +29,8 @@
 		showCheckbox?: boolean;
 		selectedCameras?: Set<number>;
 		onSelectionChange?: (cameraId: number, selected: boolean) => void;
+		// For record count click
+		onRecordCountClick?: (camera: Camera) => void;
 	}
 
 	let {
@@ -42,7 +44,8 @@
 		onDelete,
 		showCheckbox = false,
 		selectedCameras = $bindable(new Set<number>()),
-		onSelectionChange
+		onSelectionChange,
+		onRecordCountClick
 	}: Props = $props();
 
 	function handleCheckboxChange(camera: Camera, checked: boolean) {
@@ -194,6 +197,7 @@
 				{:else}
 					{#each cameras as camera}
 						<tr
+							id={`camera-${camera.id}`}
 							class="transition-colors {camera.cinema
 								? 'bg-gray-100 dark:bg-gray-700/50 hover:bg-gray-200 dark:hover:bg-gray-700'
 								: 'hover:bg-gray-50 dark:hover:bg-gray-700'}"
@@ -210,9 +214,18 @@
 								{camera.releaseYear || '-'}
 							</td>
 							{#if showCheckbox && camera.recordCount !== undefined}
-								<td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
-									{camera.recordCount}
-								</td>
+								{#if onRecordCountClick}
+									<td
+										onclick={() => onRecordCountClick(camera)}
+										class="px-6 py-4 whitespace-nowrap text-right text-sm text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-colors"
+									>
+										{camera.recordCount}
+									</td>
+								{:else}
+									<td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
+										{camera.recordCount}
+									</td>
+								{/if}
 							{/if}
 							<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
 								{#if showCheckbox}
