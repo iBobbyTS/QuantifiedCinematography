@@ -405,11 +405,11 @@
 				},
 				"row2": {
 					"label": "Codec, Log Type, Bit Depth, Chroma Subsampling, Bitrate",
-					"description": "**Codec**: H.264, H.265, XFAVC All-I, XAVC HS, Cinema RAW Light, NRAW......\n**Log Type**: Leave empty if RAW or direct output;\n**Bit Depth**: Fill in numbers only, e.g. 8, 10;\n**Chroma Subsampling**: Fill in numbers only, e.g. 422, 420;\n**Bitrate** (Mbps): Recommended to fill"
+					"description": "**Codec**: H.264, H.265, XFAVC All-I, XAVC HS, Cinema RAW Light, NRAW......\n**Log Type**: If RAW, fill in the Log space used for decoding test; leave empty if direct output;\n**Bit Depth**: Fill in numbers only, e.g. 8, 10;\n**Chroma Subsampling**: Fill in numbers only, e.g. 422, 420;\n**Bitrate** (Mbps): Recommended to fill"
 				},
 				"row3": {
 					"label": "Resolution, Framerate, Crop",
-					"description": "**Resolution**: Standard resolutions like 4K UHD, 4K DCI, 8K UHD, 8K DCI can be filled directly with their names. For others like 4.2K, it is recommended to fill in \"4.2K 4128×2322\", and for 7K_OG, it is recommended to fill in \"7K OG 6960×4640\". You can use asterisk * or × to represent ×.\n**Framerate**: Distinguish non-integer and integer, e.g. 23.98/24, 59.94/60 etc.;\n**Crop**: Optional, can be left empty, fill APSC, S35 etc."
+					"description": "**Resolution**: Standard resolutions like 4K UHD, 4K DCI, 8K UHD, 8K DCI can be filled directly with their names. For others like 4.2K, it is recommended to fill in \"4.2K 4128×2322\", and for 7K_OG, it is recommended to fill in \"7K OG 6960×4640\". You can use asterisk * or × to represent ×.\n**Framerate**: Distinguish non-integer and integer, e.g. 23.98/24, 59.94/60 etc.;\n**Crop**: If OG or only top/bottom crop, leave empty; if there is a magnification crop, e.g. 4K60 has 1.4x crop, fill in 1.4x; if testing the image quality of APS-C, S35, S16..., fill in these specifications directly."
 				},
 				"row4": {
 					"label": "Slope-based, SNR=1, SNR=2, SNR=4, SNR=10, SNR=40"
