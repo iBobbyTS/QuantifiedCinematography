@@ -393,22 +393,18 @@
 				"network_error": "网络错误",
 				"row1": {
 					"label": "EI、ISO",
-					"description": "**EI**或**ISO**至少填写一个，另一个如果一样可以留空，也可以填写不同数值",
-					"default": "ISO"
+					"description": "**EI**或**ISO**至少填写一个，另一个如果一样可以留空，也可以填写不同数值"
 				},
 				"row2": {
 					"label": "编码、Log类型、位深、色度采样、码率",
-					"description": "**编码**：H.264, H.265, XFAVC All-I, XAVC HS, Cinema RAW Light, NRAW......\n**Log类型**：如果是RAW或直出则留空；\n**位深**：填写纯数字，比如8、10；\n**色度采样**：填写纯数字，比如422, 420；\n**码率**(Mbps)：建议填写",
-					"default": "编码、Log类型、位深、码率"
+					"description": "**编码**：H.264, H.265, XFAVC All-I, XAVC HS, Cinema RAW Light, NRAW......\n**Log类型**：如果是RAW或直出则留空；\n**位深**：填写纯数字，比如8、10；\n**色度采样**：填写纯数字，比如422, 420；\n**码率**(Mbps)：建议填写"
 				},
 				"row3": {
 					"label": "分辨率、帧率、画幅/裁切",
-					"description": "**分辨率**：用小写字母x代替乘号；\n**帧率**：需区分非整数和整数，如23.98/24, 59.94/60等；\n**裁切**：选填，可以不填、填APSC、S35等",
-					"default": "分辨率、帧率"
+					"description": "**分辨率**：4K UHD, 4K DCI, 8K UHD, 8K DCI等标准分辨率可直接填写名字，其他如4.2K，建议填写\"4.2K 4128×2322\"，7K_OG建议填写\"7K OG 6960×4640\"。使用星号*或×代表×都可以。\n**帧率**：需区分非整数和整数，如23.98/24, 59.94/60等；\n**裁切**：选填，可以不填、填APSC、S35等"
 				},
 				"row4": {
-					"label": "Slope-based, SNR=1, SNR=2, SNR=4, SNR=10, SNR=40",
-					"default": "Slope-based, SNR=1, SNR=2"
+					"label": "Slope-based, SNR=1, SNR=2, SNR=4, SNR=10, SNR=40"
 				},
 				"fields": {
 					"ei": "EI",
@@ -428,15 +424,19 @@
 					"snr10": "SNR=10",
 					"snr40": "SNR=40"
 				},
+				"csv_headers": {
+					"camera_id": "Camera ID",
+					"brand": "品牌",
+					"camera_name": "相机型号",
+					"bitrate_with_unit": "码率(Mbps)",
+					"crop_with_unit": "裁切(画幅)"
+				},
 				"buttons": {
 					"download": "下载",
 					"upload": "上传",
 					"cancel": "取消"
 				},
 				"upload_file_label": "上传CSV文件",
-				"download_failed": "下载失败",
-				"download_failed_message": "下载模板失败",
-				"network_error": "网络错误",
 				"upload_success": "数据上传成功",
 				"upload_failure": "数据上传失败：{error}"
 			}

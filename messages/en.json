@@ -401,22 +401,18 @@
 				"network_error": "Network error",
 				"row1": {
 					"label": "EI, ISO",
-					"description": "**EI** or **ISO** at least one must be filled. If the other is the same, it can be left empty, or different values can be filled",
-					"default": "ISO"
+					"description": "**EI** or **ISO** at least one must be filled. If the other is the same, it can be left empty, or different values can be filled"
 				},
 				"row2": {
 					"label": "Codec, Log Type, Bit Depth, Chroma Subsampling, Bitrate",
-					"description": "**Codec**: H.264, H.265, XFAVC All-I, XAVC HS, Cinema RAW Light, NRAW......\n**Log Type**: Leave empty if RAW or direct output;\n**Bit Depth**: Fill in numbers only, e.g. 8, 10;\n**Chroma Subsampling**: Fill in numbers only, e.g. 422, 420;\n**Bitrate** (Mbps): Recommended to fill",
-					"default": "Codec, Log Type, Bit Depth, Bitrate"
+					"description": "**Codec**: H.264, H.265, XFAVC All-I, XAVC HS, Cinema RAW Light, NRAW......\n**Log Type**: Leave empty if RAW or direct output;\n**Bit Depth**: Fill in numbers only, e.g. 8, 10;\n**Chroma Subsampling**: Fill in numbers only, e.g. 422, 420;\n**Bitrate** (Mbps): Recommended to fill"
 				},
 				"row3": {
 					"label": "Resolution, Framerate, Crop",
-					"description": "**Resolution**: Use lowercase x instead of multiplication sign;\n**Framerate**: Distinguish non-integer and integer, e.g. 23.98/24, 59.94/60 etc.;\n**Crop**: Optional, can be left empty, fill APSC, S35 etc.",
-					"default": "Resolution, Framerate"
+					"description": "**Resolution**: Standard resolutions like 4K UHD, 4K DCI, 8K UHD, 8K DCI can be filled directly with their names. For others like 4.2K, it is recommended to fill in \"4.2K 4128×2322\", and for 7K_OG, it is recommended to fill in \"7K OG 6960×4640\". You can use asterisk * or × to represent ×.\n**Framerate**: Distinguish non-integer and integer, e.g. 23.98/24, 59.94/60 etc.;\n**Crop**: Optional, can be left empty, fill APSC, S35 etc."
 				},
 				"row4": {
-					"label": "Slope-based, SNR=1, SNR=2, SNR=4, SNR=10, SNR=40",
-					"default": "Slope-based, SNR=1, SNR=2"
+					"label": "Slope-based, SNR=1, SNR=2, SNR=4, SNR=10, SNR=40"
 				},
 				"fields": {
 					"ei": "EI",
@@ -436,15 +432,19 @@
 					"snr10": "SNR=10",
 					"snr40": "SNR=40"
 				},
+				"csv_headers": {
+					"camera_id": "Camera ID",
+					"brand": "Brand",
+					"camera_name": "Camera Name",
+					"bitrate_with_unit": "Bitrate (Mbps)",
+					"crop_with_unit": "Crop"
+				},
 				"buttons": {
 					"download": "Download",
 					"upload": "Upload",
 					"cancel": "Cancel"
 				},
 				"upload_file_label": "Upload CSV File",
-				"download_failed": "Download Failed",
-				"download_failed_message": "Failed to download template",
-				"network_error": "Network error",
 				"upload_success": "Data uploaded successfully",
 				"upload_failure": "Data upload failed: {error}"
 			}

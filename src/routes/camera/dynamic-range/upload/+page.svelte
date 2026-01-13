@@ -8,6 +8,7 @@
 	import CameraTable from '$lib/components/CameraTable.svelte';
 	import { ITEMS_PER_PAGE_OPTIONS } from '$lib/constants';
 	import { parse as devalueParse } from 'devalue';
+	import { getLocale } from '$lib/paraglide/runtime.js';
 
 	let { data }: { data: PageData } = $props();
 
@@ -86,23 +87,19 @@
 	const fieldGroups = [
 		{
 			description: m['camera.dynamic_range_upload.modal.row1.description'](),
-			fields: ['EI', 'ISO'],
-			defaultFields: ['ISO']
+			fields: ['EI', 'ISO']
 		},
 		{
 			description: m['camera.dynamic_range_upload.modal.row2.description'](),
-			fields: ['Codec', 'Log Type', 'Bit Depth', 'Chroma Subsampling', 'Bitrate'],
-			defaultFields: ['Codec', 'Log Type', 'Bit Depth', 'Bitrate']
+			fields: ['Codec', 'Log Type', 'Bit Depth', 'Chroma Subsampling', 'Bitrate']
 		},
 		{
 			description: m['camera.dynamic_range_upload.modal.row3.description'](),
-			fields: ['Resolution', 'Framerate', 'Crop'],
-			defaultFields: ['Resolution', 'Framerate']
+			fields: ['Resolution', 'Framerate', 'Crop']
 		},
 		{
 			description: '',
-			fields: ['Slope-based', 'SNR=1', 'SNR=2', 'SNR=4', 'SNR=10', 'SNR=40'],
-			defaultFields: ['Slope-based', 'SNR=1', 'SNR=2']
+			fields: ['Slope-based', 'SNR=1', 'SNR=2', 'SNR=4', 'SNR=10', 'SNR=40']
 		}
 	];
 
@@ -223,6 +220,8 @@
 			// Use all available fields for the template
 			const allFields = ['EI', 'ISO', 'Codec', 'Log Type', 'Bit Depth', 'Chroma Subsampling', 'Bitrate', 'Resolution', 'Framerate', 'Crop', 'Slope-based', 'SNR=1', 'SNR=2', 'SNR=4', 'SNR=10', 'SNR=40'];
 			fd.set('selectedFields', JSON.stringify(allFields));
+			// Add locale for CSV header localization
+			fd.set('locale', getLocale());
 
 			const response = await fetch('/api/camera/dynamic-range/template', {
 				method: 'POST',
@@ -290,6 +289,8 @@
 			fd.set('cameraIds', JSON.stringify(Array.from(selectedCameras)));
 			const allFields = ['EI', 'ISO', 'Codec', 'Log Type', 'Bit Depth', 'Chroma Subsampling', 'Bitrate', 'Resolution', 'Framerate', 'Crop', 'Slope-based', 'SNR=1', 'SNR=2', 'SNR=4', 'SNR=10', 'SNR=40'];
 			fd.set('selectedFields', JSON.stringify(allFields));
+			// Add locale for CSV header localization
+			fd.set('locale', getLocale());
 
 			const response = await fetch('/api/camera/dynamic-range/template', {
 				method: 'POST',
