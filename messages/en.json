@@ -353,7 +353,9 @@
 				"brand": "Brand",
 				"name": "Name",
 				"release_year": "Release Year",
-				"actions": "Actions"
+				"actions": "Actions",
+				"select": "Select",
+				"select_all": "Select All"
 			},
 			"actions": {
 				"edit": "Edit",

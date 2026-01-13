@@ -57,6 +57,42 @@
 			onSelectionChange(camera.id, checked);
 		}
 	}
+
+	// Handle select all
+	function handleSelectAll(checked: boolean) {
+		const newSet = new Set<number>();
+		if (checked) {
+			cameras.forEach(camera => {
+				newSet.add(camera.id);
+				if (onSelectionChange) {
+					onSelectionChange(camera.id, true);
+				}
+			});
+		}
+		selectedCameras = newSet;
+	}
+
+	// Check if all cameras are selected
+	let allSelected = $derived(
+		cameras.length > 0 && cameras.every(camera => selectedCameras.has(camera.id))
+	);
+
+	// Check if some cameras are selected (for indeterminate state)
+	let someSelected = $derived(
+		cameras.length > 0 &&
+			cameras.some(camera => selectedCameras.has(camera.id)) &&
+			!allSelected
+	);
+
+	// Reference to the select all checkbox
+	let selectAllCheckbox: HTMLInputElement;
+
+	// Set indeterminate state
+	$effect(() => {
+		if (selectAllCheckbox) {
+			selectAllCheckbox.indeterminate = someSelected;
+		}
+	});
 </script>
 
 <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
@@ -115,7 +151,21 @@
 						scope="col"
 						class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
 					>
-						{m['camera.manage.table.actions']()}
+						{#if showCheckbox}
+							<div class="flex items-center justify-end gap-2">
+								<input
+									bind:this={selectAllCheckbox}
+									type="checkbox"
+									checked={allSelected}
+									onchange={(e) => handleSelectAll(e.currentTarget.checked)}
+									class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-0 focus:outline-none dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
+									title={m['camera.manage.table.select_all']()}
+								/>
+								<span>{m['camera.manage.table.select']()}</span>
+							</div>
+						{:else}
+							{m['camera.manage.table.actions']()}
+						{/if}
 					</th>
 				</tr>
 			</thead>
@@ -156,7 +206,7 @@
 										type="checkbox"
 										checked={selectedCameras.has(camera.id)}
 										onchange={(e) => handleCheckboxChange(camera, e.currentTarget.checked)}
-										class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+										class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-0 focus:outline-none dark:bg-gray-700 dark:border-gray-600"
 									/>
 								{:else}
 									{#if onEdit}

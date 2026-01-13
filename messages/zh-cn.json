@@ -345,7 +345,9 @@
 				"brand": "品牌",
 				"name": "名称",
 				"release_year": "发布年份",
-				"actions": "操作"
+				"actions": "操作",
+				"select": "选择",
+				"select_all": "全选"
 			},
 			"actions": {
 				"edit": "编辑",
