@@ -412,6 +412,39 @@
 			.map(id => cameras.find(c => c.id === id))
 			.filter((c): c is NonNullable<typeof c> => c !== undefined)
 	);
+
+	// Format selected cameras by brand
+	let formattedSelectedCameras = $derived(() => {
+		// Group cameras by brand
+		const brandMap = new Map<string, string[]>();
+		
+		selectedCamerasInfo.forEach(camera => {
+			const brand = camera.brandName || 'Unknown';
+			if (!brandMap.has(brand)) {
+				brandMap.set(brand, []);
+			}
+			brandMap.get(brand)!.push(camera.name);
+		});
+
+		// Format output
+		const result: string[] = [];
+		brandMap.forEach((models, brand) => {
+			// Sort models for consistent display
+			models.sort();
+			
+			if (models.length >= 2) {
+				// Format as "Brand: Model1, Model2, ..."
+				result.push(`${brand}: ${models.join(', ')}`);
+			} else {
+				// Format as "Brand Model" (original format)
+				result.push(`${brand} ${models[0]}`);
+			}
+		});
+
+		// Sort by brand name for consistent display
+		result.sort();
+		return result;
+	});
 </script>
 
 <svelte:head>
@@ -563,23 +596,26 @@
 			</div>
 
 			<!-- Body -->
-			<div class="px-6 py-4 space-y-6">
-				<!-- Selected cameras list section -->
-				<div>
-					<h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-						{m['camera.dynamic_range_upload.modal.selected_cameras']()}
-					</h4>
+			<div class="px-6 py-4 space-y-0">
+				<!-- Section 1: Selected cameras list -->
+				<div class="py-4">
 					<div class="space-y-1">
-						{#each selectedCamerasInfo as camera}
+						{#each formattedSelectedCameras() as formattedCamera}
 							<p class="text-sm text-gray-600 dark:text-gray-400">
-								{camera.brandName || ''} {camera.name}
+								{formattedCamera}
 							</p>
 						{/each}
 					</div>
 				</div>
 
-				<!-- Redownload Section -->
-				<div>
+				<!-- Divider 1 -->
+				<div class="border-t border-gray-200 dark:border-gray-700 my-4"></div>
+
+				<!-- Section 2: Redownload Template -->
+				<div class="py-4">
+					<h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+						{m['camera.dynamic_range_upload.modal.redownload_section_title']()}
+					</h4>
 					<button
 						onclick={redownloadTemplate}
 						disabled={isDownloading || isUploading}
@@ -594,11 +630,14 @@
 					</button>
 				</div>
 
-				<!-- Upload Section (Top) -->
-				<div>
-					<label for="csv-upload-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-						{m['camera.dynamic_range_upload.modal.upload_file_label']()}
-					</label>
+				<!-- Divider 2 -->
+				<div class="border-t border-gray-200 dark:border-gray-700 my-4"></div>
+
+				<!-- Section 3: Upload CSV File -->
+				<div class="py-4">
+					<h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+						{m['camera.dynamic_range_upload.modal.upload_section_title']()}
+					</h4>
 					<input
 						id="csv-upload-input"
 						bind:this={uploadFileInput}
@@ -610,11 +649,14 @@
 					/>
 				</div>
 
-				<!-- Divider -->
-				<div class="border-t border-gray-200 dark:border-gray-700"></div>
+				<!-- Divider 3 -->
+				<div class="border-t border-gray-200 dark:border-gray-700 my-4"></div>
 
-				<!-- Description Section (Bottom) -->
-				<div class="space-y-4">
+				<!-- Section 4: Notes -->
+				<div class="py-4 space-y-4">
+					<h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+						{m['camera.dynamic_range_upload.modal.notes_section_title']()}
+					</h4>
 					<!-- Additional note at the top -->
 					<div class="space-y-2">
 						<p class="text-xs text-gray-500 dark:text-gray-400">
