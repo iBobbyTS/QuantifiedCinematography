@@ -423,7 +423,9 @@
 				{/if}
 				<div class="flex justify-center gap-4 mt-4">
 					<button class="btn" onclick={closeModal}>
-						{m['camera.add.batch_add.buttons.cancel']()}
+						{uploadResult
+							? m['camera.add.batch_add.buttons.done']()
+							: m['camera.add.batch_add.buttons.cancel']()}
 					</button>
 					{#if !uploadResult}
 						<button

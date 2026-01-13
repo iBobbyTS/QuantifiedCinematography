@@ -480,7 +480,8 @@
 				"buttons": {
 					"cancel": "Cancel",
 					"upload": "Upload",
-					"upload_another": "Upload Another File"
+					"upload_another": "Upload Another File",
+					"done": "Done"
 				},
 				"errors": {
 					"already_exists": "Already exists",

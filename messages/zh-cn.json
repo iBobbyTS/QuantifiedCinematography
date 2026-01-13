@@ -472,7 +472,8 @@
 				"buttons": {
 					"cancel": "取消",
 					"upload": "上传",
-					"upload_another": "上传另一个文件"
+					"upload_another": "上传另一个文件",
+					"done": "完成"
 				},
 				"errors": {
 					"already_exists": "已存在",
