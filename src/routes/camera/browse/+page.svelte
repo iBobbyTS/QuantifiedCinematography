@@ -235,7 +235,8 @@
 	// Navigate to comparison page
 	function navigateToComparison() {
 		if (selectedCameras.size > 0) {
-			goto('/camera/dynamic-range/browse');
+			const cameraIds = Array.from(selectedCameras).join(',');
+			goto(`/camera/dynamic-range/browse?id=${cameraIds}`);
 		}
 	}
 
@@ -473,14 +474,16 @@
 										<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
 											{camera.releaseYear || '-'}
 										</td>
-										<td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
+										<td 
+											class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white {camera.recordCount !== undefined && camera.recordCount > 0 ? 'cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors' : ''}"
+											onclick={() => {
+												if (camera.recordCount !== undefined && camera.recordCount > 0) {
+													goto(`/camera/dynamic-range/browse?id=${camera.id}`);
+												}
+											}}
+										>
 											{#if camera.recordCount !== undefined && camera.recordCount > 0}
-												<button
-													onclick={() => goto(`/camera/dynamic-range/manage/${camera.id}`)}
-													class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-colors px-2 py-1 rounded"
-												>
-													{camera.recordCount}
-												</button>
+												<span class="text-blue-600 dark:text-blue-400">{camera.recordCount}</span>
 											{:else}
 												<span class="text-gray-400 dark:text-gray-500">0</span>
 											{/if}
