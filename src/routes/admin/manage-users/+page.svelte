@@ -16,8 +16,8 @@
 	let { data }: { data: PageData } = $props();
 
 	// 用户数据 - 创建可修改的本地副本
-	let users = $state(data.users);
-	let totalUsers = $state(data.users.length); // 总用户数，用于分页组件
+	let users = $state(data.users || []);
+	let totalUsers = $state(0); // 总用户数，用于分页组件
 
 	// localStorage key for this page
 	const STORAGE_KEY = 'manage-users-items-per-page';
@@ -265,16 +265,19 @@
 		}
 	}
 
-	// 计算分页后的用户列表
-	let paginatedUsers = $derived(() => {
-		const startIndex = (currentPage - 1) * itemsPerPage;
-		const endIndex = startIndex + itemsPerPage;
-		return users.slice(startIndex, endIndex);
-	});
+	// 服务器端分页，直接使用 users（不需要客户端分页）
+	let paginatedUsers = $derived(users);
 
-	// 当 data.users 变化时更新本地副本
+	// Trigger filter on mount based on localStorage preference
+	let filterTriggered = $state(false);
 	$effect(() => {
-		users = [...data.users];
+		// Only trigger once on initial load
+		if (!filterTriggered && typeof window !== 'undefined') {
+			filterTriggered = true;
+			// Always trigger filter on mount to load data with user's preferred pagination
+			currentPage = 1;
+			triggerFilter();
+		}
 	});
 
 	// 弹窗状态
@@ -1099,7 +1102,7 @@
 							</tr>
 						</thead>
 						<tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-							{#each paginatedUsers() as user}
+							{#each paginatedUsers as user}
 								<tr>
 									<td
 										class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white"

@@ -17,20 +17,10 @@ export const load: ServerLoad = async ({ locals }) => {
 	}
 
 	try {
-		// 获取所有用户（包括disabled字段）
-		const allUsers = await db.select({
-			id: user.id,
-			username: user.username,
-			nickname: user.nickname,
-			email: user.email,
-			permission: user.permission,
-			disabled: user.disabled,
-			createdAt: user.createdAt,
-			updatedAt: user.updatedAt
-		}).from(user).orderBy(user.createdAt);
-
+		// Don't load user data in load function, let frontend request it based on localStorage
+		// Return empty array, frontend will request data with proper pagination
 		return {
-			users: allUsers
+			users: []
 		};
 	} catch (err) {
 		console.error('Failed to load users:', err);

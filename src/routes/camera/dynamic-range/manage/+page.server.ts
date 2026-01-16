@@ -148,55 +148,10 @@ export const load: ServerLoad = async ({ locals }) => {
     }
 
     try {
-        // Default pagination: page 1, limit 10
-        const defaultPage = 1;
-        const defaultLimit = 10;
-        const offset = (defaultPage - 1) * defaultLimit;
-
-        // Fetch all cameras with brand info (no database sorting, will sort in JS)
-        const allCameras = await db.select({
-            id: productCameras.id,
-            name: productCameras.name,
-            brandId: productCameras.brandId,
-            brandName: brands.name,
-            releaseYear: productCameras.releaseYear,
-            cinema: productCameras.cinema,
-            createdAt: productCameras.createdAt,
-            updatedAt: productCameras.updatedAt
-        })
-            .from(productCameras)
-            .leftJoin(brands, eq(productCameras.brandId, brands.id));
-
-        // Sort using natural sort: brand ASC, name ASC (default)
-        const sortedCameras = sortCameras(allCameras, {
-            brand: 'asc',
-            name: 'asc'
-        });
-
-        // Apply pagination after sorting
-        const paginatedCameras = sortedCameras.slice(offset, offset + defaultLimit);
-
-        // Get record counts for paginated cameras
-        const cameraIds = paginatedCameras.map(c => c.id);
-        const recordCounts = await getRecordCounts(cameraIds, locals.user.id);
-
-        // Add record count to each camera
-        const camerasWithCounts = paginatedCameras.map(camera => ({
-            ...camera,
-            recordCount: recordCounts.get(camera.id) || 0
-        }));
-
-        // Count total
-        const total = sortedCameras.length;
-
+        // Don't load camera data in load function, let frontend request it based on localStorage
+        // Return empty array, frontend will request data with proper pagination
         return {
-            cameras: camerasWithCounts,
-            pagination: {
-                page: defaultPage,
-                limit: defaultLimit,
-                total,
-                totalPages: Math.ceil(total / defaultLimit)
-            }
+            cameras: []
         };
     } catch (err) {
         console.error('Failed to load cameras:', err);

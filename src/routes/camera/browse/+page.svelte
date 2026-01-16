@@ -11,8 +11,8 @@
 	let { data }: { data: PageData } = $props();
 
 	// Camera data
-	let cameras = $state(data.cameras);
-	let totalCameras = $state(data.pagination?.total || data.cameras.length);
+	let cameras = $state(data.cameras || []);
+	let totalCameras = $state(0);
 
 	// localStorage key
 	const STORAGE_KEY = 'browse-cameras-items-per-page';
@@ -242,25 +242,15 @@
 	// Check if at least one camera is selected
 	let hasSelection = $derived(selectedCameras.size > 0);
 
-	// Update totalCameras from server pagination data
-	$effect(() => {
-		if (data.pagination) {
-			totalCameras = data.pagination.total;
-		}
-	});
-
-	// Trigger filter on mount if localStorage has different itemsPerPage than server default (10)
+	// Trigger filter on mount based on localStorage preference
 	let filterTriggered = $state(false);
 	$effect(() => {
 		// Only trigger once on initial load
 		if (!filterTriggered && typeof window !== 'undefined') {
 			filterTriggered = true;
-			// Server default is 10, if user has a different preference, trigger filter
-			if (initialItemsPerPage !== 10) {
-				// User has a saved preference different from server default, trigger filter
-				currentPage = 1;
-				triggerFilter();
-			}
+			// Always trigger filter on mount to load data with user's preferred pagination
+			currentPage = 1;
+			triggerFilter();
 		}
 	});
 </script>
