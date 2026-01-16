@@ -8,7 +8,7 @@
 
 	let { data }: { data: PageData } = $props();
 
-	let isLoading = false;
+	let isLoading = $state(false);
 	let toastManager: ToastManager;
 
 	// Store original values for comparison
