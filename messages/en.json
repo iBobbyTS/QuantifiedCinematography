@@ -101,7 +101,6 @@
 		},
 		"manage_users": {
 			"title": "Manage Users",
-			"subtitle": "Manage user accounts, permissions, and system access",
 			"add_user": "Add User",
 			"add_user_page": {
 				"title": "Add New User",

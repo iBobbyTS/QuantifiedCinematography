@@ -93,7 +93,6 @@
 		},
 		"manage_users": {
 			"title": "管理用户",
-			"subtitle": "管理用户账户、权限和系统访问",
 			"add_user": "添加用户",
 			"add_user_page": {
 				"title": "添加新用户",
