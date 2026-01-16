@@ -25,6 +25,13 @@
 	// Track deleted record IDs (only in memory, not persisted until update)
 	let deletedRecordIds = $state<Set<number>>(new Set());
 
+	// Update confirmation modal state
+	let showUpdateConfirmModal = $state(false);
+	let pendingValidRecords: any[] = [];
+	let pendingDeletedRecords: any[] = [];
+	let pendingSkippedRecords: number[] = [];
+	let formElement = $state<HTMLFormElement | null>(null);
+
 	// Column visibility state - grouped to match CSV template order
 	const columnGroups = [
 		[
@@ -282,7 +289,7 @@
 	}
 
 	// Handle form submission with enhance
-	function handleUpdate({ formData }: any) {
+	function handleUpdate({ formData, cancel }: any) {
 		// Filter out empty records and mark records as new, existing, or deleted
 		const validRecords: any[] = [];
 		const skippedRecords: number[] = [];
@@ -306,20 +313,6 @@
 			isNew: false,
 			isDeleted: true
 		}));
-		
-		// Show toast for skipped records
-		if (skippedRecords.length > 0) {
-			skippedRecords.forEach((recordNum) => {
-				toastManager.showToast({
-					title: `第${recordNum}条为空，已跳过本条更新`,
-					message: '',
-					iconName: 'mdi:information',
-					iconColor: 'text-yellow-500',
-					duration: 3000,
-					showCountdown: true
-				});
-			});
-		}
 
 		// Check if there are any records to submit
 		const totalRecordsToSubmit = validRecords.length + deletedRecords.length;
@@ -333,25 +326,50 @@
 				duration: 3000,
 				showCountdown: true
 			});
-			// Don't set formData, which will prevent submission
+			cancel();
 			return;
 		}
 		
-		// Combine all records
-		const allRecords = [...validRecords, ...deletedRecords];
-		formData.set('records', JSON.stringify(allRecords));
+		// Store pending data and show confirmation modal
+		pendingValidRecords = validRecords;
+		pendingDeletedRecords = deletedRecords;
+		pendingSkippedRecords = skippedRecords;
+		showUpdateConfirmModal = true;
+		
+		// Cancel the form submission to show modal first
+		cancel();
+	}
 
-		return async ({ result }: any) => {
+	// Confirm and submit update
+	async function confirmAndSubmitUpdate() {
+		// Close modal
+		showUpdateConfirmModal = false;
+		
+		// Prepare form data
+		const allRecords = [...pendingValidRecords, ...pendingDeletedRecords];
+		
+		// Create and submit form programmatically
+		if (formElement) {
+			const formData = new FormData(formElement);
+			formData.set('records', JSON.stringify(allRecords));
+			
+			const response = await fetch(formElement.action, {
+				method: 'POST',
+				body: formData
+			});
+			
+			const result = await response.json();
+			
 			if (result.type === 'success') {
 				// Clear deleted records set
 				deletedRecordIds.clear();
 				
-				// Reload data from server to get new IDs for newly created records
+				// Reload data from server
 				skipReinit = true;
 				try {
-					const response = await fetch(`/camera/dynamic-range/manage/${camera.id}`);
-					if (response.ok) {
-						const data = await response.json();
+					const reloadResponse = await fetch(`/camera/dynamic-range/manage/${camera.id}`);
+					if (reloadResponse.ok) {
+						const data = await reloadResponse.json();
 						if (data.records) {
 							records = data.records;
 							// Reinitialize editableRecords with updated IDs
@@ -411,7 +429,20 @@
 					showCountdown: true
 				});
 			}
-		};
+		}
+		
+		// Clear pending data
+		pendingValidRecords = [];
+		pendingDeletedRecords = [];
+		pendingSkippedRecords = [];
+	}
+
+	// Cancel update
+	function cancelUpdate() {
+		showUpdateConfirmModal = false;
+		pendingValidRecords = [];
+		pendingDeletedRecords = [];
+		pendingSkippedRecords = [];
 	}
 
 	// Column widths for edit mode (in pixels)
@@ -526,6 +557,149 @@
 	function isRecordDeleted(recordId: number): boolean {
 		return deletedRecordIds.has(recordId);
 	}
+
+	// Get field label by key
+	function getFieldLabel(key: string): string {
+		const column = allColumns.find((col) => col.key === key);
+		return column ? column.label() : key;
+	}
+
+	// Get record fields with values
+	function getRecordFields(record: any): Array<{ key: string; label: string; value: any }> {
+		const fields: Array<{ key: string; label: string; value: any }> = [];
+		allColumnKeys.forEach((key) => {
+			const value = record[key];
+			if (value !== null && value !== undefined && value !== '') {
+				if (typeof value === 'number' && !isNaN(value)) {
+					fields.push({ key, label: getFieldLabel(key), value: value.toString() });
+				} else if (typeof value === 'string' && value.trim() !== '') {
+					fields.push({ key, label: getFieldLabel(key), value: value.trim() });
+				}
+			}
+		});
+		return fields;
+	}
+
+	// Get original record by ID (before editing)
+	function getOriginalRecord(recordId: number): any {
+		return records.find((r) => r.id === recordId);
+	}
+
+	// Format change summary for display
+	function formatChangeSummary(): Array<{ type: 'delete' | 'update' | 'add' | 'skip'; originalRecordNum?: number; currentRecordNum?: number; content: string }> {
+		const changes: Array<{ type: 'delete' | 'update' | 'add' | 'skip'; originalRecordNum?: number; currentRecordNum?: number; content: string }> = [];
+		
+		// Map all original records to their display numbers (1-based, based on original order from data.records)
+		const originalRecordNumMap = new Map<number, number>();
+		data.records.forEach((record, index) => {
+			originalRecordNumMap.set(record.id, index + 1);
+		});
+		
+		// Calculate current display positions for all records in editableRecords
+		const currentRecordNumMap = new Map<number | string, number>();
+		editableRecords.forEach((record, index) => {
+			currentRecordNumMap.set(record.id, index + 1);
+		});
+		
+		// Process deleted records
+		deletedRecordIds.forEach((id) => {
+			const originalRecord = data.records.find((r) => r.id === id);
+			if (originalRecord) {
+				const fields = getRecordFields(originalRecord);
+				if (fields.length > 0) {
+					const fieldText = fields.map((f) => `${f.label}: ${f.value}`).join('\n');
+					changes.push({
+						type: 'delete',
+						originalRecordNum: originalRecordNumMap.get(id) || 0,
+						content: fieldText
+					});
+				} else {
+					changes.push({
+						type: 'delete',
+						originalRecordNum: originalRecordNumMap.get(id) || 0,
+						content: '无数据，即将删除。'
+					});
+				}
+			}
+		});
+		
+		// Process updated records
+		editableRecords.forEach((editableRecord) => {
+			if (editableRecord.id > 0 && !deletedRecordIds.has(editableRecord.id)) {
+				// Existing record
+				const originalRecord = data.records.find((r) => r.id === editableRecord.id) as any;
+				if (originalRecord) {
+					const changedFields: string[] = [];
+					allColumnKeys.forEach((key) => {
+						const originalValue = (originalRecord as any)[key];
+						const editableValue = editableRecord[key]?.trim() || '';
+						
+						const originalStr = originalValue !== null && originalValue !== undefined 
+							? originalValue.toString() 
+							: '';
+						const editableStr = editableValue;
+						
+						if (originalStr !== editableStr) {
+							if (editableStr === '') {
+								changedFields.push(`${getFieldLabel(key)}: ${originalStr} -> (删除)`);
+							} else if (originalStr === '') {
+								changedFields.push(`${getFieldLabel(key)}: (新增) -> ${editableStr}`);
+							} else {
+								changedFields.push(`${getFieldLabel(key)}: ${originalStr} -> ${editableStr}`);
+							}
+						}
+					});
+					
+					if (changedFields.length > 0) {
+						const originalNum = originalRecordNumMap.get(editableRecord.id) || 0;
+						const currentNum = currentRecordNumMap.get(editableRecord.id) || 0;
+						changes.push({
+							type: 'update',
+							originalRecordNum: originalNum,
+							currentRecordNum: currentNum,
+							content: changedFields.join('\n')
+						});
+					} else if (!hasData(editableRecord)) {
+						const originalNum = originalRecordNumMap.get(editableRecord.id) || 0;
+						const currentNum = currentRecordNumMap.get(editableRecord.id) || 0;
+						changes.push({
+							type: 'update',
+							originalRecordNum: originalNum,
+							currentRecordNum: currentNum,
+							content: '无数据，即将删除。'
+						});
+					}
+				}
+			}
+		});
+		
+		// Process new records
+		editableRecords.forEach((editableRecord) => {
+			if (editableRecord.id < 0) {
+				// New record
+				const currentNum = currentRecordNumMap.get(editableRecord.id) || 0;
+				if (hasData(editableRecord)) {
+					const fields = getRecordFields(editableRecord);
+					if (fields.length > 0) {
+						const fieldText = fields.map((f) => `${f.label}: ${f.value}`).join('\n');
+						changes.push({
+							type: 'add',
+							currentRecordNum: currentNum,
+							content: fieldText
+						});
+					}
+				} else {
+					changes.push({
+						type: 'skip',
+						currentRecordNum: currentNum,
+						content: '无数据，不会被添加。'
+					});
+				}
+			}
+		});
+		
+		return changes;
+	}
 </script>
 
 <Navbar
@@ -617,22 +791,7 @@
 				method="POST" 
 				action="?/updateRecords" 
 				use:enhance={handleUpdate}
-				onsubmit={(e) => {
-					// Check if there are any valid records before allowing submission
-					const validRecords: any[] = [];
-					editableRecords.forEach((record) => {
-						if (hasData(record)) {
-							validRecords.push(record);
-						}
-					});
-					const deletedRecords = Array.from(deletedRecordIds);
-					const totalRecordsToSubmit = validRecords.length + deletedRecords.length;
-					
-					if (totalRecordsToSubmit === 0) {
-						e.preventDefault();
-						return false;
-					}
-				}}
+				bind:this={formElement}
 			>
 				<div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg relative">
 					<!-- Left arrow -->
@@ -761,3 +920,80 @@
 	</div>
 </div>
 
+<!-- Update Confirmation Modal -->
+{#if showUpdateConfirmModal}
+	<div
+		class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+		onclick={(e) => {
+			if (e.target === e.currentTarget) cancelUpdate();
+		}}
+		onkeydown={(e) => {
+			if (e.key === 'Escape') cancelUpdate();
+		}}
+		role="dialog"
+		aria-modal="true"
+		tabindex="-1"
+	>
+		<div
+			class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full border border-gray-200 dark:border-gray-700 max-h-[80vh] overflow-hidden flex flex-col"
+		>
+			<!-- Header -->
+			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+				<h3 class="text-lg font-medium text-gray-900 dark:text-white">
+					确认更新
+				</h3>
+			</div>
+
+			<!-- Body -->
+			<div class="px-6 py-4 overflow-y-auto flex-1">
+				<div class="space-y-4 text-sm">
+					{#each formatChangeSummary() as change}
+						<div class="border-l-4 pl-4 {
+							change.type === 'delete' ? 'border-red-500' :
+							change.type === 'update' ? 'border-yellow-500' :
+							change.type === 'add' ? 'border-green-500' :
+							'border-gray-400'
+						}">
+							<div class="font-medium text-gray-900 dark:text-white mb-1">
+								{change.type === 'delete' ? '删除' :
+								 change.type === 'update' ? '修改' :
+								 change.type === 'add' ? '新增' :
+								 '跳过'}
+								{#if change.type === 'delete'}
+									原#{change.originalRecordNum}记录：
+								{:else if change.type === 'update'}
+									{change.originalRecordNum === change.currentRecordNum 
+										? `原#${change.originalRecordNum}记录：`
+										: `原#${change.originalRecordNum}(现#${change.currentRecordNum})记录：`}
+								{:else}
+									#{change.currentRecordNum}记录：
+								{/if}
+							</div>
+							<div class="text-gray-600 dark:text-gray-400 whitespace-pre-line">
+								{change.content}
+							</div>
+						</div>
+					{/each}
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div
+				class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3"
+			>
+				<button
+					onclick={cancelUpdate}
+					class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+				>
+					取消
+				</button>
+				<button
+					onclick={confirmAndSubmitUpdate}
+					class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+				>
+					确认更新
+				</button>
+			</div>
+		</div>
+	</div>
+{/if}
