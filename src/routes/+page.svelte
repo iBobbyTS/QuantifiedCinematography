@@ -238,7 +238,8 @@
 			buttons: [
 				{
 					text: m['camera.products.button'](),
-					color: 'blue'
+					color: 'blue',
+					onClick: () => goto('/camera/browse')
 				}
 			],
 			color: 'blue'
