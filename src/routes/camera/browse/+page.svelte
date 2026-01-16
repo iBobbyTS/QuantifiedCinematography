@@ -12,7 +12,7 @@
 
 	// Camera data
 	let cameras = $state(data.cameras);
-	let totalCameras = $state(data.cameras.length);
+	let totalCameras = $state(data.pagination?.total || data.cameras.length);
 
 	// localStorage key
 	const STORAGE_KEY = 'browse-cameras-items-per-page';
@@ -233,6 +233,28 @@
 
 	// Check if at least one camera is selected
 	let hasSelection = $derived(selectedCameras.size > 0);
+
+	// Update totalCameras from server pagination data
+	$effect(() => {
+		if (data.pagination) {
+			totalCameras = data.pagination.total;
+		}
+	});
+
+	// Trigger filter on mount if localStorage has different itemsPerPage than server default (10)
+	let filterTriggered = $state(false);
+	$effect(() => {
+		// Only trigger once on initial load
+		if (!filterTriggered && typeof window !== 'undefined') {
+			filterTriggered = true;
+			// Server default is 10, if user has a different preference, trigger filter
+			if (initialItemsPerPage !== 10) {
+				// User has a saved preference different from server default, trigger filter
+				currentPage = 1;
+				triggerFilter();
+			}
+		}
+	});
 </script>
 
 <svelte:head>

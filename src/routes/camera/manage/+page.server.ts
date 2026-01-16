@@ -110,6 +110,11 @@ export const load: ServerLoad = async ({ locals }) => {
     }
 
     try {
+        // Default pagination: page 1, limit 10
+        const defaultPage = 1;
+        const defaultLimit = 10;
+        const offset = (defaultPage - 1) * defaultLimit;
+
         // Fetch all cameras with brand info (no database sorting, will sort in JS)
         const allCameras = await db.select({
             id: productCameras.id,
@@ -130,6 +135,9 @@ export const load: ServerLoad = async ({ locals }) => {
             name: 'asc'
         });
 
+        // Apply pagination after sorting
+        const paginatedCameras = sortedCameras.slice(offset, offset + defaultLimit);
+
         // Fetch all brands that have cameras
         const brandsWithCameras = await db
             .selectDistinct({
@@ -140,9 +148,18 @@ export const load: ServerLoad = async ({ locals }) => {
             .innerJoin(productCameras, eq(brands.id, productCameras.brandId))
             .orderBy(asc(brands.name));
 
+        // Count total
+        const total = sortedCameras.length;
+
         return {
-            cameras: sortedCameras,
-            availableBrands: brandsWithCameras
+            cameras: paginatedCameras,
+            availableBrands: brandsWithCameras,
+            pagination: {
+                page: defaultPage,
+                limit: defaultLimit,
+                total,
+                totalPages: Math.ceil(total / defaultLimit)
+            }
         };
     } catch (err) {
         console.error('Failed to load cameras:', err);
