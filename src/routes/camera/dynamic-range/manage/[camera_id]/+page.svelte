@@ -310,6 +310,18 @@
 		allColumns.filter((col) => columnVisibility[col.key] !== false)
 	);
 
+	// Check if all columns are selected
+	const allColumnsSelected = $derived(
+		allColumnKeys.every((key) => columnVisibility[key] === true)
+	);
+
+	// Handle select all / deselect all
+	function handleSelectAll(checked: boolean) {
+		allColumnKeys.forEach((key) => {
+			columnVisibility[key] = checked;
+		});
+	}
+
 	// Helper function to get cell value
 	function getCellValue(record: any, columnKey: string): string {
 		if (isEditMode) {
@@ -364,9 +376,22 @@
 			<!-- Column visibility selector -->
 			{#if records.length > 0}
 				<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-					<h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-						{m['camera.dynamic_range_upload.dynamic_range_manage.show_columns']()}
-					</h3>
+					<div class="flex items-center gap-2 mb-3">
+						<h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">
+							{m['camera.dynamic_range_upload.dynamic_range_manage.show_columns']()}
+						</h3>
+						<label class="flex items-center gap-2 cursor-pointer">
+							<input
+								type="checkbox"
+								checked={allColumnsSelected}
+								onchange={(e) => handleSelectAll(e.currentTarget.checked)}
+								class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+							/>
+							<span class="text-sm text-gray-700 dark:text-gray-300">
+								全选
+							</span>
+						</label>
+					</div>
 					<div class="space-y-3">
 						{#each columnGroups as group}
 							<div class="flex flex-wrap items-center gap-4">
