@@ -40,6 +40,30 @@
 	// Filter state
 	let searchQuery = $state('');
 	let searchTimeout: ReturnType<typeof setTimeout> | null = null;
+	
+	// Type filter: 'cinema' for 电影机, 'camera' for 照相机
+	// Default: select all types
+	let selectedTypes = $state<string[]>(['camera', 'cinema']);
+	
+	// Brand filter
+	// Default: select all brands (initialized once on mount)
+	let selectedBrandIds = $state<number[]>([]);
+	
+	// Available brands from server
+	let availableBrands = $state(data.availableBrands || []);
+	
+	// Initialize selectedBrandIds with all available brands only once on mount
+	let brandsInitialized = $state(false);
+	$effect(() => {
+		if (data.availableBrands) {
+			availableBrands = data.availableBrands;
+			// Only initialize once when brands are first loaded and not yet initialized
+			if (!brandsInitialized && availableBrands.length > 0 && selectedBrandIds.length === 0) {
+				selectedBrandIds = availableBrands.map(b => b.id);
+				brandsInitialized = true;
+			}
+		}
+	});
 
 	// Sort state - brand always exists, name and year are mutually exclusive
 	// Default: brand ASC, name ASC
@@ -110,7 +134,7 @@
 
 	// Collect filter data
 	function collectFilterData() {
-		const filterData = {
+		const filterData: any = {
 			search: searchQuery.trim() || null,
 			sort: sortConfig,
 			pagination: {
@@ -119,7 +143,45 @@
 			}
 		};
 
+		// Add type filter if any selected
+		if (selectedTypes.length > 0) {
+			filterData.types = selectedTypes;
+		}
+
+		// Add brand filter if any selected
+		if (selectedBrandIds.length > 0) {
+			filterData.brandIds = selectedBrandIds;
+		}
+
 		return Object.fromEntries(Object.entries(filterData).filter(([_, value]) => value !== null));
+	}
+	
+	// Handle type checkbox change
+	function handleTypeChange(type: string, checked: boolean) {
+		if (checked) {
+			if (!selectedTypes.includes(type)) {
+				selectedTypes = [...selectedTypes, type];
+			}
+		} else {
+			selectedTypes = selectedTypes.filter(t => t !== type);
+		}
+		// Reset to first page and trigger filter
+		currentPage = 1;
+		triggerFilter();
+	}
+	
+	// Handle brand checkbox change
+	function handleBrandChange(brandId: number, checked: boolean) {
+		if (checked) {
+			if (!selectedBrandIds.includes(brandId)) {
+				selectedBrandIds = [...selectedBrandIds, brandId];
+			}
+		} else {
+			selectedBrandIds = selectedBrandIds.filter(id => id !== brandId);
+		}
+		// Reset to first page and trigger filter
+		currentPage = 1;
+		triggerFilter();
 	}
 
 	// Trigger filter
@@ -297,30 +359,91 @@
 		</div>
 
 		<!-- Filters -->
-		<div class="bg-white dark:bg-gray-800 rounded-lg shadow mb-6 p-4">
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-				<!-- Search -->
-				<div class="md:col-span-1">
-					<label
-						for="search"
-						class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-					>
-						{m['camera.manage.filter.fuzzy_search']()}
-					</label>
-					<div class="relative rounded-md shadow-sm">
-						<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-							<Icon icon="mdi:magnify" class="h-5 w-5 text-gray-400" />
-						</div>
-						<input
-							type="text"
-							name="search"
-							id="search"
-							class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md h-10"
-							placeholder={m['camera.manage.filter.search_placeholder']()}
-							value={searchQuery}
-							oninput={handleSearchInput}
-						/>
-					</div>
+		<div class="bg-white dark:bg-gray-800 shadow sm:rounded-md mb-4">
+			<div class="px-4 py-4 sm:py-5">
+				<!-- 过滤条件表格 -->
+				<div class="overflow-hidden">
+					<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+						<tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+							<!-- 第一行：模糊搜索 -->
+							<tr>
+								<td
+									class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-20"
+								>
+									{m['camera.manage.filter.fuzzy_search']()}
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap">
+									<input
+										id="search-input"
+										type="text"
+										placeholder={m['camera.manage.filter.search_placeholder']()}
+										class="w-1/2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+										value={searchQuery}
+										oninput={handleSearchInput}
+									/>
+								</td>
+							</tr>
+
+							<!-- 第二行：类型过滤 -->
+							<tr>
+								<td
+									class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-20"
+								>
+									类型
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap">
+									<div class="flex flex-wrap gap-3">
+										<label class="flex items-center gap-2 cursor-pointer">
+											<input
+												type="checkbox"
+												class="checkbox checkbox-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400"
+												checked={selectedTypes.includes('camera')}
+												onchange={(e) => handleTypeChange('camera', e.currentTarget.checked)}
+											/>
+											<span class="text-sm text-gray-700 dark:text-gray-300">照相机</span>
+										</label>
+										<label class="flex items-center gap-2 cursor-pointer">
+											<input
+												type="checkbox"
+												class="checkbox checkbox-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400"
+												checked={selectedTypes.includes('cinema')}
+												onchange={(e) => handleTypeChange('cinema', e.currentTarget.checked)}
+											/>
+											<span class="text-sm text-gray-700 dark:text-gray-300">电影机</span>
+										</label>
+									</div>
+								</td>
+							</tr>
+
+							<!-- 第三行：品牌过滤 -->
+							<tr>
+								<td
+									class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-20"
+								>
+									品牌
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap">
+									<div class="flex flex-wrap gap-3">
+										{#if availableBrands.length === 0}
+											<p class="text-sm text-gray-500 dark:text-gray-400">暂无品牌</p>
+										{:else}
+											{#each availableBrands as brand}
+												<label class="flex items-center gap-2 cursor-pointer">
+													<input
+														type="checkbox"
+														class="checkbox checkbox-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400"
+														checked={selectedBrandIds.includes(brand.id)}
+														onchange={(e) => handleBrandChange(brand.id, e.currentTarget.checked)}
+													/>
+													<span class="text-sm text-gray-700 dark:text-gray-300">{brand.name}</span>
+												</label>
+											{/each}
+										{/if}
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
 				</div>
 			</div>
 		</div>

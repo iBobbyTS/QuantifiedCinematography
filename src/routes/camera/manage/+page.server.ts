@@ -3,7 +3,7 @@ import type { ServerLoad, Actions } from '@sveltejs/kit';
 import { db } from '$lib/server/db/index.js';
 import { productCameras, brands } from '$lib/server/db/schema.js';
 import { UserPermissions, USER_PERMISSIONS } from '$lib/permission/bitmask.js';
-import { and, or, like, eq, sql, desc, asc } from 'drizzle-orm';
+import { and, or, like, eq, sql, desc, asc, inArray } from 'drizzle-orm';
 
 // Natural sort comparison function for strings with numbers
 // Example: "R5 Mark II" < "R50" (5 < 50 numerically)
@@ -130,8 +130,19 @@ export const load: ServerLoad = async ({ locals }) => {
             name: 'asc'
         });
 
+        // Fetch all brands that have cameras
+        const brandsWithCameras = await db
+            .selectDistinct({
+                id: brands.id,
+                name: brands.name
+            })
+            .from(brands)
+            .innerJoin(productCameras, eq(brands.id, productCameras.brandId))
+            .orderBy(asc(brands.name));
+
         return {
-            cameras: sortedCameras
+            cameras: sortedCameras,
+            availableBrands: brandsWithCameras
         };
     } catch (err) {
         console.error('Failed to load cameras:', err);
@@ -168,7 +179,7 @@ export const actions: Actions = {
                 }
             }
 
-            const { search, sort, pagination } = payload || {};
+            const { search, sort, pagination, types, brandIds } = payload || {};
 
             // Build conditions
             const conditions: any[] = [];
@@ -183,6 +194,31 @@ export const actions: Actions = {
                     )
                 );
             }
+
+            // Type filter: cinema (true = 电影机, false = 照相机)
+            if (types && Array.isArray(types) && types.length > 0) {
+                const typeConditions: any[] = [];
+                if (types.includes('cinema')) {
+                    typeConditions.push(eq(productCameras.cinema, true));
+                }
+                if (types.includes('camera')) {
+                    typeConditions.push(eq(productCameras.cinema, false));
+                }
+                if (typeConditions.length > 0) {
+                    conditions.push(or(...typeConditions));
+                }
+            }
+
+            // Brand filter
+            // If brandIds is empty array or not provided, don't filter (return all brands)
+            // Only filter when brandIds is a non-empty array
+            if (brandIds && Array.isArray(brandIds) && brandIds.length > 0) {
+                const validBrandIds = brandIds.filter((id: any) => typeof id === 'number' && id > 0);
+                if (validBrandIds.length > 0) {
+                    conditions.push(inArray(productCameras.brandId, validBrandIds));
+                }
+            }
+            // If brandIds is empty array, no condition is added, so all brands are returned
 
             // Pagination
             const page = pagination?.page || 1;
