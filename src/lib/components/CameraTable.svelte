@@ -2,12 +2,15 @@
 	import Icon from '@iconify/svelte';
 	import * as m from '$lib/paraglide/messages.js';
 
-	interface Camera {
+	export interface Camera {
 		id: number;
 		name: string;
+		brandId?: number;
 		brandName: string | null;
 		releaseYear: number | null;
 		cinema: boolean;
+		createdAt?: Date | null;
+		updatedAt?: Date | null;
 		recordCount?: number; // Optional: number of records uploaded by current user
 	}
 

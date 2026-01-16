@@ -7,14 +7,14 @@
 	import ConfirmModal from '$lib/components/Modal/ConfirmModal.svelte';
 	import ToastManager from '$lib/components/Toast/ToastManager.svelte';
 	import Pagination from '$lib/components/Pagination.svelte';
-	import CameraTable from '$lib/components/CameraTable.svelte';
+	import CameraTable, { type Camera } from '$lib/components/CameraTable.svelte';
 	import { ITEMS_PER_PAGE_OPTIONS } from '$lib/constants';
 	import { parse as devalueParse } from 'devalue';
 
 	let { data }: { data: PageData } = $props();
 
 	// Camera data
-	let cameras = $state(data.cameras || []);
+	let cameras = $state<Camera[]>(data.cameras || []);
 	let totalCameras = $state(0);
 
 	// localStorage key
@@ -86,7 +86,7 @@
 
 	// Delete confirm modal state
 	let showDeleteConfirm = $state(false);
-	let cameraToDelete: any = $state(null);
+	let cameraToDelete: Camera | null = $state(null);
 	let isDeleting = $state(false);
 
 	// Toast manager reference
@@ -256,7 +256,7 @@
 	// Since we update `cameras` directly from server response, we just use `cameras`
 
 	// Open delete confirm
-	function openDeleteConfirm(camera: any) {
+	function openDeleteConfirm(camera: Camera) {
 		cameraToDelete = camera;
 		showDeleteConfirm = true;
 	}
@@ -271,11 +271,13 @@
 	async function confirmDeleteCamera() {
 		if (!cameraToDelete) return;
 
+		// Save reference to avoid null checks
+		const camera = cameraToDelete;
 		isDeleting = true;
 
 		try {
 			const fd = new FormData();
-			fd.set('cameraId', String(cameraToDelete.id));
+			fd.set('cameraId', String(camera.id));
 			const response = await fetch('?/deleteCamera', {
 				method: 'POST',
 				body: fd
@@ -297,14 +299,14 @@
 				} catch {}
 
 				if (ok) {
-					const index = cameras.findIndex((c) => c.id === cameraToDelete.id);
+					const index = cameras.findIndex((c) => c.id === camera.id);
 					if (index !== -1) {
 						cameras.splice(index, 1);
 						// Trigger filter to refresh pagination if needed, or just decrement total
 						totalCameras--;
 					}
 
-					const deletedName = cameraToDelete.name;
+					const deletedName = camera.name;
 					closeDeleteConfirm();
 
 					toastManager.showToast({
@@ -320,7 +322,7 @@
 					toastManager.showToast({
 						title: m['camera.manage.notifications.delete_failure.title'](),
 						message: m['camera.manage.notifications.delete_failure.message']({
-							name: cameraToDelete.name,
+							name: camera.name,
 							error: errorMessage
 						}),
 						iconName: 'mdi:alert-circle',
@@ -336,7 +338,7 @@
 			toastManager.showToast({
 				title: m['camera.manage.notifications.delete_failure.title'](),
 				message: m['camera.manage.notifications.delete_failure.message']({
-					name: cameraToDelete.name,
+					name: camera.name,
 					error: 'Network error'
 				}),
 				iconName: 'mdi:alert-circle',

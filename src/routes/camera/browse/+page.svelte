@@ -10,8 +10,21 @@
 
 	let { data }: { data: PageData } = $props();
 
+	// Camera data type
+	interface Camera {
+		id: number;
+		name: string;
+		brandId: number;
+		brandName: string | null;
+		releaseYear: number | null;
+		cinema: boolean;
+		createdAt: Date | null;
+		updatedAt: Date | null;
+		recordCount?: number;
+	}
+
 	// Camera data
-	let cameras = $state(data.cameras || []);
+	let cameras = $state<Camera[]>(data.cameras || []);
 	let totalCameras = $state(0);
 
 	// localStorage key
