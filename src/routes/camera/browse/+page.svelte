@@ -39,8 +39,8 @@
 	let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 	
 	// Type filter: 'cinema' for 电影机, 'camera' for 照相机
-	// Default: select all types
-	let selectedTypes = $state<string[]>(['camera', 'cinema']);
+	// Default: select all types (initialized via $effect to show animation)
+	let selectedTypes = $state<string[]>([]);
 	
 	// Brand filter
 	// Default: select all brands (initialized once on mount)
@@ -49,16 +49,24 @@
 	// Available brands from server
 	let availableBrands = $state(data.availableBrands || []);
 	
-	// Initialize selectedBrandIds with all available brands only once on mount
-	let brandsInitialized = $state(false);
+	// Initialize selectedTypes and selectedBrandIds with default values via $effect
+	let filtersInitialized = $state(false);
 	$effect(() => {
-		if (data.availableBrands) {
-			availableBrands = data.availableBrands;
-			// Only initialize once when brands are first loaded and not yet initialized
-			if (!brandsInitialized && availableBrands.length > 0 && selectedBrandIds.length === 0) {
-				selectedBrandIds = availableBrands.map(b => b.id);
-				brandsInitialized = true;
+		if (!filtersInitialized) {
+			// Initialize types to all (camera and cinema)
+			if (selectedTypes.length === 0) {
+				selectedTypes = ['camera', 'cinema'];
 			}
+			
+			// Initialize brands when available
+			if (data.availableBrands) {
+				availableBrands = data.availableBrands;
+				if (availableBrands.length > 0 && selectedBrandIds.length === 0) {
+					selectedBrandIds = availableBrands.map(b => b.id);
+				}
+			}
+			
+			filtersInitialized = true;
 		}
 	});
 
