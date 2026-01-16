@@ -171,7 +171,8 @@
 	]}
 	itemName="cameras"
 >
-	<div slot="preview" let:validationData class="overflow-x-auto">
+	{#snippet preview(validationData)}
+		<div class="overflow-x-auto">
 		{#if validationData && validationData.results}
 			<table class="table table-xs w-full">
 				<thead>
@@ -267,7 +268,8 @@
 				</tbody>
 			</table>
 		{/if}
-	</div>
+		</div>
+	{/snippet}
 </CsvUploadModal>
 
 <ToastManager bind:this={toastManager} />

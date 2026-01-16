@@ -24,7 +24,8 @@
 		itemName = 'items',
 		showDownload = true,
 		customUploadHandler,
-		httpMethod = 'POST'
+		httpMethod = 'POST',
+		preview
 	} = $props<{
 		isOpen: boolean;
 		title: string;
@@ -36,6 +37,7 @@
 		showDownload?: boolean;
 		customUploadHandler?: (file: File) => Promise<{ success: boolean; error?: string }>;
 		httpMethod?: string;
+		preview?: import('svelte').Snippet<[validationData: any]>;
 	}>();
 
 	const dispatch = createEventDispatcher<{
@@ -323,9 +325,9 @@
 					</div>
 				{/if}
 
-				<!-- Validation Preview Slot -->
-				{#if validationData && !isValidating}
-					<slot name="preview" {validationData}></slot>
+				<!-- Validation Preview Snippet -->
+				{#if validationData && !isValidating && preview}
+					{@render preview(validationData)}
 				{/if}
 
 				<!-- Error display area -->
