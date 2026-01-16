@@ -22,6 +22,11 @@
 	// Editable records (copy for editing)
 	let editableRecords = $state<Array<Record<string, any>>>([]);
 
+	// Delete confirmation modal state
+	let showDeleteModal = $state(false);
+	let recordToDelete = $state<any>(null);
+	let isDeleting = $state(false);
+
 	// Column visibility state - grouped to match CSV template order
 	const columnGroups = [
 		[
@@ -339,6 +344,119 @@
 			editableRecord[columnKey] = value;
 		}
 	}
+
+	// Open delete confirmation modal
+	function openDeleteModal(record: any) {
+		recordToDelete = record;
+		showDeleteModal = true;
+	}
+
+	// Close delete confirmation modal
+	function closeDeleteModal() {
+		showDeleteModal = false;
+		recordToDelete = null;
+	}
+
+	// Get field label by key
+	function getFieldLabel(key: string): string {
+		const column = allColumns.find((col) => col.key === key);
+		return column ? column.label() : key;
+	}
+
+	// Get record fields with values
+	function getRecordFields(record: any): Array<{ key: string; label: string; value: any }> {
+		const fields: Array<{ key: string; label: string; value: any }> = [];
+		allColumnKeys.forEach((key) => {
+			const value = record[key];
+			if (value !== null && value !== undefined && value !== '') {
+				if (typeof value === 'number' && !isNaN(value)) {
+					fields.push({ key, label: getFieldLabel(key), value: value.toString() });
+				} else if (typeof value === 'string' && value.trim() !== '') {
+					fields.push({ key, label: getFieldLabel(key), value: value.trim() });
+				}
+			}
+		});
+		return fields;
+	}
+
+	// Confirm delete record
+	async function confirmDelete() {
+		if (!recordToDelete) return;
+
+		isDeleting = true;
+
+		try {
+			const fd = new FormData();
+			fd.set('recordId', recordToDelete.id.toString());
+
+			const response = await fetch('?/deleteRecord', {
+				method: 'POST',
+				body: fd
+			});
+
+			if (response.ok) {
+				const result = await response.json();
+				if (result.type === 'success') {
+					// Remove record from local state
+					records = records.filter((r) => r.id !== recordToDelete.id);
+					editableRecords = editableRecords.filter((r) => r.id !== recordToDelete.id);
+
+					// Close modal
+					closeDeleteModal();
+
+					// Show success toast
+					toastManager.showToast({
+						title: '删除成功',
+						message: '',
+						iconName: 'mdi:check-circle',
+						iconColor: 'text-green-500',
+						duration: 3000,
+						showCountdown: false
+					});
+				} else {
+					let errorMessage = '删除失败';
+					if (result.data) {
+						if (typeof result.data === 'object' && result.data.message) {
+							errorMessage = result.data.message;
+						} else if (typeof result.data === 'string') {
+							errorMessage = result.data;
+						} else if (Array.isArray(result.data) && result.data.length > 0) {
+							errorMessage = result.data[result.data.length - 1];
+						}
+					}
+					toastManager.showToast({
+						title: '删除失败',
+						message: errorMessage,
+						iconName: 'mdi:alert-circle',
+						iconColor: 'text-red-500',
+						duration: 5000,
+						showCountdown: true
+					});
+				}
+			} else {
+				toastManager.showToast({
+					title: '删除失败',
+					message: '网络错误',
+					iconName: 'mdi:alert-circle',
+					iconColor: 'text-red-500',
+					duration: 5000,
+					showCountdown: true
+				});
+			}
+		} catch (error) {
+			console.error('Delete error:', error);
+			toastManager.showToast({
+				title: '删除失败',
+				message: '网络错误',
+				iconName: 'mdi:alert-circle',
+				iconColor: 'text-red-500',
+				duration: 5000,
+				showCountdown: true
+			});
+		} finally {
+			isDeleting = false;
+		}
+	}
 </script>
 
 <Navbar
@@ -460,6 +578,14 @@
 									>
 										#
 									</th>
+									{#if isEditMode}
+										<th
+											scope="col"
+											class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap"
+										>
+											操作
+										</th>
+									{/if}
 									{#each visibleColumns as column}
 										<th
 											scope="col"
@@ -477,6 +603,18 @@
 										<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
 											{index + 1}
 										</td>
+										{#if isEditMode}
+											<td class="px-6 py-4 whitespace-nowrap text-sm">
+												<button
+													type="button"
+													onclick={() => openDeleteModal(record)}
+													class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+													aria-label="删除"
+												>
+													<Icon icon="mdi:delete" class="w-5 h-5" />
+												</button>
+											</td>
+										{/if}
 										{#each visibleColumns as column}
 											<td 
 												class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white"
@@ -523,3 +661,73 @@
 		{/if}
 	</div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+{#if showDeleteModal && recordToDelete}
+	<div
+		class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+		onclick={(e) => {
+			if (e.target === e.currentTarget) closeDeleteModal();
+		}}
+		onkeydown={(e) => {
+			if (e.key === 'Escape') closeDeleteModal();
+		}}
+		role="dialog"
+		aria-modal="true"
+		tabindex="-1"
+	>
+		<div
+			class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full border border-gray-200 dark:border-gray-700"
+		>
+			<!-- Header -->
+			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+				<h3 class="text-lg font-medium text-gray-900 dark:text-white">
+					是否确认删除本条数据
+				</h3>
+			</div>
+
+			<!-- Body -->
+			<div class="px-6 py-4">
+				<div class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+					<div>
+						<span class="font-medium text-gray-700 dark:text-gray-300">品牌：</span>
+						{camera.brandName || '-'}
+					</div>
+					<div>
+						<span class="font-medium text-gray-700 dark:text-gray-300">型号：</span>
+						{camera.name || '-'}
+					</div>
+					{#each getRecordFields(recordToDelete) as field}
+						<div>
+							<span class="font-medium text-gray-700 dark:text-gray-300">{field.label}：</span>
+							{field.value}
+						</div>
+					{/each}
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div
+				class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3"
+			>
+				<button
+					onclick={closeDeleteModal}
+					disabled={isDeleting}
+					class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+				>
+					取消
+				</button>
+				<button
+					onclick={confirmDelete}
+					disabled={isDeleting}
+					class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+				>
+					{#if isDeleting}
+						<Icon icon="mdi:loading" class="animate-spin -ml-1 mr-2 h-4 w-4" />
+					{/if}
+					删除
+				</button>
+			</div>
+		</div>
+	</div>
+{/if}

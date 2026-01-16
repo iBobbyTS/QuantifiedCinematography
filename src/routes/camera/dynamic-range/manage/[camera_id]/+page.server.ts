@@ -16,7 +16,7 @@ export const load: ServerLoad = async ({ locals, params }) => {
 		throw error(403, { message: 'Forbidden: Camera permission required' });
 	}
 
-	const cameraId = parseInt(params.camera_id);
+	const cameraId = parseInt(params.camera_id || '');
 	if (isNaN(cameraId)) {
 		throw error(404, { message: 'Invalid camera ID' });
 	}
@@ -68,7 +68,7 @@ export const actions: Actions = {
 			return fail(403, { message: 'Forbidden: Camera permission required' });
 		}
 
-		const cameraId = parseInt(params.camera_id);
+		const cameraId = parseInt(params.camera_id || '');
 		if (isNaN(cameraId)) {
 			return fail(400, { message: 'Invalid camera ID' });
 		}
@@ -210,6 +210,62 @@ export const actions: Actions = {
 		} catch (err) {
 			console.error('Update records error:', err);
 			return fail(500, { message: 'Failed to update records' });
+		}
+	},
+
+	deleteRecord: async ({ request, locals, params }) => {
+		// Check authentication
+		if (!locals.user) {
+			return fail(401, { message: 'Unauthorized' });
+		}
+
+		// Check camera permission
+		if (!UserPermissions.hasPermission(locals.user.permission, USER_PERMISSIONS.CAMERA)) {
+			return fail(403, { message: 'Forbidden: Camera permission required' });
+		}
+
+		const cameraId = parseInt(params.camera_id || '');
+		if (isNaN(cameraId)) {
+			return fail(400, { message: 'Invalid camera ID' });
+		}
+
+		try {
+			const formData = await request.formData();
+			const recordId = formData.get('recordId') as string;
+
+			if (!recordId) {
+				return fail(400, { message: 'Record ID is required' });
+			}
+
+			const recordIdNum = parseInt(recordId);
+			if (isNaN(recordIdNum)) {
+				return fail(400, { message: 'Invalid record ID' });
+			}
+
+			// Verify the record belongs to this camera and user
+			const existingRecord = await db
+				.select()
+				.from(cameraDynamicRangeData)
+				.where(
+					and(
+						eq(cameraDynamicRangeData.id, recordIdNum),
+						eq(cameraDynamicRangeData.cameraId, cameraId),
+						eq(cameraDynamicRangeData.userId, locals.user.id)
+					)
+				)
+				.limit(1);
+
+			if (existingRecord.length === 0) {
+				return fail(404, { message: 'Record not found' });
+			}
+
+			// Delete the record
+			await db.delete(cameraDynamicRangeData).where(eq(cameraDynamicRangeData.id, recordIdNum));
+
+			return { success: true, message: 'Record deleted successfully' };
+		} catch (err) {
+			console.error('Delete record error:', err);
+			return fail(500, { message: 'Failed to delete record' });
 		}
 	}
 };
