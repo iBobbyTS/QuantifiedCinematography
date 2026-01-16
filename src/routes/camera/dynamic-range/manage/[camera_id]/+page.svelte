@@ -22,9 +22,146 @@
 	// Editable records (copy for editing)
 	let editableRecords = $state<Array<Record<string, any>>>([]);
 
-	// Initialize editable records
+	// Column visibility state - grouped to match CSV template order
+	const columnGroups = [
+		[
+			{ key: 'ei', label: () => m['camera.dynamic_range_upload.modal.fields.ei']() },
+			{ key: 'iso', label: () => m['camera.dynamic_range_upload.modal.fields.iso']() },
+			{ key: 'specialMode', label: () => m['camera.dynamic_range_upload.modal.fields.special_mode']() }
+		],
+		[
+			{ key: 'codec', label: () => m['camera.dynamic_range_upload.modal.fields.codec']() },
+			{ key: 'log', label: () => m['camera.dynamic_range_upload.modal.fields.log']() },
+			{ key: 'bitDepth', label: () => m['camera.dynamic_range_upload.modal.fields.bit_depth']() },
+			{ key: 'chromaSubsampling', label: () => m['camera.dynamic_range_upload.modal.fields.chroma_subsampling']() },
+			{ key: 'bitrate', label: () => m['camera.dynamic_range_upload.modal.fields.bitrate']() }
+		],
+		[
+			{ key: 'resolution', label: () => m['camera.dynamic_range_upload.modal.fields.resolution']() },
+			{ key: 'framerate', label: () => m['camera.dynamic_range_upload.modal.fields.framerate']() },
+			{ key: 'crop', label: () => m['camera.dynamic_range_upload.modal.fields.crop']() }
+		],
+		[
+			{ key: 'slopeBased', label: () => m['camera.dynamic_range_upload.modal.fields.slope_based']() },
+			{ key: 'snr1', label: () => m['camera.dynamic_range_upload.modal.fields.snr1']() },
+			{ key: 'snr2', label: () => m['camera.dynamic_range_upload.modal.fields.snr2']() },
+			{ key: 'snr4', label: () => m['camera.dynamic_range_upload.modal.fields.snr4']() },
+			{ key: 'snr10', label: () => m['camera.dynamic_range_upload.modal.fields.snr10']() },
+			{ key: 'snr40', label: () => m['camera.dynamic_range_upload.modal.fields.snr40']() }
+		]
+	];
+
+	// All column keys - matching CSV template order: EI, ISO, Special Mode, Codec, Log Type, Bit Depth, Chroma Subsampling, Bitrate, Resolution, Framerate, Crop, Slope-based, SNR=1, SNR=2, SNR=4, SNR=10, SNR=40
+	const allColumnKeys = [
+		'ei',
+		'iso',
+		'specialMode',
+		'codec',
+		'log',
+		'bitDepth',
+		'chromaSubsampling',
+		'bitrate',
+		'resolution',
+		'framerate',
+		'crop',
+		'slopeBased',
+		'snr1',
+		'snr2',
+		'snr4',
+		'snr10',
+		'snr40'
+	];
+
+	// Column visibility map - initialize based on data
+	let columnVisibility = $state<Record<string, boolean>>({});
+
+	// Initialize column visibility immediately based on initial data
+	(function initializeVisibility() {
+		const visibility: Record<string, boolean> = {};
+		if (data.records && data.records.length > 0) {
+			allColumnKeys.forEach((key) => {
+				// Check if any record has data for this column
+				const hasData = data.records.some((record: any) => {
+					const value = record[key];
+					// Check for non-empty values
+					if (value === null || value === undefined) return false;
+					if (typeof value === 'string' && value.trim() === '') return false;
+					if (typeof value === 'number' && isNaN(value)) return false;
+					return true;
+				});
+				visibility[key] = hasData;
+			});
+		} else {
+			// If no records, default all to true
+			allColumnKeys.forEach((key) => {
+				visibility[key] = true;
+			});
+		}
+		columnVisibility = visibility;
+	})();
+
+	// Track if we should skip reinitializing editableRecords (to preserve user edits after update)
+	let skipReinit = $state(false);
+
+	// Table scroll state
+	let tableContainer = $state<HTMLDivElement | null>(null);
+	let showLeftArrow = $state(false);
+	let showRightArrow = $state(false);
+
+	// Check scroll position and update arrow visibility
+	function checkScrollPosition() {
+		if (!tableContainer) return;
+		const { scrollLeft, scrollWidth, clientWidth } = tableContainer;
+		const isScrollable = scrollWidth > clientWidth;
+		showLeftArrow = isScrollable && scrollLeft > 0;
+		showRightArrow = isScrollable && scrollLeft < scrollWidth - clientWidth - 1; // -1 for rounding errors
+	}
+
+	// Scroll table left or right
+	function scrollTable(direction: 'left' | 'right') {
+		if (!tableContainer) return;
+		const scrollAmount = 300; // pixels to scroll
+		const currentScroll = tableContainer.scrollLeft;
+		const newScroll = direction === 'left' 
+			? currentScroll - scrollAmount 
+			: currentScroll + scrollAmount;
+		tableContainer.scrollTo({ left: newScroll, behavior: 'smooth' });
+	}
+
+	// Initialize scroll checking
 	$effect(() => {
-		if (isEditMode && records.length > 0) {
+		if (tableContainer) {
+			checkScrollPosition();
+			tableContainer.addEventListener('scroll', checkScrollPosition);
+			// Also check on resize
+			const resizeObserver = new ResizeObserver(() => {
+				checkScrollPosition();
+			});
+			resizeObserver.observe(tableContainer);
+			return () => {
+				tableContainer?.removeEventListener('scroll', checkScrollPosition);
+				resizeObserver.disconnect();
+			};
+		}
+	});
+
+	// Check scroll position when visible columns change
+	$effect(() => {
+		// Access visibleColumns to create dependency
+		visibleColumns;
+		// Use requestAnimationFrame to wait for DOM update after column visibility changes
+		if (tableContainer) {
+			requestAnimationFrame(() => {
+				requestAnimationFrame(() => {
+					checkScrollPosition();
+				});
+			});
+		}
+	});
+
+	// Initialize editable records when entering edit mode
+	$effect(() => {
+		if (isEditMode && records.length > 0 && !skipReinit) {
 			editableRecords = records.map((record) => ({
 				id: record.id,
 				ei: record.ei?.toString() || '',
@@ -48,72 +185,107 @@
 		}
 	});
 
-	// Toggle edit mode
-	function toggleEditMode() {
-		isEditMode = !isEditMode;
-		if (isEditMode) {
-			// Initialize editable records when entering edit mode
-			editableRecords = records.map((record) => ({
-				id: record.id,
-				ei: record.ei?.toString() || '',
-				iso: record.iso?.toString() || '',
-				specialMode: record.specialMode || '',
-				codec: record.codec || '',
-				log: record.log || '',
-				bitDepth: record.bitDepth?.toString() || '',
-				chromaSubsampling: record.chromaSubsampling || '',
-				bitrate: record.bitrate || '',
-				resolution: record.resolution || '',
-				framerate: record.framerate || '',
-				crop: record.crop || '',
-				slopeBased: record.slopeBased?.toString() || '',
-				snr1: record.snr1?.toString() || '',
-				snr2: record.snr2?.toString() || '',
-				snr4: record.snr4?.toString() || '',
-				snr10: record.snr10?.toString() || '',
-				snr40: record.snr40?.toString() || ''
-			}));
-		}
-	}
-
-	// Handle form submission
-	async function handleUpdate(event: SubmitEvent) {
-		const form = event.currentTarget as HTMLFormElement;
-		const formData = new FormData(form);
+	// Handle form submission with enhance
+	function handleUpdate({ formData }: any) {
+		// Update formData with current editableRecords before submission
 		formData.set('records', JSON.stringify(editableRecords));
 
-		const response = await fetch('?/updateRecords', {
-			method: 'POST',
-			body: formData
-		});
-
-		const result = await response.json();
-
-		if (result.type === 'success' && result.data?.success) {
-			toastManager.showToast({
-				title: m['camera.dynamic_range_upload.dynamic_range_manage.update_success'](),
-				message: '',
-				iconName: 'mdi:check-circle',
-				iconColor: 'text-green-500',
-				duration: 3000,
-				showCountdown: false
-			});
-			// Reload page to get updated data
-			await goto(window.location.pathname, { invalidateAll: true });
-		} else {
-			toastManager.showToast({
-				title: m['camera.dynamic_range_upload.dynamic_range_manage.update_failure'](),
-				message: result.data?.message || m['camera.dynamic_range_upload.dynamic_range_manage.update_error'](),
-				iconName: 'mdi:alert-circle',
-				iconColor: 'text-red-500',
-				duration: 5000,
-				showCountdown: true
-			});
-		}
+		return async ({ result }: any) => {
+			if (result.type === 'success') {
+				// Update records to reflect the saved state (sync with editableRecords)
+				// This keeps the data in sync without losing user's edits
+				skipReinit = true;
+				records = records.map((record) => {
+					const editableRecord = editableRecords.find((er) => er.id === record.id);
+					if (editableRecord) {
+						return {
+							...record,
+							ei: editableRecord.ei ? parseInt(editableRecord.ei) : null,
+							iso: editableRecord.iso ? parseInt(editableRecord.iso) : null,
+							specialMode: editableRecord.specialMode || null,
+							codec: editableRecord.codec || null,
+							log: editableRecord.log || null,
+							bitDepth: editableRecord.bitDepth ? parseInt(editableRecord.bitDepth) : null,
+							chromaSubsampling: editableRecord.chromaSubsampling || null,
+							bitrate: editableRecord.bitrate || null,
+							resolution: editableRecord.resolution || null,
+							framerate: editableRecord.framerate || null,
+							crop: editableRecord.crop || null,
+							slopeBased: editableRecord.slopeBased ? parseFloat(editableRecord.slopeBased) : null,
+							snr1: editableRecord.snr1 ? parseFloat(editableRecord.snr1) : null,
+							snr2: editableRecord.snr2 ? parseFloat(editableRecord.snr2) : null,
+							snr4: editableRecord.snr4 ? parseFloat(editableRecord.snr4) : null,
+							snr10: editableRecord.snr10 ? parseFloat(editableRecord.snr10) : null,
+							snr40: editableRecord.snr40 ? parseFloat(editableRecord.snr40) : null
+						};
+					}
+					return record;
+				});
+				skipReinit = false;
+				
+				// Show success toast
+				toastManager.showToast({
+					title: m['camera.dynamic_range_upload.dynamic_range_manage.update_success'](),
+					message: '',
+					iconName: 'mdi:check-circle',
+					iconColor: 'text-green-500',
+					duration: 3000,
+					showCountdown: false
+				});
+			} else if (result.type === 'failure') {
+				let errorMessage = m['camera.dynamic_range_upload.dynamic_range_manage.update_error']();
+				if (result.data) {
+					if (typeof result.data === 'object' && result.data.message) {
+						errorMessage = result.data.message;
+					} else if (typeof result.data === 'string') {
+						errorMessage = result.data;
+					} else if (Array.isArray(result.data) && result.data.length > 0) {
+						errorMessage = result.data[result.data.length - 1];
+					}
+				}
+				toastManager.showToast({
+					title: m['camera.dynamic_range_upload.dynamic_range_manage.update_failure'](),
+					message: errorMessage,
+					iconName: 'mdi:alert-circle',
+					iconColor: 'text-red-500',
+					duration: 5000,
+					showCountdown: true
+				});
+			}
+		};
 	}
 
-	// Table columns
-	const columns = [
+	// Column widths for edit mode (in pixels)
+	const columnWidths: Record<string, number> = {
+		ei: 75, // 6 digits
+		iso: 85, // 6 digits
+		specialMode: 200, // 10 Chinese characters
+		codec: 100, // 10 English letters
+		log: 80, // 10 English letters
+		bitDepth: 5, // 2 digits
+		chromaSubsampling: 60, // 4 digits
+		bitrate: 60, // 4 digits
+		resolution: 100, // 10 English letters
+		framerate: 60, // 8 digits
+		crop: 100, // 10 English letters
+		slopeBased: 60, // 4 digits + decimal point
+		snr1: 60, // 4 digits + decimal point
+		snr2: 60, // 4 digits + decimal point
+		snr4: 60, // 4 digits + decimal point
+		snr10: 60, // 4 digits + decimal point
+		snr40: 60 // 4 digits + decimal point
+	};
+
+	// Helper function to get column width
+	function getColumnWidth(columnKey: string): string {
+		if (isEditMode && columnWidths[columnKey]) {
+			return `${columnWidths[columnKey]}px`;
+		}
+		return 'auto';
+	}
+
+	// Table columns (all columns) - matching CSV template order: EI, ISO, Special Mode, Codec, Log Type, Bit Depth, Chroma Subsampling, Bitrate, Resolution, Framerate, Crop, Slope-based, SNR=1, SNR=2, SNR=4, SNR=10, SNR=40
+	const allColumns = [
 		{ key: 'ei', label: () => m['camera.dynamic_range_upload.modal.fields.ei']() },
 		{ key: 'iso', label: () => m['camera.dynamic_range_upload.modal.fields.iso']() },
 		{ key: 'specialMode', label: () => m['camera.dynamic_range_upload.modal.fields.special_mode']() },
@@ -132,6 +304,11 @@
 		{ key: 'snr10', label: () => m['camera.dynamic_range_upload.modal.fields.snr10']() },
 		{ key: 'snr40', label: () => m['camera.dynamic_range_upload.modal.fields.snr40']() }
 	];
+
+	// Filtered columns based on visibility
+	const visibleColumns = $derived(
+		allColumns.filter((col) => columnVisibility[col.key] !== false)
+	);
 
 	// Helper function to get cell value
 	function getCellValue(record: any, columnKey: string): string {
@@ -161,9 +338,9 @@
 <ToastManager bind:this={toastManager} />
 
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16 transition-colors duration-200">
-	<div class="w-[95%] mx-auto py-8">
+	<div class="mx-auto py-8 px-4 sm:px-6 lg:px-8">
 		<!-- Header -->
-		<div class="mb-6">
+		<div class="mb-6 space-y-4">
 			<!-- Switch for view/edit mode -->
 			<div class="flex items-center gap-3 mt-4">
 				<span class="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -173,7 +350,6 @@
 					<input
 						type="checkbox"
 						bind:checked={isEditMode}
-						onchange={toggleEditMode}
 						class="sr-only peer"
 					/>
 					<div
@@ -184,6 +360,33 @@
 					{m['camera.dynamic_range_upload.dynamic_range_manage.edit_mode']()}
 				</span>
 			</div>
+
+			<!-- Column visibility selector -->
+			{#if records.length > 0}
+				<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+					<h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+						{m['camera.dynamic_range_upload.dynamic_range_manage.show_columns']()}
+					</h3>
+					<div class="space-y-3">
+						{#each columnGroups as group}
+							<div class="flex flex-wrap items-center gap-4">
+								{#each group as column}
+									<label class="flex items-center gap-2 cursor-pointer">
+										<input
+											type="checkbox"
+											bind:checked={columnVisibility[column.key]}
+											class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+										/>
+										<span class="text-sm text-gray-700 dark:text-gray-300">
+											{column.label()}
+										</span>
+									</label>
+								{/each}
+							</div>
+						{/each}
+					</div>
+				</div>
+			{/if}
 		</div>
 
 		<!-- Table -->
@@ -198,22 +401,45 @@
 				</p>
 			</div>
 		{:else}
-			<form onsubmit={handleUpdate} use:enhance>
-				<div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
-					<div class="overflow-x-auto">
-						<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+			<form method="POST" action="?/updateRecords" use:enhance={handleUpdate}>
+				<div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg relative">
+					<!-- Left arrow -->
+					{#if showLeftArrow}
+						<button
+							type="button"
+							onclick={() => scrollTable('left')}
+							class="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/50 dark:bg-gray-800/50 border border-gray-300/50 dark:border-gray-600/50 rounded-r-md p-2 shadow-lg hover:bg-white/70 dark:hover:bg-gray-800/70 transition-colors backdrop-blur-sm"
+							aria-label="Scroll left"
+						>
+							<Icon icon="mdi:chevron-left" class="w-6 h-6 text-gray-600 dark:text-gray-300 opacity-50" />
+						</button>
+					{/if}
+					<!-- Right arrow -->
+					{#if showRightArrow}
+						<button
+							type="button"
+							onclick={() => scrollTable('right')}
+							class="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/50 dark:bg-gray-800/50 border border-gray-300/50 dark:border-gray-600/50 rounded-l-md p-2 shadow-lg hover:bg-white/70 dark:hover:bg-gray-800/70 transition-colors backdrop-blur-sm"
+							aria-label="Scroll right"
+						>
+							<Icon icon="mdi:chevron-right" class="w-6 h-6 text-gray-600 dark:text-gray-300 opacity-50" />
+						</button>
+					{/if}
+					<div class="overflow-x-auto" bind:this={tableContainer}>
+						<table class="divide-y divide-gray-200 dark:divide-gray-700" style="width: max-content;">
 							<thead class="bg-gray-50 dark:bg-gray-700">
 								<tr>
 									<th
 										scope="col"
-										class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+										class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap"
 									>
 										#
 									</th>
-									{#each columns as column}
+									{#each visibleColumns as column}
 										<th
 											scope="col"
-											class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+											class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap"
+											style={isEditMode ? `width: ${getColumnWidth(column.key)}; min-width: ${getColumnWidth(column.key)};` : ''}
 										>
 											{column.label()}
 										</th>
@@ -226,8 +452,11 @@
 										<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
 											{index + 1}
 										</td>
-										{#each columns as column}
-											<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+										{#each visibleColumns as column}
+											<td 
+												class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white"
+												style={isEditMode ? `width: ${getColumnWidth(column.key)}; min-width: ${getColumnWidth(column.key)};` : ''}
+											>
 												{#if isEditMode}
 													<input
 														type="text"
@@ -238,7 +467,8 @@
 																column.key,
 																e.currentTarget.value
 															)}
-														class="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+														style={`width: ${getColumnWidth(column.key)};`}
+														class="px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
 													/>
 												{:else}
 													{getCellValue(record, column.key)}

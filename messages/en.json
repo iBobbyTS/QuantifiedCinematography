@@ -387,7 +387,7 @@
 			"subtitle": "Select cameras to add data, click 'Next' in the top right corner, select columns to fill in the popup window, then click 'Download' button",
 			"next_button": "Next",
 			"table": {
-				"record_count": "Recorded Count"
+				"record_count": "Record Count"
 			},
 			"modal": {
 				"title": "Upload Dynamic Range Data for the Following Cameras",
@@ -460,6 +460,7 @@
 				"update_success": "Data updated successfully",
 				"update_failure": "Data update failed",
 				"update_error": "An error occurred while updating data",
+				"show_columns": "Show Columns",
 				"empty_state": {
 					"title": "No Data",
 					"description": "No dynamic range data has been uploaded for this camera yet."
