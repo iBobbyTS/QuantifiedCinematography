@@ -83,127 +83,208 @@ export const actions: Actions = {
 				return fail(400, { message: 'Invalid records format' });
 			}
 
-			// Update each record
+			// Process each record (insert new, update existing, or delete)
 			for (const record of records) {
+				const isNew = record.isNew === true;
+				const isDeleted = record.isDeleted === true;
 				const recordId = parseInt(record.id);
-				if (isNaN(recordId)) {
-					continue;
-				}
 
-				// Verify the record belongs to this camera and user
-				const existing = await db
-					.select()
-					.from(cameraDynamicRangeData)
-					.where(
-						and(
-							eq(cameraDynamicRangeData.id, recordId),
-							eq(cameraDynamicRangeData.cameraId, cameraId),
-							eq(cameraDynamicRangeData.userId, locals.user.id)
+				// Handle deletion
+				if (isDeleted) {
+					if (isNaN(recordId) || recordId <= 0) {
+						continue; // Skip invalid IDs
+					}
+
+					// Verify the record belongs to this camera and user before deleting
+					const existing = await db
+						.select()
+						.from(cameraDynamicRangeData)
+						.where(
+							and(
+								eq(cameraDynamicRangeData.id, recordId),
+								eq(cameraDynamicRangeData.cameraId, cameraId),
+								eq(cameraDynamicRangeData.userId, locals.user.id)
+							)
 						)
-					)
-					.limit(1);
+						.limit(1);
 
-				if (existing.length === 0) {
-					continue; // Skip records that don't belong to this user
+					if (existing.length > 0) {
+						// Delete the record
+						await db.delete(cameraDynamicRangeData).where(eq(cameraDynamicRangeData.id, recordId));
+					}
+					continue; // Skip to next record
 				}
 
-				// Build update object
-				const updateData: any = {
+				// Build data object for insert/update
+				const recordData: any = {
+					cameraId: cameraId,
+					userId: locals.user.id,
 					updatedAt: new Date()
 				};
 
+				if (isNew) {
+					// New record - set createdAt
+					recordData.createdAt = new Date();
+				} else {
+					// Existing record - verify it belongs to this camera and user
+					if (isNaN(recordId) || recordId <= 0) {
+						continue; // Skip invalid IDs
+					}
+
+					const existing = await db
+						.select()
+						.from(cameraDynamicRangeData)
+						.where(
+							and(
+								eq(cameraDynamicRangeData.id, recordId),
+								eq(cameraDynamicRangeData.cameraId, cameraId),
+								eq(cameraDynamicRangeData.userId, locals.user.id)
+							)
+						)
+						.limit(1);
+
+					if (existing.length === 0) {
+						continue; // Skip records that don't belong to this user
+					}
+				}
+
 				// Map fields from record to database columns
 				if (record.ei !== undefined && record.ei !== '') {
-					updateData.ei = parseInt(record.ei) || null;
+					recordData.ei = parseInt(record.ei) || null;
 				} else {
-					updateData.ei = null;
+					recordData.ei = null;
 				}
 
 				if (record.iso !== undefined && record.iso !== '') {
-					updateData.iso = parseInt(record.iso) || null;
+					recordData.iso = parseInt(record.iso) || null;
 				} else {
-					updateData.iso = null;
+					recordData.iso = null;
 				}
 
 				if (record.specialMode !== undefined) {
-					updateData.specialMode = record.specialMode.trim() || null;
+					recordData.specialMode = record.specialMode.trim() || null;
+				} else {
+					recordData.specialMode = null;
 				}
 
 				if (record.codec !== undefined) {
-					updateData.codec = record.codec.trim() || null;
+					recordData.codec = record.codec.trim() || null;
+				} else {
+					recordData.codec = null;
 				}
 
 				if (record.log !== undefined) {
-					updateData.log = record.log.trim() || null;
+					recordData.log = record.log.trim() || null;
+				} else {
+					recordData.log = null;
 				}
 
 				if (record.bitDepth !== undefined && record.bitDepth !== '') {
-					updateData.bitDepth = parseInt(record.bitDepth) || null;
+					recordData.bitDepth = parseInt(record.bitDepth) || null;
 				} else {
-					updateData.bitDepth = null;
+					recordData.bitDepth = null;
 				}
 
 				if (record.chromaSubsampling !== undefined) {
-					updateData.chromaSubsampling = record.chromaSubsampling.trim() || null;
+					recordData.chromaSubsampling = record.chromaSubsampling.trim() || null;
+				} else {
+					recordData.chromaSubsampling = null;
 				}
 
 				if (record.bitrate !== undefined) {
-					updateData.bitrate = record.bitrate.trim() || null;
+					recordData.bitrate = record.bitrate.trim() || null;
+				} else {
+					recordData.bitrate = null;
 				}
 
 				if (record.resolution !== undefined) {
-					updateData.resolution = record.resolution.trim() || null;
+					recordData.resolution = record.resolution.trim() || null;
+				} else {
+					recordData.resolution = null;
 				}
 
 				if (record.framerate !== undefined) {
-					updateData.framerate = record.framerate.trim() || null;
+					recordData.framerate = record.framerate.trim() || null;
+				} else {
+					recordData.framerate = null;
 				}
 
 				if (record.crop !== undefined) {
-					updateData.crop = record.crop.trim() || null;
+					recordData.crop = record.crop.trim() || null;
+				} else {
+					recordData.crop = null;
 				}
 
 				if (record.slopeBased !== undefined && record.slopeBased !== '') {
-					updateData.slopeBased = parseFloat(record.slopeBased) || null;
+					recordData.slopeBased = parseFloat(record.slopeBased) || null;
 				} else {
-					updateData.slopeBased = null;
+					recordData.slopeBased = null;
 				}
 
 				if (record.snr1 !== undefined && record.snr1 !== '') {
-					updateData.snr1 = parseFloat(record.snr1) || null;
+					recordData.snr1 = parseFloat(record.snr1) || null;
 				} else {
-					updateData.snr1 = null;
+					recordData.snr1 = null;
 				}
 
 				if (record.snr2 !== undefined && record.snr2 !== '') {
-					updateData.snr2 = parseFloat(record.snr2) || null;
+					recordData.snr2 = parseFloat(record.snr2) || null;
 				} else {
-					updateData.snr2 = null;
+					recordData.snr2 = null;
 				}
 
 				if (record.snr4 !== undefined && record.snr4 !== '') {
-					updateData.snr4 = parseFloat(record.snr4) || null;
+					recordData.snr4 = parseFloat(record.snr4) || null;
 				} else {
-					updateData.snr4 = null;
+					recordData.snr4 = null;
 				}
 
 				if (record.snr10 !== undefined && record.snr10 !== '') {
-					updateData.snr10 = parseFloat(record.snr10) || null;
+					recordData.snr10 = parseFloat(record.snr10) || null;
 				} else {
-					updateData.snr10 = null;
+					recordData.snr10 = null;
 				}
 
 				if (record.snr40 !== undefined && record.snr40 !== '') {
-					updateData.snr40 = parseFloat(record.snr40) || null;
+					recordData.snr40 = parseFloat(record.snr40) || null;
 				} else {
-					updateData.snr40 = null;
+					recordData.snr40 = null;
 				}
 
-				// Update the record
-				await db
-					.update(cameraDynamicRangeData)
-					.set(updateData)
-					.where(eq(cameraDynamicRangeData.id, recordId));
+				// Check if record has at least one non-null field (excluding metadata fields)
+				const hasData = 
+					recordData.ei !== null ||
+					recordData.iso !== null ||
+					recordData.specialMode !== null ||
+					recordData.codec !== null ||
+					recordData.log !== null ||
+					recordData.bitDepth !== null ||
+					recordData.chromaSubsampling !== null ||
+					recordData.bitrate !== null ||
+					recordData.resolution !== null ||
+					recordData.framerate !== null ||
+					recordData.crop !== null ||
+					recordData.slopeBased !== null ||
+					recordData.snr1 !== null ||
+					recordData.snr2 !== null ||
+					recordData.snr4 !== null ||
+					recordData.snr10 !== null ||
+					recordData.snr40 !== null;
+
+				// Skip empty records
+				if (!hasData) {
+					continue;
+				}
+
+				// Insert new record or update existing one
+				if (isNew) {
+					await db.insert(cameraDynamicRangeData).values(recordData);
+				} else {
+					await db
+						.update(cameraDynamicRangeData)
+						.set(recordData)
+						.where(eq(cameraDynamicRangeData.id, recordId));
+				}
 			}
 
 			return { success: true, message: 'Records updated successfully' };
