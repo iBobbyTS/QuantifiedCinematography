@@ -483,7 +483,7 @@
 				{m['camera.dynamic_range_upload.instructions_title']()}
 			</h1>
 			<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-				{m['camera.dynamic_range_upload.instructions_subtitle']()}
+				{@html m['camera.dynamic_range_upload.instructions_subtitle']()}
 			</p>
 		</div>
 
