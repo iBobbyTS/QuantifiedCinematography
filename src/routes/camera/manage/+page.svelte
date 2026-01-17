@@ -361,24 +361,6 @@
 	<Navbar centerTitle="camera.manage.title" showBackButton={true} />
 
 	<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-		<!-- Header -->
-		<div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-			<div>
-				<h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-					{m['camera.manage.title']()}
-				</h1>
-				<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-					{m['camera.manage.subtitle']()}
-				</p>
-			</div>
-			<button
-				onclick={() => goto('/camera/add')}
-				class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-			>
-				<Icon icon="mdi:plus" class="mr-2 h-5 w-5" />
-				{m['camera.manage.add_camera']()}
-			</button>
-		</div>
 
 		<!-- Filters -->
 		<div class="bg-white dark:bg-gray-800 shadow sm:rounded-md mb-4">
@@ -541,6 +523,16 @@
 	onConfirm={confirmDeleteCamera}
 	onCancel={closeDeleteConfirm}
 />
+
+<!-- Floating Add Camera Button -->
+<button
+	onclick={() => goto('/camera/add')}
+	class="fixed right-8 z-50 inline-flex items-center px-6 py-3 border border-transparent rounded-full shadow-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+	style="top: calc(4rem + 2rem);"
+>
+	<Icon icon="mdi:plus" class="mr-2 h-5 w-5" />
+	{m['camera.manage.add_camera']()}
+</button>
 
 <!-- Toast Manager -->
 <ToastManager bind:this={toastManager} />
