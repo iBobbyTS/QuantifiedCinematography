@@ -251,7 +251,8 @@
 			buttons: [
 				{
 					text: m['camera.dynamic_range.button'](),
-					color: 'blue'
+					color: 'blue',
+					onClick: () => goto('/camera/dynamic-range/browse')
 				}
 			],
 			color: 'blue'
