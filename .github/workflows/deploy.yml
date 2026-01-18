@@ -44,6 +44,23 @@ jobs:
             set -e
             export DEPLOY_PATH="${{ secrets.DEPLOY_PATH }}"
             export GIT_REPO_URL="${GIT_REPO_URL:-https://github.com/${{ github.repository }}.git}"
+            
+            # Ensure project directory exists and is a git repository
+            if [ ! -d "$DEPLOY_PATH/.git" ]; then
+              echo "Project directory is not a git repository. Cloning..."
+              mkdir -p "$(dirname "$DEPLOY_PATH")"
+              # Remove empty directory if it exists
+              rmdir "$DEPLOY_PATH" 2>/dev/null || true
+              git clone "$GIT_REPO_URL" "$DEPLOY_PATH" || {
+                echo "⚠ Error: Could not clone repository."
+                exit 1
+              }
+              cd "$DEPLOY_PATH"
+              git checkout deploy || git checkout -b deploy origin/deploy || true
+            fi
+            
+            # Now execute the deployment script
             cd "$DEPLOY_PATH" || exit 1
+            chmod +x scripts/deploy.sh
             ./scripts/deploy.sh
           envs: DEPLOY_PATH
