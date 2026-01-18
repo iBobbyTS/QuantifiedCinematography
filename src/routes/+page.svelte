@@ -6,7 +6,7 @@
 	import Navbar from '../lib/components/Navbar.svelte';
 	import Card from '../lib/components/Card.svelte';
 	import { UserPermissions, USER_PERMISSIONS } from '../lib/permission/bitmask.js';
-	import { IS_DEVELOPING, COMPLETED_MODULES } from '../lib/constants.js';
+	import { PRODUCTION_ENVIRONMENT, COMPLETED_MODULES } from '../lib/constants.js';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -58,7 +58,7 @@
 
 	// 检查模块是否应该显示
 	function shouldShowModule(moduleName: string): boolean {
-		if (IS_DEVELOPING) {
+		if (!PRODUCTION_ENVIRONMENT) {
 			return true; // 开发模式下显示所有模块
 		}
 		return COMPLETED_MODULES.includes(moduleName); // 非开发模式下只显示已完成的模块
