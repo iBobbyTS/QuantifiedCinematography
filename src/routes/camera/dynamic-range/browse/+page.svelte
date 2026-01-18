@@ -127,19 +127,31 @@
 		return values;
 	});
 
-	// Calculate Y-axis range
+	// Calculate Y-axis range, aligned to 0.5 intervals
 	let yAxisMin = $derived(() => {
 		if (allValues().length === 0) return 0;
 		if (showFullYAxis) {
 			return 0;
 		} else {
-			return Math.min(...allValues()) - 1;
+			const minValue = Math.min(...allValues()) - 0.1;
+			// Round down to nearest 0.5
+			return Math.floor(minValue * 2) / 2;
 		}
 	});
 
 	let yAxisMax = $derived(() => {
 		if (allValues().length === 0) return 20;
-		return Math.max(...allValues()) + 1;
+		const maxValue = Math.max(...allValues()) + 0.1;
+		// Round up to nearest 0.5
+		return Math.ceil(maxValue * 2) / 2;
+	});
+
+	// Calculate tick amount for fixed 0.5 interval
+	let yAxisTickAmount = $derived(() => {
+		const min = yAxisMin();
+		const max = yAxisMax();
+		const range = max - min;
+		return Math.ceil(range / 0.5); // +1 to include both endpoints
 	});
 
 	// Prepare chart data
@@ -395,9 +407,15 @@
 				},
 				min: yAxisMin,
 				max: yAxisMax,
+				tickAmount: yAxisTickAmount(),
+				decimalsInFloat: 1,
 				labels: {
 					style: {
 						colors: textColor
+					},
+					formatter: (val: number) => {
+						// Format to one decimal place for 0.5 interval display
+						return val.toFixed(1);
 					}
 				}
 			},
