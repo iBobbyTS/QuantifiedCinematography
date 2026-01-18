@@ -577,6 +577,20 @@
 		}
 	});
 
+	// Update checkbox indeterminate state when selection changes
+	$effect(() => {
+		// Access selectedRecordIds to trigger reactivity
+		const _ = selectedRecordIds;
+		// Use setTimeout to ensure DOM is updated
+		setTimeout(() => {
+			document.querySelectorAll('input[data-camera-id]').forEach((checkbox) => {
+				const el = checkbox as HTMLInputElement;
+				const partialSelected = el.getAttribute('data-partial-selected') === 'true';
+				el.indeterminate = partialSelected;
+			});
+		}, 0);
+	});
+
 	onMount(() => {
 		return () => {
 			if (chart) {
@@ -610,7 +624,11 @@
 						{@const validRecords = hasData ? (camera.dynamicRangeData || []).filter(recordHasDynamicRangeData) : []}
 						
 						{#if hasMultipleRecords}
-							<!-- Camera row with arrow (multiple records) -->
+							<!-- Camera row with checkbox and arrow (multiple records) -->
+							{@const selectedRecordIdsForCamera = validRecords.filter(r => selectedRecordIds.has(r.id)).map(r => r.id)}
+							{@const allSelected = selectedRecordIdsForCamera.length === validRecords.length && validRecords.length > 0}
+							{@const noneSelected = selectedRecordIdsForCamera.length === 0}
+							{@const partialSelected = !allSelected && !noneSelected}
 							<div
 								role={hasData ? 'button' : undefined}
 								{...(hasData ? { tabindex: 0 } : {})}
@@ -625,10 +643,42 @@
 									}
 								}}
 							>
-								<!-- Arrow icon for multiple records -->
+								<!-- Checkbox for multiple records -->
+								<input
+									type="checkbox"
+									checked={allSelected}
+									onchange={() => {
+										if (allSelected) {
+											// Unselect all records for this camera
+											const newSet = new Set(selectedRecordIds);
+											for (const record of validRecords) {
+												newSet.delete(record.id);
+											}
+											selectedRecordIds = newSet;
+										} else {
+											// Select all records for this camera
+											const newSet = new Set(selectedRecordIds);
+											for (const record of validRecords) {
+												newSet.add(record.id);
+											}
+											selectedRecordIds = newSet;
+										}
+									}}
+									onclick={(e: MouseEvent) => e.stopPropagation()}
+									disabled={!hasData}
+									class="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+									data-camera-id={camera.id}
+									data-partial-selected={partialSelected}
+								/>
+								<span class="flex-1 text-sm {hasData
+									? 'text-gray-900 dark:text-white'
+									: 'text-gray-400 dark:text-gray-600'}">
+									{camera.brandName || ''} {camera.name || ''}
+								</span>
+								<!-- Arrow icon for multiple records (moved to right) -->
 								<button
 									type="button"
-									class="arrow-icon mr-3 h-4 w-4 text-gray-600 dark:text-gray-400 transition-transform duration-200 {isExpanded
+									class="arrow-icon ml-3 h-4 w-4 text-gray-600 dark:text-gray-400 transition-transform duration-200 {isExpanded
 										? 'rotate-90'
 										: ''} focus:outline-none"
 									onclick={(e) => {
@@ -646,11 +696,6 @@
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
 									</svg>
 								</button>
-								<span class="text-sm {hasData
-									? 'text-gray-900 dark:text-white'
-									: 'text-gray-400 dark:text-gray-600'}">
-									{camera.brandName || ''} {camera.name || ''}
-								</span>
 							</div>
 
 							<!-- Expanded records (only show if expanded) -->
