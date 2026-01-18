@@ -1,3 +1,5 @@
+import { env } from '$env/dynamic/public';
+
 // Number of items per page options
 // Remove 2 and 5 in production
 export const ITEMS_PER_PAGE_OPTIONS = [2, 5, 10, 20, 50, 100, 200];
@@ -13,7 +15,8 @@ export const CINEMA_CAMERA_MODEL_KEYWORDS = {
 };
 
 // Whether the project is currently under development
-export const IS_DEVELOPING = true;
+// Read from environment variable PUBLIC_PRODUCTION_ENVIRONMENT: "1" = true, "0" = false, default = false (development mode)
+export const PRODUCTION_ENVIRONMENT = env.PUBLIC_PRODUCTION_ENVIRONMENT === '1';
 
 // List of completed development modules
 // data-provider-camera: Camera data upload module

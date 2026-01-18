@@ -1,16 +1,33 @@
-# use the official Bun image
-# see all versions at https://hub.docker.com/r/oven/bun/tags
-FROM oven/bun:1 AS base
+# Multi-stage build for production
+FROM oven/bun:1 AS builder
 WORKDIR /usr/src/app
 
-# install dependencies
+# Install dependencies
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
-# copy source code
+# Copy source code and build
 COPY . .
+RUN bun run paraglide-js
+RUN bun run build
 
-# run the app
-USER bun
+# Production image
+FROM oven/bun:1 AS production
+WORKDIR /usr/src/app
+
+# Install all dependencies (needed for build output)
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
+
+# Copy built application and necessary files
+COPY --from=builder /usr/src/app/build ./build
+COPY --from=builder /usr/src/app/static ./static
+COPY --from=builder /usr/src/app/package.json ./
+COPY --from=builder /usr/src/app/node_modules/.vite ./node_modules/.vite || true
+
+# Expose port
 EXPOSE 5173/tcp
-ENTRYPOINT [ "bun", "run", "dev", "--host", "0.0.0.0", "--port", "5173" ]
+
+# Run the production server
+USER bun
+CMD ["bun", "run", "preview", "--host", "0.0.0.0", "--port", "5173"]
