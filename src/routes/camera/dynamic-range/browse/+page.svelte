@@ -295,37 +295,37 @@
 	function formatRecordDetails(record: DynamicRangeRecord): string {
 		const parts: string[] = [];
 		if (record.ei !== null) {
-			parts.push(`EI: ${record.ei}`);
+			parts.push(`${m['camera.dynamic_range.browse.fields.ei']()}: ${record.ei}`);
 		}
 		if (record.iso !== null) {
-			parts.push(`ISO: ${record.iso}`);
+			parts.push(`${m['camera.dynamic_range.browse.fields.iso']()}: ${record.iso}`);
 		}
 		if (record.specialMode !== null) {
-			parts.push(`Special Mode: ${record.specialMode}`);
+			parts.push(`${m['camera.dynamic_range.browse.fields.special_mode']()}: ${record.specialMode}`);
 		}
 		if (record.codec !== null) {
-			parts.push(`Codec: ${record.codec}`);
+			parts.push(`${m['camera.dynamic_range.browse.fields.codec']()}: ${record.codec}`);
 		}
 		if (record.log !== null) {
-			parts.push(`Log: ${record.log}`);
+			parts.push(`${m['camera.dynamic_range.browse.fields.log']()}: ${record.log}`);
 		}
 		if (record.bitDepth !== null) {
-			parts.push(`Bit Depth: ${record.bitDepth}`);
+			parts.push(`${m['camera.dynamic_range.browse.fields.bit_depth']()}: ${record.bitDepth}`);
 		}
 		if (record.chromaSubsampling !== null) {
-			parts.push(`Chroma Subsampling: ${record.chromaSubsampling}`);
+			parts.push(`${m['camera.dynamic_range.browse.fields.chroma_subsampling']()}: ${record.chromaSubsampling}`);
 		}
 		if (record.bitrate !== null) {
-			parts.push(`Bitrate: ${record.bitrate}`);
+			parts.push(`${m['camera.dynamic_range.browse.fields.bitrate']()}: ${record.bitrate}`);
 		}
 		if (record.resolution !== null) {
-			parts.push(`Resolution: ${record.resolution}`);
+			parts.push(`${m['camera.dynamic_range.browse.fields.resolution']()}: ${record.resolution}`);
 		}
 		if (record.framerate !== null) {
-			parts.push(`Framerate: ${record.framerate}`);
+			parts.push(`${m['camera.dynamic_range.browse.fields.framerate']()}: ${record.framerate}`);
 		}
 		if (record.crop !== null) {
-			parts.push(`Crop: ${record.crop}`);
+			parts.push(`${m['camera.dynamic_range.browse.fields.crop']()}: ${record.crop}`);
 		}
 		return parts.join('; ');
 	}
@@ -469,7 +469,7 @@
 			},
 			yaxis: {
 				title: {
-					text: 'Dynamic Range',
+					text: m['camera.dynamic_range.browse.y_axis_title'](),
 					style: {
 						color: titleColor
 					}
@@ -558,11 +558,11 @@
 </script>
 
 <svelte:head>
-	<title>Dynamic Range Browse - {m['app.title']()}</title>
+	<title>{m['camera.dynamic_range.browse.title']()} - {m['app.title']()}</title>
 </svelte:head>
 
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200 pt-16">
-	<Navbar centerTitle="动态范围浏览" centerTitleDirect={true} showBackButton={true} />
+	<Navbar centerTitle={m['camera.dynamic_range.browse.title']()} centerTitleDirect={true} showBackButton={true} />
 
 	<main class="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
 		<div class="flex gap-4 h-[calc(100vh-8rem)]">
@@ -712,7 +712,7 @@
 							bind:checked={showFullYAxis}
 							class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
 						/>
-						<span class="text-sm text-gray-700 dark:text-gray-300">显示完整纵轴</span>
+						<span class="text-sm text-gray-700 dark:text-gray-300">{m['camera.dynamic_range.browse.show_full_y_axis']()}</span>
 					</label>
 					<button
 						type="button"

@@ -561,7 +561,25 @@
 		"dynamic_range": {
 			"title": "动态范围测试",
 			"description": "包含Slope-based, SNR=1, SNR=2等动态范围数据",
-			"button": "查看动态范围"
+			"button": "查看动态范围",
+			"browse": {
+				"title": "动态范围浏览",
+				"show_full_y_axis": "显示完整纵轴",
+				"y_axis_title": "动态范围",
+				"fields": {
+					"ei": "EI",
+					"iso": "ISO",
+					"special_mode": "特殊模式",
+					"codec": "编码",
+					"log": "Log类型",
+					"bit_depth": "位深",
+					"chroma_subsampling": "色度采样",
+					"bitrate": "码率",
+					"resolution": "分辨率",
+					"framerate": "帧率",
+					"crop": "画幅/裁切"
+				}
+			}
 		}
 	},
 	"spectrometer": {

@@ -569,7 +569,25 @@
 		"dynamic_range": {
 			"title": "Dynamic Range Testing",
 			"description": "Includes Slope-based, SNR=1, SNR=2 and other dynamic range data",
-			"button": "View Dynamic Range"
+			"button": "View Dynamic Range",
+			"browse": {
+				"title": "Dynamic Range Browse",
+				"show_full_y_axis": "Show Full Y-Axis",
+				"y_axis_title": "Dynamic Range",
+				"fields": {
+					"ei": "EI",
+					"iso": "ISO",
+					"special_mode": "Special Mode",
+					"codec": "Codec",
+					"log": "Log",
+					"bit_depth": "Bit Depth",
+					"chroma_subsampling": "Chroma Subsampling",
+					"bitrate": "Bitrate",
+					"resolution": "Resolution",
+					"framerate": "Framerate",
+					"crop": "Crop"
+				}
+			}
 		}
 	},
 	"spectrometer": {
