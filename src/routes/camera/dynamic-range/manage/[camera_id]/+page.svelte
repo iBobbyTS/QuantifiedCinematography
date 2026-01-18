@@ -707,6 +707,7 @@
 	centerTitleDirect={true}
 	showBackButton={true}
 	backButtonUrl={`/camera/dynamic-range/manage#camera-${camera.id}`}
+	backButtonText="camera.dynamic_range_upload.title"
 />
 <ToastManager bind:this={toastManager} />
 
