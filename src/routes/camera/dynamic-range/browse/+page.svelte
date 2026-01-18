@@ -431,7 +431,7 @@
 						return '';
 					},
 					rotate: -45,
-					rotateAlways: false,
+					rotateAlways: true,
 					style: {
 						colors: textColor
 					},
