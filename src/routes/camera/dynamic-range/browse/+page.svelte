@@ -129,24 +129,25 @@
 			
 			if (validRecords.length > 0) {
 				// For each valid record, add data points for each series
+				// Use category label as x value for proper alignment
 				for (const record of validRecords) {
 					if (record.slopeBased !== null) {
-						seriesData[0].data.push({ x: i, y: record.slopeBased });
+						seriesData[0].data.push({ x: label, y: record.slopeBased });
 					}
 					if (record.snr1 !== null) {
-						seriesData[1].data.push({ x: i, y: record.snr1 });
+						seriesData[1].data.push({ x: label, y: record.snr1 });
 					}
 					if (record.snr2 !== null) {
-						seriesData[2].data.push({ x: i, y: record.snr2 });
+						seriesData[2].data.push({ x: label, y: record.snr2 });
 					}
 					if (record.snr4 !== null) {
-						seriesData[3].data.push({ x: i, y: record.snr4 });
+						seriesData[3].data.push({ x: label, y: record.snr4 });
 					}
 					if (record.snr10 !== null) {
-						seriesData[4].data.push({ x: i, y: record.snr10 });
+						seriesData[4].data.push({ x: label, y: record.snr10 });
 					}
 					if (record.snr40 !== null) {
-						seriesData[5].data.push({ x: i, y: record.snr40 });
+						seriesData[5].data.push({ x: label, y: record.snr40 });
 					}
 				}
 			}
@@ -248,18 +249,9 @@
 						color: titleColor
 					}
 				},
-				type: 'numeric',
-				min: -0.5,
-				max: selectedCameras.length - 0.5,
-				tickAmount: selectedCameras.length,
+				type: 'category',
+				categories: categories,
 				labels: {
-					formatter: (val: string) => {
-						const index = Math.round(parseFloat(val));
-						if (index >= 0 && index < categories.length) {
-							return categories[index];
-						}
-						return '';
-					},
 					rotate: -45,
 					rotateAlways: false,
 					style: {
@@ -300,8 +292,7 @@
 				},
 				custom: function ({ seriesIndex, dataPointIndex, w }: any) {
 					const data = w.globals.initialSeries[seriesIndex].data[dataPointIndex];
-					const cameraIndex = Math.round(data.x);
-					const cameraName = categories[cameraIndex] || '';
+					const cameraName = typeof data.x === 'string' ? data.x : categories[Math.round(data.x)] || '';
 					const value = data.y;
 					const seriesName = seriesData[seriesIndex].name;
 					return `<div style="padding: 8px; background-color: ${tooltipBg}; color: ${tooltipText}; border: 1px solid ${tooltipBorder}; border-radius: 4px;">
