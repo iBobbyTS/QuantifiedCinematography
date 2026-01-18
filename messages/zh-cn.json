@@ -567,6 +567,10 @@
 				"show_full_y_axis": "显示完整纵轴",
 				"y_axis_title": "动态范围",
 				"cameras_list_title": "相机",
+				"filters": {
+					"all_uploaders": "所有上传者",
+					"all": "所有"
+				},
 				"fields": {
 					"ei": "EI",
 					"iso": "ISO",

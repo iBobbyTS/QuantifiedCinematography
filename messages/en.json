@@ -575,6 +575,10 @@
 				"show_full_y_axis": "Show Full Y-Axis",
 				"y_axis_title": "Dynamic Range",
 				"cameras_list_title": "Cameras",
+				"filters": {
+					"all_uploaders": "All Uploaders",
+					"all": "All"
+				},
 				"fields": {
 					"ei": "EI",
 					"iso": "ISO",

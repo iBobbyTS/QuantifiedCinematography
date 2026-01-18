@@ -13,7 +13,7 @@ export const CINEMA_CAMERA_MODEL_KEYWORDS = {
 };
 
 // Whether the project is currently under development
-export const IS_DEVELOPING = false;
+export const IS_DEVELOPING = true;
 
 // List of completed development modules
 // data-provider-camera: Camera data upload module

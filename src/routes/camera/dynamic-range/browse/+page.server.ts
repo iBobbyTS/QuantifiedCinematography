@@ -3,7 +3,7 @@ import type { ServerLoad } from '@sveltejs/kit';
 import { db } from '$lib/server/db/index.js';
 import { productCameras, brands, cameraDynamicRangeData, user } from '$lib/server/db/schema.js';
 import { UserPermissions, USER_PERMISSIONS } from '$lib/permission/bitmask.js';
-import { eq, inArray } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 
 // Natural sort comparison function for strings with numbers
 function naturalCompare(a: string, b: string): number {
@@ -169,9 +169,48 @@ export const load: ServerLoad = async ({ locals, url }) => {
 			dynamicRangeData: dataByCamera.get(camera.id) || []
 		}));
 
+		// Fetch users who have camera permission and have uploaded dynamic range data
+		let uploaders: Array<{ id: string; nickname: string }> = [];
+		try {
+			// Get distinct user IDs from dynamic range data
+			const distinctUserIds = await db
+				.selectDistinct({ userId: cameraDynamicRangeData.userId })
+				.from(cameraDynamicRangeData);
+			
+			if (distinctUserIds.length > 0) {
+				const userIds = distinctUserIds.map(u => u.userId).filter(Boolean) as string[];
+				
+				// Fetch users who have camera permission
+				const usersWithPermission = await db
+					.select({
+						id: user.id,
+						nickname: user.nickname,
+						permission: user.permission
+					})
+					.from(user)
+					.where(inArray(user.id, userIds));
+				
+				// Filter users who have CAMERA permission
+				uploaders = usersWithPermission
+					.filter(u => UserPermissions.hasPermission(u.permission, USER_PERMISSIONS.CAMERA))
+					.map(u => ({ id: u.id, nickname: u.nickname }))
+					.sort((a, b) => a.nickname.localeCompare(b.nickname));
+			}
+		} catch (err: any) {
+			// If table doesn't exist, return empty array
+			if (err?.code === '42P01' || err?.message?.includes('does not exist')) {
+				console.warn('Error fetching uploaders:', err);
+				uploaders = [];
+			} else {
+				console.error('Error fetching uploaders:', err);
+				uploaders = [];
+			}
+		}
+
 		return {
 			cameras: camerasWithData,
-			selectedCameraIds: selectedCameraIds
+			selectedCameraIds: selectedCameraIds,
+			uploaders: uploaders
 		};
 	} catch (err) {
 		console.error('Failed to load cameras and dynamic range data:', err);

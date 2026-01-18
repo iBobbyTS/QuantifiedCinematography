@@ -49,6 +49,32 @@
 	let selectedRecordIds = $state(new Set<number>()); // Changed from selectedCameraIds to selectedRecordIds
 	let expandedCameraIds = $state(new Set<number>()); // Track which cameras are expanded
 	let showFullYAxis = $state(false);
+	
+	// Uploader filter
+	interface Uploader {
+		id: string;
+		nickname: string;
+	}
+	let uploaders = $state<Uploader[]>((data as any).uploaders || []);
+	let selectedUploaderIds = $state(new Set<string>()); // Empty set means "all"
+	let isUploaderDropdownOpen = $state(false);
+	
+	// Filter cameras based on selected uploaders
+	let filteredCameras = $derived(() => {
+		if (selectedUploaderIds.size === 0) {
+			return cameras; // Show all if no uploaders selected
+		}
+		return cameras.map(camera => {
+			const filteredRecords = (camera.dynamicRangeData || []).filter(record => {
+				if (!recordHasDynamicRangeData(record)) return false;
+				return record.userId && selectedUploaderIds.has(record.userId);
+			});
+			return {
+				...camera,
+				dynamicRangeData: filteredRecords
+			};
+		});
+	});
 	let chartElement: HTMLDivElement | undefined = $state();
 	let chart: any = $state(null);
 	let initialized = $state(false);
@@ -613,10 +639,96 @@
 			<!-- Left sidebar: Camera list -->
 			<div class="w-80 bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden flex flex-col">
 				<div class="p-4 border-b border-gray-200 dark:border-gray-700">
-					<h2 class="text-lg font-semibold text-gray-900 dark:text-white">{m['camera.dynamic_range.browse.cameras_list_title']()}</h2>
+					<div class="flex items-center justify-between mb-3">
+						<h2 class="text-lg font-semibold text-gray-900 dark:text-white">{m['camera.dynamic_range.browse.cameras_list_title']()}</h2>
+					</div>
+					<!-- Uploader filter dropdown -->
+					<div class="relative">
+						<button
+							type="button"
+							class="w-full px-3 py-2 text-sm text-left text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center justify-between"
+							onclick={() => isUploaderDropdownOpen = !isUploaderDropdownOpen}
+						>
+							<span class="truncate pr-2" style="max-width: calc(100% - 20px);">
+								{selectedUploaderIds.size === 0 || selectedUploaderIds.size === uploaders.length
+									? m['camera.dynamic_range.browse.filters.all_uploaders']()
+									: (() => {
+										const selected = Array.from(selectedUploaderIds)
+											.map(id => uploaders.find(u => u.id === id)?.nickname)
+											.filter((n): n is string => Boolean(n))
+											.slice(0, 2);
+										const text = selected.length === 0
+											? ''
+											: selected.length === 1
+												? selected[0] || ''
+												: selected.join('、');
+										const displayText = text.length > 30 ? text.substring(0, 27) + '...' : text;
+										return displayText || m['camera.dynamic_range.browse.filters.all_uploaders']();
+									})()}
+							</span>
+							<svg
+								class="w-4 h-4 text-gray-400 transition-transform {isUploaderDropdownOpen ? 'rotate-180' : ''}"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+							>
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+							</svg>
+						</button>
+						{#if isUploaderDropdownOpen}
+							<div
+								role="menu"
+								tabindex="-1"
+								class="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 max-h-64 overflow-y-auto"
+								onclick={(e) => e.stopPropagation()}
+								onkeydown={(e) => {
+									if (e.key === 'Escape') {
+										isUploaderDropdownOpen = false;
+									}
+								}}
+							>
+								<label class="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+									<input
+										type="checkbox"
+										class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+										checked={selectedUploaderIds.size === uploaders.length}
+										onchange={() => {
+											if (selectedUploaderIds.size === uploaders.length) {
+												// Unselect all
+												selectedUploaderIds = new Set();
+											} else {
+												// Select all
+												selectedUploaderIds = new Set(uploaders.map(u => u.id));
+											}
+										}}
+									/>
+									<span class="text-sm text-gray-700 dark:text-gray-300">{m['camera.dynamic_range.browse.filters.all']()}</span>
+								</label>
+								{#each uploaders as uploader (uploader.id)}
+									<label class="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+										<input
+											type="checkbox"
+											class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+											checked={selectedUploaderIds.has(uploader.id)}
+											onchange={() => {
+												const newSet = new Set(selectedUploaderIds);
+												if (newSet.has(uploader.id)) {
+													newSet.delete(uploader.id);
+												} else {
+													newSet.add(uploader.id);
+												}
+												selectedUploaderIds = newSet;
+											}}
+										/>
+										<span class="text-sm text-gray-700 dark:text-gray-300">{uploader.nickname}</span>
+									</label>
+								{/each}
+							</div>
+						{/if}
+					</div>
 				</div>
 				<div class="flex-1 overflow-y-auto">
-					{#each cameras as camera (camera.id)}
+					{#each filteredCameras() as camera (camera.id)}
 						{@const hasData = hasDynamicRangeData(camera)}
 						{@const validRecordsCount = hasData ? getValidRecordsCount(camera) : 0}
 						{@const isExpanded = expandedCameraIds.has(camera.id)}
