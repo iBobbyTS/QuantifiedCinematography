@@ -566,6 +566,7 @@
 				"title": "动态范围浏览",
 				"show_full_y_axis": "显示完整纵轴",
 				"y_axis_title": "动态范围",
+				"cameras_list_title": "相机",
 				"fields": {
 					"ei": "EI",
 					"iso": "ISO",
@@ -577,7 +578,8 @@
 					"bitrate": "码率",
 					"resolution": "分辨率",
 					"framerate": "帧率",
-					"crop": "画幅/裁切"
+					"crop": "画幅/裁切",
+					"uploader": "上传者"
 				}
 			}
 		}

@@ -574,6 +574,7 @@
 				"title": "Dynamic Range Browse",
 				"show_full_y_axis": "Show Full Y-Axis",
 				"y_axis_title": "Dynamic Range",
+				"cameras_list_title": "Cameras",
 				"fields": {
 					"ei": "EI",
 					"iso": "ISO",
@@ -585,7 +586,8 @@
 					"bitrate": "Bitrate",
 					"resolution": "Resolution",
 					"framerate": "Framerate",
-					"crop": "Crop"
+					"crop": "Crop",
+					"uploader": "Uploader"
 				}
 			}
 		}

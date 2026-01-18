@@ -13,6 +13,7 @@
 	interface DynamicRangeRecord {
 		id: number;
 		cameraId: number;
+		userId: string | null;
 		ei: number | null;
 		iso: number | null;
 		specialMode: string | null;
@@ -30,6 +31,7 @@
 		snr4: number | null;
 		snr10: number | null;
 		snr40: number | null;
+		userNickname: string | null;
 	}
 
 	// Camera data type
@@ -327,6 +329,10 @@
 		if (record.crop !== null) {
 			parts.push(`${m['camera.dynamic_range.browse.fields.crop']()}: ${record.crop}`);
 		}
+		// Add uploader at the end
+		if (record.userNickname !== null) {
+			parts.push(`${m['camera.dynamic_range.browse.fields.uploader']()}: ${record.userNickname}`);
+		}
 		return parts.join('; ');
 	}
 
@@ -350,13 +356,6 @@
 			newSet.add(recordId);
 		}
 		selectedRecordIds = newSet;
-	}
-
-	// Reset chart zoom and pan
-	function resetChart() {
-		if (chart) {
-			chart.resetZoom();
-		}
 	}
 
 	// Handle camera row click (for expansion only)
@@ -569,7 +568,7 @@
 			<!-- Left sidebar: Camera list -->
 			<div class="w-80 bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden flex flex-col">
 				<div class="p-4 border-b border-gray-200 dark:border-gray-700">
-					<h2 class="text-lg font-semibold text-gray-900 dark:text-white">Cameras</h2>
+					<h2 class="text-lg font-semibold text-gray-900 dark:text-white">{m['camera.dynamic_range.browse.cameras_list_title']()}</h2>
 				</div>
 				<div class="flex-1 overflow-y-auto">
 					{#each cameras as camera (camera.id)}
@@ -705,7 +704,7 @@
 			<!-- Right side: Chart -->
 			<div class="flex-1 bg-white dark:bg-gray-800 shadow rounded-lg p-6 flex flex-col">
 				<!-- Controls -->
-				<div class="mb-4 flex items-center justify-between">
+				<div class="mb-4">
 					<label class="flex items-center gap-2 cursor-pointer">
 						<input
 							type="checkbox"
@@ -714,13 +713,6 @@
 						/>
 						<span class="text-sm text-gray-700 dark:text-gray-300">{m['camera.dynamic_range.browse.show_full_y_axis']()}</span>
 					</label>
-					<button
-						type="button"
-						onclick={resetChart}
-						class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-					>
-						重置
-					</button>
 				</div>
 
 				<!-- Chart container -->

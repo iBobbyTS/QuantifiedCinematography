@@ -1,7 +1,7 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { ServerLoad } from '@sveltejs/kit';
 import { db } from '$lib/server/db/index.js';
-import { productCameras, brands, cameraDynamicRangeData } from '$lib/server/db/schema.js';
+import { productCameras, brands, cameraDynamicRangeData, user } from '$lib/server/db/schema.js';
 import { UserPermissions, USER_PERMISSIONS } from '$lib/permission/bitmask.js';
 import { eq, inArray } from 'drizzle-orm';
 
@@ -120,6 +120,7 @@ export const load: ServerLoad = async ({ locals, url }) => {
 					.select({
 						id: cameraDynamicRangeData.id,
 						cameraId: cameraDynamicRangeData.cameraId,
+						userId: cameraDynamicRangeData.userId,
 						ei: cameraDynamicRangeData.ei,
 						iso: cameraDynamicRangeData.iso,
 						specialMode: cameraDynamicRangeData.specialMode,
@@ -136,9 +137,11 @@ export const load: ServerLoad = async ({ locals, url }) => {
 						snr2: cameraDynamicRangeData.snr2,
 						snr4: cameraDynamicRangeData.snr4,
 						snr10: cameraDynamicRangeData.snr10,
-						snr40: cameraDynamicRangeData.snr40
+						snr40: cameraDynamicRangeData.snr40,
+						userNickname: user.nickname
 					})
 					.from(cameraDynamicRangeData)
+					.leftJoin(user, eq(cameraDynamicRangeData.userId, user.id))
 					.where(inArray(cameraDynamicRangeData.cameraId, cameraIds));
 			} catch (err: any) {
 				// If table doesn't exist, return empty array
