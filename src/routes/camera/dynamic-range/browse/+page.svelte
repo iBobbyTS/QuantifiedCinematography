@@ -256,7 +256,21 @@
 		// Add null at the end
 		categories.push(null);
 
-		return { seriesData, categories };
+		// Filter series data: if no records selected, show all series; otherwise show only series with data
+		const hasSelectedRecords = selected.length > 0;
+		const filteredSeriesData = hasSelectedRecords
+			? seriesData.filter((series) => series.data.length > 0)
+			: seriesData; // When no records selected, include all series (even with empty data) to show all legend items
+
+		// Debug: log series data
+		console.log('Chart series data:', {
+			hasSelectedRecords,
+			selectedRecordsCount: selected.length,
+			allSeriesData: seriesData.map(s => ({ name: s.name, dataLength: s.data.length, data: s.data })),
+			filteredSeriesData: filteredSeriesData.map(s => ({ name: s.name, dataLength: s.data.length, data: s.data }))
+		});
+
+		return { seriesData: filteredSeriesData, categories };
 	});
 
 	// Check if a record has any dynamic range value
@@ -492,6 +506,9 @@
 			legend: {
 				show: true,
 				position: 'top',
+				showForSingleSeries: true,
+				showForNullSeries: true,
+				showForZeroSeries: true,
 				labels: {
 					colors: textColor
 				}
@@ -534,6 +551,10 @@
 				size: 6
 			}
 		};
+
+		// Debug: log chart options and series
+		console.log('Chart options series:', seriesData);
+		console.log('Chart options:', { ...options, series: seriesData });
 
 		if (chart) {
 			chart.updateOptions(options);
