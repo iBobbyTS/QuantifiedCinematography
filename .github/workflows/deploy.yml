@@ -43,6 +43,7 @@ jobs:
           script: |
             set -e
             export DEPLOY_PATH="${{ secrets.DEPLOY_PATH }}"
+            export GIT_REPO_URL="${GIT_REPO_URL:-https://github.com/${{ github.repository }}.git}"
             cd "$DEPLOY_PATH" || exit 1
             ./scripts/deploy.sh
           envs: DEPLOY_PATH

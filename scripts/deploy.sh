@@ -23,13 +23,33 @@ if [ -d "$PROJECT_DIR" ]; then
   echo "Backup created: backup_$TIMESTAMP.tar.gz"
 fi
 
-echo "Step 2: Pull latest code from GitHub..."
-cd "$PROJECT_DIR" || exit 1
+echo "Step 2: Ensure project directory exists and clone/pull code..."
+# Create project directory if it doesn't exist
+mkdir -p "$PROJECT_DIR"
 
-# Fetch and checkout deploy branch
-git fetch origin
-git checkout deploy
-git pull origin deploy
+# Check if it's a git repository
+if [ ! -d "$PROJECT_DIR/.git" ]; then
+  echo "Project directory is not a git repository. Cloning..."
+  # Remove empty directory if it exists
+  rmdir "$PROJECT_DIR" 2>/dev/null || true
+  # Clone the repository
+  # Note: You may need to set GIT_REPO_URL or use the default
+  GIT_REPO_URL="${GIT_REPO_URL:-https://github.com/$(whoami)/QuantifiedCinematography.git}"
+  echo "Cloning repository to $PROJECT_DIR..."
+  git clone "$GIT_REPO_URL" "$PROJECT_DIR" || {
+    echo "⚠ Error: Could not clone repository. Please set GIT_REPO_URL or clone manually."
+    echo "Example: git clone <your-repo-url> $PROJECT_DIR"
+    exit 1
+  }
+  cd "$PROJECT_DIR"
+  git checkout deploy || git checkout -b deploy origin/deploy || true
+else
+  cd "$PROJECT_DIR" || exit 1
+  # Fetch and checkout deploy branch
+  git fetch origin
+  git checkout deploy || git checkout -b deploy origin/deploy
+  git pull origin deploy
+fi
 
 echo "Step 3: Run database migrations (if needed)..."
 # Uncomment if you need database migrations
