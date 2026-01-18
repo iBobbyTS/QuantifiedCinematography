@@ -116,7 +116,8 @@
 			{ name: 'SNR=40', data: [] } // blue
 		];
 
-		const categories: string[] = [];
+		// Build categories array with null at start and end
+		const categories: (string | null)[] = [null];
 
 		for (let i = 0; i < selectedCameras.length; i++) {
 			const camera = selectedCameras[i];
@@ -129,29 +130,33 @@
 			
 			if (validRecords.length > 0) {
 				// For each valid record, add data points for each series
-				// Use category label as x value for proper alignment
+				// x value is i + 1 because first position (index 0) is null
+				const xValue = i + 1;
 				for (const record of validRecords) {
 					if (record.slopeBased !== null) {
-						seriesData[0].data.push({ x: label, y: record.slopeBased });
+						seriesData[0].data.push({ x: xValue, y: record.slopeBased });
 					}
 					if (record.snr1 !== null) {
-						seriesData[1].data.push({ x: label, y: record.snr1 });
+						seriesData[1].data.push({ x: xValue, y: record.snr1 });
 					}
 					if (record.snr2 !== null) {
-						seriesData[2].data.push({ x: label, y: record.snr2 });
+						seriesData[2].data.push({ x: xValue, y: record.snr2 });
 					}
 					if (record.snr4 !== null) {
-						seriesData[3].data.push({ x: label, y: record.snr4 });
+						seriesData[3].data.push({ x: xValue, y: record.snr4 });
 					}
 					if (record.snr10 !== null) {
-						seriesData[4].data.push({ x: label, y: record.snr10 });
+						seriesData[4].data.push({ x: xValue, y: record.snr10 });
 					}
 					if (record.snr40 !== null) {
-						seriesData[5].data.push({ x: label, y: record.snr40 });
+						seriesData[5].data.push({ x: xValue, y: record.snr40 });
 					}
 				}
 			}
 		}
+
+		// Add null at the end
+		categories.push(null);
 
 		return { seriesData, categories };
 	});
@@ -249,9 +254,19 @@
 						color: titleColor
 					}
 				},
-				type: 'category',
-				categories: categories,
+				type: 'numeric',
+				min: 0,
+				max: categories.length-1,
+				tickAmount: categories.length,
 				labels: {
+					formatter: (val: string) => {
+						const index = Math.round(parseFloat(val));
+						if (index >= 0 && index < categories.length) {
+							// Return empty string for null categories
+							return categories[index] || '';
+						}
+						return '';
+					},
 					rotate: -45,
 					rotateAlways: false,
 					style: {
@@ -292,7 +307,8 @@
 				},
 				custom: function ({ seriesIndex, dataPointIndex, w }: any) {
 					const data = w.globals.initialSeries[seriesIndex].data[dataPointIndex];
-					const cameraName = typeof data.x === 'string' ? data.x : categories[Math.round(data.x)] || '';
+					const xValue = Math.round(data.x);
+					const cameraName = categories[xValue] || '';
 					const value = data.y;
 					const seriesName = seriesData[seriesIndex].name;
 					return `<div style="padding: 8px; background-color: ${tooltipBg}; color: ${tooltipText}; border: 1px solid ${tooltipBorder}; border-radius: 4px;">
@@ -348,7 +364,7 @@
 						{@const hasData = hasDynamicRangeData(camera)}
 						<div
 							role={hasData ? 'button' : undefined}
-							tabindex={hasData ? 0 : undefined}
+							{...(hasData ? { tabindex: 0 } : {})}
 							class="flex items-center px-4 py-3 border-b border-gray-100 dark:border-gray-700 {hasData
 								? 'hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer'
 								: 'opacity-50 cursor-not-allowed'} {isSelected
