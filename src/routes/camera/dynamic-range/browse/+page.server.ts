@@ -118,7 +118,19 @@ export const load: ServerLoad = async ({ locals, url }) => {
 			try {
 				allDynamicRangeData = await db
 					.select({
+						id: cameraDynamicRangeData.id,
 						cameraId: cameraDynamicRangeData.cameraId,
+						ei: cameraDynamicRangeData.ei,
+						iso: cameraDynamicRangeData.iso,
+						specialMode: cameraDynamicRangeData.specialMode,
+						codec: cameraDynamicRangeData.codec,
+						log: cameraDynamicRangeData.log,
+						bitDepth: cameraDynamicRangeData.bitDepth,
+						chromaSubsampling: cameraDynamicRangeData.chromaSubsampling,
+						bitrate: cameraDynamicRangeData.bitrate,
+						resolution: cameraDynamicRangeData.resolution,
+						framerate: cameraDynamicRangeData.framerate,
+						crop: cameraDynamicRangeData.crop,
 						slopeBased: cameraDynamicRangeData.slopeBased,
 						snr1: cameraDynamicRangeData.snr1,
 						snr2: cameraDynamicRangeData.snr2,

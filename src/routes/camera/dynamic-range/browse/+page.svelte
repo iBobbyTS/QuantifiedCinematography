@@ -9,6 +9,29 @@
 
 	let { data }: { data: PageData } = $props();
 
+	// Record data type
+	interface DynamicRangeRecord {
+		id: number;
+		cameraId: number;
+		ei: number | null;
+		iso: number | null;
+		specialMode: string | null;
+		codec: string | null;
+		log: string | null;
+		bitDepth: number | null;
+		chromaSubsampling: string | null;
+		bitrate: string | null;
+		resolution: string | null;
+		framerate: string | null;
+		crop: string | null;
+		slopeBased: number | null;
+		snr1: number | null;
+		snr2: number | null;
+		snr4: number | null;
+		snr10: number | null;
+		snr40: number | null;
+	}
+
 	// Camera data type
 	interface Camera {
 		id: number;
@@ -17,75 +40,89 @@
 		brandName: string | null;
 		releaseYear: number | null;
 		cinema: boolean;
-		dynamicRangeData: Array<{
-			slopeBased: number | null;
-			snr1: number | null;
-			snr2: number | null;
-			snr4: number | null;
-			snr10: number | null;
-			snr40: number | null;
-		}>;
+		dynamicRangeData: DynamicRangeRecord[];
 	}
 
 	let cameras = $state<Camera[]>(data.cameras || []);
-	let selectedCameraIds = $state(new Set<number>());
+	let selectedRecordIds = $state(new Set<number>()); // Changed from selectedCameraIds to selectedRecordIds
+	let expandedCameraIds = $state(new Set<number>()); // Track which cameras are expanded
 	let showFullYAxis = $state(false);
 	let chartElement: HTMLDivElement | undefined = $state();
 	let chart: any = $state(null);
 	let initialized = $state(false);
 
-	// Initialize: select cameras based on URL parameter or first camera with data
+	// Initialize: select first record with data
 	$effect(() => {
 		if (cameras.length > 0 && !initialized) {
 			initialized = true;
 			const urlSelectedIds = (data as any).selectedCameraIds || [];
 			if (urlSelectedIds.length > 0) {
-				// Select cameras from URL parameter
-				// Only select cameras that actually exist and have data
-				const validIds = urlSelectedIds.filter((id: number) => {
-					const camera = cameras.find((c) => c.id === id);
-					return camera && hasDynamicRangeData(camera);
-				});
-				if (validIds.length > 0) {
-					selectedCameraIds = new Set(validIds);
-				} else {
-					// No valid cameras from URL, find first camera with data
-					const firstCameraWithData = cameras.find(hasDynamicRangeData);
-					if (firstCameraWithData) {
-						selectedCameraIds = new Set([firstCameraWithData.id]);
+				// Select first valid record from cameras specified in URL
+				const validRecordIds: number[] = [];
+				for (const cameraId of urlSelectedIds) {
+					const camera = cameras.find((c) => c.id === cameraId);
+					if (camera) {
+						const records = camera.dynamicRangeData || [];
+						const validRecords = records.filter(recordHasDynamicRangeData);
+						if (validRecords.length > 0) {
+							validRecordIds.push(validRecords[0].id);
+						}
 					}
-					// If no camera has data, leave selectedCameraIds empty
+				}
+				if (validRecordIds.length > 0) {
+					selectedRecordIds = new Set(validRecordIds);
+				} else {
+					// No valid records from URL, find first record with data
+					const firstRecord = findFirstRecordWithData();
+					if (firstRecord) {
+						selectedRecordIds = new Set([firstRecord.id]);
+					}
 				}
 			} else {
-				// No URL parameter, find first camera with data
-				const firstCameraWithData = cameras.find(hasDynamicRangeData);
-				if (firstCameraWithData) {
-					selectedCameraIds = new Set([firstCameraWithData.id]);
+				// No URL parameter, find first record with data
+				const firstRecord = findFirstRecordWithData();
+				if (firstRecord) {
+					selectedRecordIds = new Set([firstRecord.id]);
 				}
-				// If no camera has data, leave selectedCameraIds empty
 			}
 		}
 	});
 
-	// Get selected cameras in order
-	let selectedCameras = $derived(
-		cameras.filter((c) => selectedCameraIds.has(c.id))
-	);
-
-	// Get all dynamic range values from selected cameras (only from valid records)
-	let allValues = $derived(() => {
-		const values: number[] = [];
-		for (const camera of selectedCameras) {
+	// Helper function to find first record with data
+	function findFirstRecordWithData(): DynamicRangeRecord | null {
+		for (const camera of cameras) {
 			const records = camera.dynamicRangeData || [];
 			const validRecords = records.filter(recordHasDynamicRangeData);
-			for (const record of validRecords) {
-				if (record.slopeBased !== null) values.push(record.slopeBased);
-				if (record.snr1 !== null) values.push(record.snr1);
-				if (record.snr2 !== null) values.push(record.snr2);
-				if (record.snr4 !== null) values.push(record.snr4);
-				if (record.snr10 !== null) values.push(record.snr10);
-				if (record.snr40 !== null) values.push(record.snr40);
+			if (validRecords.length > 0) {
+				return validRecords[0];
 			}
+		}
+		return null;
+	}
+
+	// Get selected records
+	let selectedRecords = $derived(() => {
+		const records: Array<{ record: DynamicRangeRecord; camera: Camera }> = [];
+		for (const camera of cameras) {
+			for (const record of camera.dynamicRangeData || []) {
+				if (selectedRecordIds.has(record.id)) {
+					records.push({ record, camera });
+				}
+			}
+		}
+		return records;
+	});
+
+	// Get all dynamic range values from selected records
+	let allValues = $derived(() => {
+		const values: number[] = [];
+		for (const { record } of selectedRecords()) {
+			if (record.slopeBased !== null) values.push(record.slopeBased);
+			if (record.snr1 !== null) values.push(record.snr1);
+			if (record.snr2 !== null) values.push(record.snr2);
+			if (record.snr4 !== null) values.push(record.snr4);
+			if (record.snr10 !== null) values.push(record.snr10);
+			if (record.snr40 !== null) values.push(record.snr40);
 		}
 		return values;
 	});
@@ -117,41 +154,39 @@
 		];
 
 		// Build categories array with null at start and end
-		const categories: (string | null)[] = [null];
+		// Use array format for labels to support multiline: [cameraName, recordDetails]
+		const categories: (string | string[] | null)[] = [null];
 
-		for (let i = 0; i < selectedCameras.length; i++) {
-			const camera = selectedCameras[i];
-			const label = `${camera.brandName || ''} ${camera.name || ''}`.trim();
-			categories.push(label);
-
-			// Get all records for this camera and filter only those with dynamic range data
-			const records = camera.dynamicRangeData || [];
-			const validRecords = records.filter(recordHasDynamicRangeData);
+		// Only show selected records
+		const selected = selectedRecords();
+		for (const { record, camera } of selected) {
+			const cameraLabel = `${camera.brandName || ''} ${camera.name || ''}`.trim();
+			const recordDetails = formatRecordDetails(record);
 			
-			if (validRecords.length > 0) {
-				// For each valid record, add data points for each series
-				// x value is i + 1 because first position (index 0) is null
-				const xValue = i + 1;
-				for (const record of validRecords) {
-					if (record.slopeBased !== null) {
-						seriesData[0].data.push({ x: xValue, y: record.slopeBased });
-					}
-					if (record.snr1 !== null) {
-						seriesData[1].data.push({ x: xValue, y: record.snr1 });
-					}
-					if (record.snr2 !== null) {
-						seriesData[2].data.push({ x: xValue, y: record.snr2 });
-					}
-					if (record.snr4 !== null) {
-						seriesData[3].data.push({ x: xValue, y: record.snr4 });
-					}
-					if (record.snr10 !== null) {
-						seriesData[4].data.push({ x: xValue, y: record.snr10 });
-					}
-					if (record.snr40 !== null) {
-						seriesData[5].data.push({ x: xValue, y: record.snr40 });
-					}
-				}
+			// Add one category entry with array format for multiline display
+			// Format: [cameraName, recordDetails] - ApexCharts will display these as two lines
+			categories.push([cameraLabel, recordDetails]);
+			
+			// Data point is placed at this category (one entry per record)
+			const xValue = categories.length - 1;
+			
+			if (record.slopeBased !== null) {
+				seriesData[0].data.push({ x: xValue, y: record.slopeBased });
+			}
+			if (record.snr1 !== null) {
+				seriesData[1].data.push({ x: xValue, y: record.snr1 });
+			}
+			if (record.snr2 !== null) {
+				seriesData[2].data.push({ x: xValue, y: record.snr2 });
+			}
+			if (record.snr4 !== null) {
+				seriesData[3].data.push({ x: xValue, y: record.snr4 });
+			}
+			if (record.snr10 !== null) {
+				seriesData[4].data.push({ x: xValue, y: record.snr10 });
+			}
+			if (record.snr40 !== null) {
+				seriesData[5].data.push({ x: xValue, y: record.snr40 });
 			}
 		}
 
@@ -189,19 +224,72 @@
 		return camera.dynamicRangeData.some(recordHasDynamicRangeData);
 	}
 
-	// Toggle camera selection
-	function toggleCamera(cameraId: number) {
-		const camera = cameras.find((c) => c.id === cameraId);
-		if (!camera || !hasDynamicRangeData(camera)) {
-			return; // Don't toggle if camera has no data
+	// Get valid records count for a camera
+	function getValidRecordsCount(camera: Camera): number {
+		const records = camera.dynamicRangeData || [];
+		return records.filter(recordHasDynamicRangeData).length;
+	}
+
+	// Format record details as "{property1}: {value1}; {property2}: {value2}; etc."
+	// Only includes properties other than slope-based and snr values
+	function formatRecordDetails(record: DynamicRangeRecord): string {
+		const parts: string[] = [];
+		if (record.ei !== null) {
+			parts.push(`EI: ${record.ei}`);
 		}
-		const newSet = new Set(selectedCameraIds);
+		if (record.iso !== null) {
+			parts.push(`ISO: ${record.iso}`);
+		}
+		if (record.specialMode !== null) {
+			parts.push(`Special Mode: ${record.specialMode}`);
+		}
+		if (record.codec !== null) {
+			parts.push(`Codec: ${record.codec}`);
+		}
+		if (record.log !== null) {
+			parts.push(`Log: ${record.log}`);
+		}
+		if (record.bitDepth !== null) {
+			parts.push(`Bit Depth: ${record.bitDepth}`);
+		}
+		if (record.chromaSubsampling !== null) {
+			parts.push(`Chroma Subsampling: ${record.chromaSubsampling}`);
+		}
+		if (record.bitrate !== null) {
+			parts.push(`Bitrate: ${record.bitrate}`);
+		}
+		if (record.resolution !== null) {
+			parts.push(`Resolution: ${record.resolution}`);
+		}
+		if (record.framerate !== null) {
+			parts.push(`Framerate: ${record.framerate}`);
+		}
+		if (record.crop !== null) {
+			parts.push(`Crop: ${record.crop}`);
+		}
+		return parts.join('; ');
+	}
+
+	// Toggle camera expansion
+	function toggleExpansion(cameraId: number) {
+		const newSet = new Set(expandedCameraIds);
 		if (newSet.has(cameraId)) {
 			newSet.delete(cameraId);
 		} else {
 			newSet.add(cameraId);
 		}
-		selectedCameraIds = newSet;
+		expandedCameraIds = newSet;
+	}
+
+	// Toggle record selection
+	function toggleRecord(recordId: number) {
+		const newSet = new Set(selectedRecordIds);
+		if (newSet.has(recordId)) {
+			newSet.delete(recordId);
+		} else {
+			newSet.add(recordId);
+		}
+		selectedRecordIds = newSet;
 	}
 
 	// Reset chart zoom and pan
@@ -211,17 +299,31 @@
 		}
 	}
 
-	// Handle row click
-	function handleRowClick(cameraId: number, event: MouseEvent) {
+	// Handle camera row click (for expansion only)
+	function handleCameraRowClick(cameraId: number, event: MouseEvent) {
 		const camera = cameras.find((c) => c.id === cameraId);
 		if (!camera || !hasDynamicRangeData(camera)) {
-			return; // Don't toggle if camera has no data
-		}
-		// Don't toggle if clicking directly on checkbox
-		if ((event.target as HTMLElement).tagName === 'INPUT') {
 			return;
 		}
-		toggleCamera(cameraId);
+		const validRecordsCount = getValidRecordsCount(camera);
+		
+		// Only handle expansion for cameras with multiple records
+		if (validRecordsCount > 1) {
+			const target = event.target as HTMLElement;
+			if (target.closest('.arrow-icon')) {
+				return; // Arrow click is handled separately
+			}
+			toggleExpansion(cameraId);
+		}
+	}
+
+	// Handle record row click (for selection)
+	function handleRecordRowClick(recordId: number, event: MouseEvent) {
+		const target = event.target as HTMLElement;
+		if (target.tagName === 'INPUT') {
+			return; // Checkbox click is handled separately
+		}
+		toggleRecord(recordId);
 	}
 
 	// Get current theme colors
@@ -262,8 +364,17 @@
 					formatter: (val: string) => {
 						const index = Math.round(parseFloat(val));
 						if (index >= 0 && index < categories.length) {
+							const category = categories[index];
 							// Return empty string for null categories
-							return categories[index] || '';
+							if (!category) return '';
+							
+							// If category is an array, ApexCharts will handle multiline display automatically
+							// If it's a string, return as is
+							if (Array.isArray(category)) {
+								// For array format, return the array - ApexCharts will display as multiline
+								return category;
+							}
+							return category;
 						}
 						return '';
 					},
@@ -308,11 +419,26 @@
 				custom: function ({ seriesIndex, dataPointIndex, w }: any) {
 					const data = w.globals.initialSeries[seriesIndex].data[dataPointIndex];
 					const xValue = Math.round(data.x);
-					const cameraName = categories[xValue] || '';
 					const value = data.y;
 					const seriesName = seriesData[seriesIndex].name;
+					
+					// Get camera name and record details from category
+					let cameraName = '';
+					let recordDetails = '';
+					if (xValue >= 0 && xValue < categories.length) {
+						const category = categories[xValue];
+						if (Array.isArray(category)) {
+							// Category is in array format: [cameraName, recordDetails]
+							cameraName = category[0] || '';
+							recordDetails = category[1] || '';
+						} else if (typeof category === 'string') {
+							cameraName = category;
+						}
+					}
+					
 					return `<div style="padding: 8px; background-color: ${tooltipBg}; color: ${tooltipText}; border: 1px solid ${tooltipBorder}; border-radius: 4px;">
-						<div style="font-weight: 600; margin-bottom: 4px;">${cameraName}</div>
+						${cameraName ? `<div style="font-weight: 600; margin-bottom: 4px;">${cameraName}</div>` : ''}
+						${recordDetails ? `<div style="font-size: 12px; margin-bottom: 4px; opacity: 0.8;">${recordDetails}</div>` : ''}
 						<div>${seriesName}: ${value}</div>
 					</div>`;
 				}
@@ -360,37 +486,131 @@
 				</div>
 				<div class="flex-1 overflow-y-auto">
 					{#each cameras as camera (camera.id)}
-						{@const isSelected = selectedCameraIds.has(camera.id)}
 						{@const hasData = hasDynamicRangeData(camera)}
-						<div
-							role={hasData ? 'button' : undefined}
-							{...(hasData ? { tabindex: 0 } : {})}
-							class="flex items-center px-4 py-3 border-b border-gray-100 dark:border-gray-700 {hasData
-								? 'hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer'
-								: 'opacity-50 cursor-not-allowed'} {isSelected
-								? 'bg-blue-50 dark:bg-blue-900/20'
-								: ''}"
-							onclick={(e) => hasData && handleRowClick(camera.id, e)}
-							onkeydown={(e) => {
-								if (hasData && (e.key === 'Enter' || e.key === ' ')) {
-									e.preventDefault();
-									handleRowClick(camera.id, e as any);
-								}
-							}}
-						>
-							<input
-								type="checkbox"
-								checked={isSelected}
-								disabled={!hasData}
-								onchange={() => toggleCamera(camera.id)}
-								class="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-							/>
-							<span class="text-sm {hasData
-								? 'text-gray-900 dark:text-white'
-								: 'text-gray-400 dark:text-gray-600'}">
-								{camera.brandName || ''} {camera.name || ''}
-							</span>
-						</div>
+						{@const validRecordsCount = hasData ? getValidRecordsCount(camera) : 0}
+						{@const isExpanded = expandedCameraIds.has(camera.id)}
+						{@const hasMultipleRecords = validRecordsCount > 1}
+						{@const validRecords = hasData ? (camera.dynamicRangeData || []).filter(recordHasDynamicRangeData) : []}
+						
+						{#if hasMultipleRecords}
+							<!-- Camera row with arrow (multiple records) -->
+							<div
+								role={hasData ? 'button' : undefined}
+								{...(hasData ? { tabindex: 0 } : {})}
+								class="flex items-center px-4 py-3 border-b border-gray-100 dark:border-gray-700 {hasData
+									? 'hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer'
+									: 'opacity-50 cursor-not-allowed'}"
+								onclick={(e) => hasData && handleCameraRowClick(camera.id, e)}
+								onkeydown={(e) => {
+									if (hasData && (e.key === 'Enter' || e.key === ' ')) {
+										e.preventDefault();
+										handleCameraRowClick(camera.id, e as any);
+									}
+								}}
+							>
+								<!-- Arrow icon for multiple records -->
+								<button
+									type="button"
+									class="arrow-icon mr-3 h-4 w-4 text-gray-600 dark:text-gray-400 transition-transform duration-200 {isExpanded
+										? 'rotate-90'
+										: ''} focus:outline-none"
+									onclick={(e) => {
+										e.stopPropagation();
+										toggleExpansion(camera.id);
+									}}
+									aria-label={isExpanded ? 'Collapse' : 'Expand'}
+								>
+									<svg
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+										class="w-full h-full"
+									>
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+									</svg>
+								</button>
+								<span class="text-sm {hasData
+									? 'text-gray-900 dark:text-white'
+									: 'text-gray-400 dark:text-gray-600'}">
+									{camera.brandName || ''} {camera.name || ''}
+								</span>
+							</div>
+
+							<!-- Expanded records (only show if expanded) -->
+							{#if isExpanded}
+								{#each validRecords as record (record.id)}
+									{@const isRecordSelected = selectedRecordIds.has(record.id)}
+									<div
+										role="button"
+										tabindex="0"
+										class="flex items-center px-4 py-3 pl-8 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer {isRecordSelected
+											? 'bg-blue-50 dark:bg-blue-900/20'
+											: ''}"
+										onclick={(e) => handleRecordRowClick(record.id, e)}
+										onkeydown={(e) => {
+											if (e.key === 'Enter' || e.key === ' ') {
+												e.preventDefault();
+												handleRecordRowClick(record.id, e as any);
+											}
+										}}
+									>
+										<input
+											type="checkbox"
+											checked={isRecordSelected}
+											onchange={() => toggleRecord(record.id)}
+											onclick={(e) => e.stopPropagation()}
+											class="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+										/>
+										<span class="text-xs text-gray-700 dark:text-gray-300">
+											{formatRecordDetails(record)}
+										</span>
+									</div>
+								{/each}
+							{/if}
+						{:else if validRecordsCount === 1}
+							<!-- Camera row with checkbox (single record) -->
+							{@const record = validRecords[0]}
+							{@const isRecordSelected = selectedRecordIds.has(record.id)}
+							<div
+								role={hasData ? 'button' : undefined}
+								{...(hasData ? { tabindex: 0 } : {})}
+								class="flex items-center px-4 py-3 border-b border-gray-100 dark:border-gray-700 {hasData
+									? 'hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer'
+									: 'opacity-50 cursor-not-allowed'} {isRecordSelected
+									? 'bg-blue-50 dark:bg-blue-900/20'
+									: ''}"
+								onclick={(e) => hasData && handleRecordRowClick(record.id, e)}
+								onkeydown={(e) => {
+									if (hasData && (e.key === 'Enter' || e.key === ' ')) {
+										e.preventDefault();
+										handleRecordRowClick(record.id, e as any);
+									}
+								}}
+							>
+								<input
+									type="checkbox"
+									checked={isRecordSelected}
+									disabled={!hasData}
+									onchange={() => toggleRecord(record.id)}
+									onclick={(e) => e.stopPropagation()}
+									class="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+								/>
+								<span class="text-sm {hasData
+									? 'text-gray-900 dark:text-white'
+									: 'text-gray-400 dark:text-gray-600'}">
+									{camera.brandName || ''} {camera.name || ''}
+								</span>
+							</div>
+						{:else}
+							<!-- Camera row without data -->
+							<div
+								class="flex items-center px-4 py-3 border-b border-gray-100 dark:border-gray-700 opacity-50 cursor-not-allowed"
+							>
+								<span class="text-sm text-gray-400 dark:text-gray-600">
+									{camera.brandName || ''} {camera.name || ''}
+								</span>
+							</div>
+						{/if}
 					{/each}
 				</div>
 			</div>
