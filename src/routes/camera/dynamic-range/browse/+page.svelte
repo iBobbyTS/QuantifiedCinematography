@@ -399,6 +399,23 @@
 
 		const { seriesData, categories } = chartSeries();
 
+		// Calculate required height for x-axis labels based on content
+		let labelHeight = 0;
+		if (browser && chartElement) {
+			// Estimate label height: each array element in category represents a line
+			// Count max number of lines in all categories
+			let maxLines = 0;
+			for (const category of categories) {
+				if (Array.isArray(category)) {
+					maxLines = Math.max(maxLines, category.length);
+				} else if (category) {
+					maxLines = Math.max(maxLines, 1);
+				}
+			}
+			// Estimate: each line ~16px, add margin for spacing
+			labelHeight = maxLines * 16 + 10;
+		}
+
 		const options = {
 			chart: {
 				type: 'scatter',
@@ -443,6 +460,7 @@
 					},
 					rotate: 0,
 					rotateAlways: false,
+					minHeight: labelHeight || undefined,
 					style: {
 						colors: textColor
 					},
