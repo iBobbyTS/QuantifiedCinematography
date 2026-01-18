@@ -220,10 +220,12 @@
 		for (const { record, camera } of selected) {
 			const cameraLabel = `${camera.brandName || ''} ${camera.name || ''}`.trim();
 			const recordDetails = formatRecordDetails(record);
+			// For chart labels, split by '; ' to create an array where each property is on a separate line
+			// Format: [cameraName, property1, property2, ...] - ApexCharts will display each array element on a new line
+			const recordDetailsArray = recordDetails.split('; ').filter(p => p.length > 0);
+			const chartLabelArray = [cameraLabel, ...recordDetailsArray];
 			
-			// Add one category entry with array format for multiline display
-			// Format: [cameraName, recordDetails] - ApexCharts will display these as two lines
-			categories.push([cameraLabel, recordDetails]);
+			categories.push(chartLabelArray);
 			
 			// Data point is placed at this category (one entry per record)
 			const xValue = categories.length - 1;
@@ -404,6 +406,15 @@
 				zoom: {
 					enabled: true,
 					type: 'xy'
+				},
+				parentHeightOffset: 0
+			},
+			grid: {
+				padding: {
+					bottom: 0,
+					left: 0,
+					right: 0,
+					top: 0
 				}
 			},
 			series: seriesData,
@@ -430,8 +441,8 @@
 						}
 						return '';
 					},
-					rotate: -45,
-					rotateAlways: true,
+					rotate: 0,
+					rotateAlways: false,
 					style: {
 						colors: textColor
 					},
@@ -695,7 +706,7 @@
 				</div>
 
 				<!-- Chart container -->
-				<div class="flex-1 min-h-0">
+				<div class="flex-1 min-h-0 overflow-visible">
 					<div bind:this={chartElement} class="w-full h-full"></div>
 				</div>
 			</div>
