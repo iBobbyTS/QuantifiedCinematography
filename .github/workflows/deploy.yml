@@ -30,6 +30,8 @@ jobs:
         run: bun run build
         env:
           NODE_ENV: production
+          # Dummy DATABASE_URL for build (not used during build, only for config validation)
+          DATABASE_URL: postgres://dummy:dummy@localhost:5432/dummy
 
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v1.0.3
