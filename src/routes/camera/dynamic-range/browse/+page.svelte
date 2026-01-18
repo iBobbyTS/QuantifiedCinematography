@@ -129,7 +129,10 @@
 
 	// Calculate Y-axis range, aligned to 0.5 intervals
 	let yAxisMin = $derived(() => {
-		if (allValues().length === 0) return 0;
+		if (allValues().length === 0) {
+			// No cameras selected: 12 when not showing full axis, 0 when showing full axis
+			return showFullYAxis ? 0 : 12;
+		}
 		if (showFullYAxis) {
 			return 0;
 		} else {
@@ -140,7 +143,10 @@
 	});
 
 	let yAxisMax = $derived(() => {
-		if (allValues().length === 0) return 20;
+		if (allValues().length === 0) {
+			// No cameras selected: always show 17
+			return 17;
+		}
 		const maxValue = Math.max(...allValues()) + 0.1;
 		// Round up to nearest 0.5
 		return Math.ceil(maxValue * 2) / 2;
