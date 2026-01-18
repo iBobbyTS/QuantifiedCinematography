@@ -408,12 +408,6 @@
 			},
 			series: seriesData,
 			xaxis: {
-				title: {
-					text: 'Camera',
-					style: {
-						color: titleColor
-					}
-				},
 				type: 'numeric',
 				min: 0,
 				max: categories.length-1,
