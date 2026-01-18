@@ -53,21 +53,22 @@
 	let chart: any = $state(null);
 	let initialized = $state(false);
 
-	// Initialize: select first record with data
+	// Initialize: select first record with data, or all records from URL parameter
 	$effect(() => {
 		if (cameras.length > 0 && !initialized) {
 			initialized = true;
 			const urlSelectedIds = (data as any).selectedCameraIds || [];
 			if (urlSelectedIds.length > 0) {
-				// Select first valid record from cameras specified in URL
+				// Select all valid records from cameras specified in URL
 				const validRecordIds: number[] = [];
 				for (const cameraId of urlSelectedIds) {
 					const camera = cameras.find((c) => c.id === cameraId);
 					if (camera) {
 						const records = camera.dynamicRangeData || [];
 						const validRecords = records.filter(recordHasDynamicRangeData);
-						if (validRecords.length > 0) {
-							validRecordIds.push(validRecords[0].id);
+						// Add all valid records for this camera
+						for (const record of validRecords) {
+							validRecordIds.push(record.id);
 						}
 					}
 				}
