@@ -127,7 +127,36 @@
 		return values;
 	});
 
-	// Calculate Y-axis range, aligned to 0.5 intervals
+	// Calculate initial Y-axis range estimates (before alignment)
+	let yAxisMinEstimate = $derived(() => {
+		if (allValues().length === 0) {
+			return showFullYAxis ? 0 : 12;
+		}
+		if (showFullYAxis) {
+			return 0;
+		} else {
+			const minValue = Math.min(...allValues()) - 0.1;
+			return Math.floor(minValue * 2) / 2;
+		}
+	});
+
+	let yAxisMaxEstimate = $derived(() => {
+		if (allValues().length === 0) {
+			return 17;
+		}
+		const maxValue = Math.max(...allValues()) + 0.1;
+		return Math.ceil(maxValue * 2) / 2;
+	});
+
+	// Determine grid interval based on final Y-axis range estimate
+	let yAxisInterval = $derived(() => {
+		const minEst = yAxisMinEstimate();
+		const maxEst = yAxisMaxEstimate();
+		const rangeEst = maxEst - minEst;
+		return rangeEst > 9 ? 1.0 : 0.5;
+	});
+
+	// Calculate Y-axis range, aligned to interval
 	let yAxisMin = $derived(() => {
 		if (allValues().length === 0) {
 			// No cameras selected: 12 when not showing full axis, 0 when showing full axis
@@ -137,8 +166,13 @@
 			return 0;
 		} else {
 			const minValue = Math.min(...allValues()) - 0.1;
-			// Round down to nearest 0.5
-			return Math.floor(minValue * 2) / 2;
+			const interval = yAxisInterval();
+			// Round down to nearest interval
+			if (interval === 1.0) {
+				return Math.floor(minValue);
+			} else {
+				return Math.floor(minValue * 2) / 2;
+			}
 		}
 	});
 
@@ -148,16 +182,22 @@
 			return 17;
 		}
 		const maxValue = Math.max(...allValues()) + 0.1;
-		// Round up to nearest 0.5
-		return Math.ceil(maxValue * 2) / 2;
+		const interval = yAxisInterval();
+		// Round up to nearest interval
+		if (interval === 1.0) {
+			return Math.ceil(maxValue);
+		} else {
+			return Math.ceil(maxValue * 2) / 2;
+		}
 	});
 
-	// Calculate tick amount for fixed 0.5 interval
+	// Calculate tick amount based on interval
 	let yAxisTickAmount = $derived(() => {
 		const min = yAxisMin();
 		const max = yAxisMax();
 		const range = max - min;
-		return Math.ceil(range / 0.5); // +1 to include both endpoints
+		const interval = yAxisInterval();
+		return Math.ceil(range / interval);
 	});
 
 	// Prepare chart data
@@ -420,7 +460,7 @@
 						colors: textColor
 					},
 					formatter: (val: number) => {
-						// Format to one decimal place for 0.5 interval display
+						// Always show one decimal place (e.g., 12.0, 13.0)
 						return val.toFixed(1);
 					}
 				}
