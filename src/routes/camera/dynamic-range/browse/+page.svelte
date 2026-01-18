@@ -49,6 +49,32 @@
 	let selectedRecordIds = $state(new Set<number>()); // Changed from selectedCameraIds to selectedRecordIds
 	let expandedCameraIds = $state(new Set<number>()); // Track which cameras are expanded
 	let showFullYAxis = $state(false);
+	
+	// Uploader filter
+	interface Uploader {
+		id: string;
+		nickname: string;
+	}
+	let uploaders = $state<Uploader[]>((data as any).uploaders || []);
+	let selectedUploaderIds = $state(new Set<string>()); // Empty set means "all"
+	let isUploaderDropdownOpen = $state(false);
+	
+	// Filter cameras based on selected uploaders
+	let filteredCameras = $derived(() => {
+		if (selectedUploaderIds.size === 0) {
+			return cameras; // Show all if no uploaders selected
+		}
+		return cameras.map(camera => {
+			const filteredRecords = (camera.dynamicRangeData || []).filter(record => {
+				if (!recordHasDynamicRangeData(record)) return false;
+				return record.userId && selectedUploaderIds.has(record.userId);
+			});
+			return {
+				...camera,
+				dynamicRangeData: filteredRecords
+			};
+		});
+	});
 	let chartElement: HTMLDivElement | undefined = $state();
 	let chart: any = $state(null);
 	let initialized = $state(false);
@@ -61,16 +87,25 @@
 			if (urlSelectedIds.length > 0) {
 				// Select all valid records from cameras specified in URL
 				const validRecordIds: number[] = [];
+				const camerasToExpand = new Set<number>();
 				for (const cameraId of urlSelectedIds) {
 					const camera = cameras.find((c) => c.id === cameraId);
 					if (camera) {
 						const records = camera.dynamicRangeData || [];
 						const validRecords = records.filter(recordHasDynamicRangeData);
+						// If camera has multiple records, expand it
+						if (validRecords.length > 1) {
+							camerasToExpand.add(cameraId);
+						}
 						// Add all valid records for this camera
 						for (const record of validRecords) {
 							validRecordIds.push(record.id);
 						}
 					}
+				}
+				// Expand cameras with multiple records
+				if (camerasToExpand.size > 0) {
+					expandedCameraIds = new Set(camerasToExpand);
 				}
 				if (validRecordIds.length > 0) {
 					selectedRecordIds = new Set(validRecordIds);
@@ -568,6 +603,20 @@
 		}
 	});
 
+	// Update checkbox indeterminate state when selection changes
+	$effect(() => {
+		// Access selectedRecordIds to trigger reactivity
+		const _ = selectedRecordIds;
+		// Use setTimeout to ensure DOM is updated
+		setTimeout(() => {
+			document.querySelectorAll('input[data-camera-id]').forEach((checkbox) => {
+				const el = checkbox as HTMLInputElement;
+				const partialSelected = el.getAttribute('data-partial-selected') === 'true';
+				el.indeterminate = partialSelected;
+			});
+		}, 0);
+	});
+
 	onMount(() => {
 		return () => {
 			if (chart) {
@@ -590,10 +639,96 @@
 			<!-- Left sidebar: Camera list -->
 			<div class="w-80 bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden flex flex-col">
 				<div class="p-4 border-b border-gray-200 dark:border-gray-700">
-					<h2 class="text-lg font-semibold text-gray-900 dark:text-white">{m['camera.dynamic_range.browse.cameras_list_title']()}</h2>
+					<div class="flex items-center justify-between mb-3">
+						<h2 class="text-lg font-semibold text-gray-900 dark:text-white">{m['camera.dynamic_range.browse.cameras_list_title']()}</h2>
+					</div>
+					<!-- Uploader filter dropdown -->
+					<div class="relative">
+						<button
+							type="button"
+							class="w-full px-3 py-2 text-sm text-left text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center justify-between"
+							onclick={() => isUploaderDropdownOpen = !isUploaderDropdownOpen}
+						>
+							<span class="truncate pr-2" style="max-width: calc(100% - 20px);">
+								{selectedUploaderIds.size === 0 || selectedUploaderIds.size === uploaders.length
+									? m['camera.dynamic_range.browse.filters.all_uploaders']()
+									: (() => {
+										const selected = Array.from(selectedUploaderIds)
+											.map(id => uploaders.find(u => u.id === id)?.nickname)
+											.filter((n): n is string => Boolean(n))
+											.slice(0, 2);
+										const text = selected.length === 0
+											? ''
+											: selected.length === 1
+												? selected[0] || ''
+												: selected.join('、');
+										const displayText = text.length > 30 ? text.substring(0, 27) + '...' : text;
+										return displayText || m['camera.dynamic_range.browse.filters.all_uploaders']();
+									})()}
+							</span>
+							<svg
+								class="w-4 h-4 text-gray-400 transition-transform {isUploaderDropdownOpen ? 'rotate-180' : ''}"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+							>
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+							</svg>
+						</button>
+						{#if isUploaderDropdownOpen}
+							<div
+								role="menu"
+								tabindex="-1"
+								class="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 max-h-64 overflow-y-auto"
+								onclick={(e) => e.stopPropagation()}
+								onkeydown={(e) => {
+									if (e.key === 'Escape') {
+										isUploaderDropdownOpen = false;
+									}
+								}}
+							>
+								<label class="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+									<input
+										type="checkbox"
+										class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+										checked={selectedUploaderIds.size === uploaders.length}
+										onchange={() => {
+											if (selectedUploaderIds.size === uploaders.length) {
+												// Unselect all
+												selectedUploaderIds = new Set();
+											} else {
+												// Select all
+												selectedUploaderIds = new Set(uploaders.map(u => u.id));
+											}
+										}}
+									/>
+									<span class="text-sm text-gray-700 dark:text-gray-300">{m['camera.dynamic_range.browse.filters.all']()}</span>
+								</label>
+								{#each uploaders as uploader (uploader.id)}
+									<label class="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+										<input
+											type="checkbox"
+											class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+											checked={selectedUploaderIds.has(uploader.id)}
+											onchange={() => {
+												const newSet = new Set(selectedUploaderIds);
+												if (newSet.has(uploader.id)) {
+													newSet.delete(uploader.id);
+												} else {
+													newSet.add(uploader.id);
+												}
+												selectedUploaderIds = newSet;
+											}}
+										/>
+										<span class="text-sm text-gray-700 dark:text-gray-300">{uploader.nickname}</span>
+									</label>
+								{/each}
+							</div>
+						{/if}
+					</div>
 				</div>
 				<div class="flex-1 overflow-y-auto">
-					{#each cameras as camera (camera.id)}
+					{#each filteredCameras() as camera (camera.id)}
 						{@const hasData = hasDynamicRangeData(camera)}
 						{@const validRecordsCount = hasData ? getValidRecordsCount(camera) : 0}
 						{@const isExpanded = expandedCameraIds.has(camera.id)}
@@ -601,7 +736,11 @@
 						{@const validRecords = hasData ? (camera.dynamicRangeData || []).filter(recordHasDynamicRangeData) : []}
 						
 						{#if hasMultipleRecords}
-							<!-- Camera row with arrow (multiple records) -->
+							<!-- Camera row with checkbox and arrow (multiple records) -->
+							{@const selectedRecordIdsForCamera = validRecords.filter(r => selectedRecordIds.has(r.id)).map(r => r.id)}
+							{@const allSelected = selectedRecordIdsForCamera.length === validRecords.length && validRecords.length > 0}
+							{@const noneSelected = selectedRecordIdsForCamera.length === 0}
+							{@const partialSelected = !allSelected && !noneSelected}
 							<div
 								role={hasData ? 'button' : undefined}
 								{...(hasData ? { tabindex: 0 } : {})}
@@ -616,10 +755,42 @@
 									}
 								}}
 							>
-								<!-- Arrow icon for multiple records -->
+								<!-- Checkbox for multiple records -->
+								<input
+									type="checkbox"
+									checked={allSelected}
+									onchange={() => {
+										if (allSelected) {
+											// Unselect all records for this camera
+											const newSet = new Set(selectedRecordIds);
+											for (const record of validRecords) {
+												newSet.delete(record.id);
+											}
+											selectedRecordIds = newSet;
+										} else {
+											// Select all records for this camera
+											const newSet = new Set(selectedRecordIds);
+											for (const record of validRecords) {
+												newSet.add(record.id);
+											}
+											selectedRecordIds = newSet;
+										}
+									}}
+									onclick={(e: MouseEvent) => e.stopPropagation()}
+									disabled={!hasData}
+									class="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+									data-camera-id={camera.id}
+									data-partial-selected={partialSelected}
+								/>
+								<span class="flex-1 text-sm {hasData
+									? 'text-gray-900 dark:text-white'
+									: 'text-gray-400 dark:text-gray-600'}">
+									{camera.brandName || ''} {camera.name || ''}
+								</span>
+								<!-- Arrow icon for multiple records (moved to right) -->
 								<button
 									type="button"
-									class="arrow-icon mr-3 h-4 w-4 text-gray-600 dark:text-gray-400 transition-transform duration-200 {isExpanded
+									class="arrow-icon ml-3 h-4 w-4 text-gray-600 dark:text-gray-400 transition-transform duration-200 {isExpanded
 										? 'rotate-90'
 										: ''} focus:outline-none"
 									onclick={(e) => {
@@ -637,11 +808,6 @@
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
 									</svg>
 								</button>
-								<span class="text-sm {hasData
-									? 'text-gray-900 dark:text-white'
-									: 'text-gray-400 dark:text-gray-600'}">
-									{camera.brandName || ''} {camera.name || ''}
-								</span>
 							</div>
 
 							<!-- Expanded records (only show if expanded) -->
