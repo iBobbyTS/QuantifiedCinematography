@@ -4,6 +4,7 @@
 	import * as m from '$lib/paraglide/messages.js';
 	import type { PageData } from './$types';
 	import Navbar from '$lib/components/Navbar.svelte';
+	import { theme } from '$lib/stores/theme.svelte.js';
 	// ApexCharts will be imported dynamically
 
 	let { data }: { data: PageData } = $props();
@@ -152,6 +153,13 @@
 		selectedCameraIds = newSet;
 	}
 
+	// Reset chart zoom and pan
+	function resetChart() {
+		if (chart) {
+			chart.resetZoom();
+		}
+	}
+
 	// Handle row click
 	function handleRowClick(cameraId: number, event: MouseEvent) {
 		// Don't toggle if clicking directly on checkbox
@@ -160,6 +168,13 @@
 		}
 		toggleCamera(cameraId);
 	}
+
+	// Get current theme colors
+	let textColor = $derived(theme.resolved === 'dark' ? '#e5e7eb' : '#374151');
+	let titleColor = $derived(theme.resolved === 'dark' ? '#f9fafb' : '#111827');
+	let tooltipBg = $derived(theme.resolved === 'dark' ? '#1f2937' : '#ffffff');
+	let tooltipText = $derived(theme.resolved === 'dark' ? '#e5e7eb' : '#374151');
+	let tooltipBorder = $derived(theme.resolved === 'dark' ? '#374151' : '#e5e7eb');
 
 	// Initialize and update chart
 	$effect(() => {
@@ -179,7 +194,10 @@
 			series: seriesData,
 			xaxis: {
 				title: {
-					text: 'Camera'
+					text: 'Camera',
+					style: {
+						color: titleColor
+					}
 				},
 				type: 'numeric',
 				tickAmount: selectedCameras.length,
@@ -192,32 +210,50 @@
 						return val;
 					},
 					rotate: -45,
-					rotateAlways: false
+					rotateAlways: false,
+					style: {
+						colors: textColor
+					}
 				}
 			},
 			yaxis: {
 				title: {
-					text: 'Dynamic Range'
+					text: 'Dynamic Range',
+					style: {
+						color: titleColor
+					}
 				},
 				min: yAxisMin,
-				max: yAxisMax
+				max: yAxisMax,
+				labels: {
+					style: {
+						colors: textColor
+					}
+				}
 			},
 			colors: ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6'],
 			legend: {
 				show: true,
-				position: 'top'
+				position: 'top',
+				labels: {
+					colors: textColor
+				}
 			},
 			tooltip: {
 				shared: false,
 				intersect: true,
+				theme: theme.resolved,
+				style: {
+					fontSize: '14px'
+				},
 				custom: function ({ seriesIndex, dataPointIndex, w }: any) {
 					const data = w.globals.initialSeries[seriesIndex].data[dataPointIndex];
 					const cameraIndex = Math.round(data.x);
 					const cameraName = categories[cameraIndex] || '';
 					const value = data.y;
 					const seriesName = seriesData[seriesIndex].name;
-					return `<div class="p-2">
-						<div class="font-semibold">${cameraName}</div>
+					return `<div style="padding: 8px; background-color: ${tooltipBg}; color: ${tooltipText}; border: 1px solid ${tooltipBorder}; border-radius: 4px;">
+						<div style="font-weight: 600; margin-bottom: 4px;">${cameraName}</div>
 						<div>${seriesName}: ${value}</div>
 					</div>`;
 				}
@@ -297,7 +333,7 @@
 			<!-- Right side: Chart -->
 			<div class="flex-1 bg-white dark:bg-gray-800 shadow rounded-lg p-6 flex flex-col">
 				<!-- Controls -->
-				<div class="mb-4 flex items-center gap-4">
+				<div class="mb-4 flex items-center justify-between">
 					<label class="flex items-center gap-2 cursor-pointer">
 						<input
 							type="checkbox"
@@ -306,6 +342,13 @@
 						/>
 						<span class="text-sm text-gray-700 dark:text-gray-300">显示完整纵轴</span>
 					</label>
+					<button
+						type="button"
+						onclick={resetChart}
+						class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+					>
+						重置
+					</button>
 				</div>
 
 				<!-- Chart container -->
