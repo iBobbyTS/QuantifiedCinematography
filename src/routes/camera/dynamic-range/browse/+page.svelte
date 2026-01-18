@@ -61,16 +61,25 @@
 			if (urlSelectedIds.length > 0) {
 				// Select all valid records from cameras specified in URL
 				const validRecordIds: number[] = [];
+				const camerasToExpand = new Set<number>();
 				for (const cameraId of urlSelectedIds) {
 					const camera = cameras.find((c) => c.id === cameraId);
 					if (camera) {
 						const records = camera.dynamicRangeData || [];
 						const validRecords = records.filter(recordHasDynamicRangeData);
+						// If camera has multiple records, expand it
+						if (validRecords.length > 1) {
+							camerasToExpand.add(cameraId);
+						}
 						// Add all valid records for this camera
 						for (const record of validRecords) {
 							validRecordIds.push(record.id);
 						}
 					}
+				}
+				// Expand cameras with multiple records
+				if (camerasToExpand.size > 0) {
+					expandedCameraIds = new Set(camerasToExpand);
 				}
 				if (validRecordIds.length > 0) {
 					selectedRecordIds = new Set(validRecordIds);
