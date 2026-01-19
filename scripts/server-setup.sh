@@ -25,7 +25,21 @@ if ! command -v docker &> /dev/null; then
         sudo systemctl enable docker
         sudo systemctl start docker
         sudo usermod -aG docker $USER
-        echo "✓ Docker installed. Please log out and log back in for group changes to take effect."
+        
+        # Configure Docker registry mirror for China (optional)
+        echo "Configuring Docker registry mirror..."
+        sudo mkdir -p /etc/docker
+        sudo tee /etc/docker/daemon.json > /dev/null <<EOF
+{
+  "registry-mirrors": [
+    "https://docker.mirrors.ustc.edu.cn",
+    "https://hub-mirror.c.163.com",
+    "https://mirror.baidubce.com"
+  ]
+}
+EOF
+        sudo systemctl restart docker
+        echo "✓ Docker installed with registry mirrors. Please log out and log back in for group changes to take effect."
     # For CentOS/RHEL
     elif command -v yum &> /dev/null; then
         sudo yum install -y docker docker-compose-plugin

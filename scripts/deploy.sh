@@ -27,6 +27,18 @@ echo "Step 2: Ensure project directory exists and clone/pull code..."
 # Create project directory if it doesn't exist
 mkdir -p "$PROJECT_DIR"
 
+# Check if .env file exists, if not create from .env.example
+if [ ! -f "$PROJECT_DIR/.env" ]; then
+  echo "⚠ Warning: .env file not found. Creating from .env.example..."
+  if [ -f "$PROJECT_DIR/.env.example" ]; then
+    cp "$PROJECT_DIR/.env.example" "$PROJECT_DIR/.env"
+    echo "✓ Created .env file from .env.example"
+    echo "⚠ IMPORTANT: Please edit .env file with your production settings!"
+  else
+    echo "⚠ Warning: .env.example not found. You need to create .env manually."
+  fi
+fi
+
 # Check if it's a git repository
 if [ ! -d "$PROJECT_DIR/.git" ]; then
   echo "Project directory is not a git repository. Cloning..."
