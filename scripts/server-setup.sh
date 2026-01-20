@@ -26,20 +26,22 @@ if ! command -v docker &> /dev/null; then
         sudo systemctl start docker
         sudo usermod -aG docker $USER
         
-        # Configure Docker registry mirror for China (optional)
-        echo "Configuring Docker registry mirror..."
+        # Configure Docker registry mirror for China
+        echo "Configuring Docker registry mirror (using reliable Chinese mirrors)..."
         sudo mkdir -p /etc/docker
         sudo tee /etc/docker/daemon.json > /dev/null <<EOF
 {
   "registry-mirrors": [
-    "https://docker.mirrors.ustc.edu.cn",
-    "https://hub-mirror.c.163.com",
-    "https://mirror.baidubce.com"
+    "https://docker.xuanyuan.me",
+    "https://docker.m.daocloud.io",
+    "https://mirror.ccs.tencentyun.com",
+    "https://docker.1panel.live",
+    "https://hub.rat.dev"
   ]
 }
 EOF
         sudo systemctl restart docker
-        echo "✓ Docker installed with registry mirrors. Please log out and log back in for group changes to take effect."
+        echo "✓ Docker installed with registry mirrors (Aliyun priority). Please log out and log back in for group changes to take effect."
     # For CentOS/RHEL
     elif command -v yum &> /dev/null; then
         sudo yum install -y docker docker-compose-plugin

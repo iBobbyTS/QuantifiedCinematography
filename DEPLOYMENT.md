@@ -34,8 +34,8 @@ ssh username@your-server-ip
 curl -fsSL https://raw.githubusercontent.com/iBobbyTS/QuantifiedCinematography/deploy/scripts/server-setup.sh -o ./server-setup.sh
 
 # 或者手动上传脚本到服务器后执行
-chmod +x scripts/server-setup.sh
-./scripts/server-setup.sh
+chmod +x server-setup.sh
+./server-setup.sh
 ```
 
 脚本会自动完成以下任务：
@@ -439,19 +439,38 @@ docker compose -f docker-compose.prod.yml exec db psql -U your_user -d your_data
 
 1. 配置 Docker 镜像加速器（已在 server-setup.sh 中配置）
    ```bash
-   # 如果还没有配置，执行以下命令
+   # 如果还没有配置，执行以下命令（使用当前可用的国内镜像源）
    sudo mkdir -p /etc/docker
    sudo tee /etc/docker/daemon.json > /dev/null <<EOF
    {
      "registry-mirrors": [
-       "https://docker.mirrors.ustc.edu.cn",
-       "https://hub-mirror.c.163.com",
-       "https://mirror.baidubce.com"
+       "https://docker.xuanyuan.me",
+       "https://docker.m.daocloud.io",
+       "https://mirror.ccs.tencentyun.com",
+       "https://docker.1panel.live",
+       "https://hub.rat.dev"
      ]
    }
    EOF
+   sudo systemctl daemon-reload
    sudo systemctl restart docker
+   
+   # 验证配置
+   docker info | grep -A 10 "Registry Mirrors"
    ```
+   
+   **推荐镜像源说明**：
+   - **轩辕镜像** (`docker.xuanyuan.me`): 免费，稳定，境内 CDN 加速
+   - **DaoCloud** (`docker.m.daocloud.io`): 企业维护，稳定性高
+   - **腾讯云** (`mirror.ccs.tencentyun.com`): 在腾讯云服务器上表现更佳
+   - **1Panel** (`docker.1panel.live`): 社区维护，备用源
+   - **Rat.dev** (`hub.rat.dev`): 个人维护，备用源
+   
+   **阿里云用户**：如果你有阿里云账号，可以获取专属的镜像加速器地址（速度更快）：
+   - 登录 [阿里云控制台](https://cr.console.aliyun.com/)
+   - 进入「容器镜像服务」→「镜像加速器」
+   - 复制你的专属加速器地址（格式：`https://<你的ID>.mirror.aliyuncs.com`）
+   - 将其添加到 `registry-mirrors` 数组的第一位
 
 2. 手动拉取镜像
    ```bash
