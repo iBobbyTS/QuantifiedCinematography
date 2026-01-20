@@ -27,6 +27,18 @@ echo "Step 2: Ensure project directory exists and clone/pull code..."
 # Create project directory if it doesn't exist
 mkdir -p "$PROJECT_DIR"
 
+# Check if .env file exists, if not create from .env.example
+if [ ! -f "$PROJECT_DIR/.env" ]; then
+  echo "⚠ Warning: .env file not found. Creating from .env.example..."
+  if [ -f "$PROJECT_DIR/.env.example" ]; then
+    cp "$PROJECT_DIR/.env.example" "$PROJECT_DIR/.env"
+    echo "✓ Created .env file from .env.example"
+    echo "⚠ IMPORTANT: Please edit .env file with your production settings!"
+  else
+    echo "⚠ Warning: .env.example not found. You need to create .env manually."
+  fi
+fi
+
 # Check if it's a git repository
 if [ ! -d "$PROJECT_DIR/.git" ]; then
   echo "Project directory is not a git repository. Cloning..."
@@ -53,19 +65,30 @@ fi
 
 echo "Step 3: Run database migrations (if needed)..."
 # Uncomment if you need database migrations
-# docker compose -f docker-compose.prod.yml run --rm app bun run db:migrate
+# Note: Use $DOCKER_COMPOSE_CMD instead of hardcoded command
+# $DOCKER_COMPOSE_CMD -f docker-compose.prod.yml run --rm app bun run db:migrate
 
 echo "Step 4: Build and restart application with Docker..."
+# Detect which docker compose command is available
+if command -v docker-compose &> /dev/null; then
+  DOCKER_COMPOSE_CMD="docker-compose"
+elif docker compose version &> /dev/null; then
+  DOCKER_COMPOSE_CMD="docker compose"
+else
+  echo "⚠ Error: docker-compose or 'docker compose' not found"
+  exit 1
+fi
+
 # Restart using docker-compose if using Docker
 if [ -f docker-compose.prod.yml ]; then
   echo "Using production docker-compose configuration..."
-  docker compose -f docker-compose.prod.yml down || true
-  docker compose -f docker-compose.prod.yml up -d --build
+  $DOCKER_COMPOSE_CMD -f docker-compose.prod.yml down || true
+  $DOCKER_COMPOSE_CMD -f docker-compose.prod.yml up -d --build
   echo "Application restarted using Docker Compose (production)"
 elif [ -f docker-compose.yml ]; then
   echo "Using default docker-compose configuration..."
-  docker compose down || true
-  docker compose up -d --build
+  $DOCKER_COMPOSE_CMD down || true
+  $DOCKER_COMPOSE_CMD up -d --build
   echo "Application restarted using Docker Compose"
 else
   # If using PM2 or systemd, restart the service
