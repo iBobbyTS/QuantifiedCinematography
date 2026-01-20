@@ -1,5 +1,5 @@
-import { pgTable, serial, text, timestamp, integer, uuid, index, real, pgEnum, check, boolean } from 'drizzle-orm/pg-core';
-import { relations, sql } from 'drizzle-orm';
+import { pgTable, serial, text, timestamp, integer, uuid, index, real, pgEnum, boolean } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
 
 // Define enums
 export const accessaryTypeEnum = pgEnum('accessary_type', ['reflector', 'fresnel']);
@@ -26,13 +26,6 @@ export const user = pgTable('users', {
 	index('users_email_idx').on(table.email),
 	index('users_permission_idx').on(table.permission),
 	index('users_disabled_idx').on(table.disabled),
-	check("users_id_not_null", sql`NOT NULL id`),
-	check("users_username_not_null", sql`NOT NULL username`),
-	check("users_nickname_not_null", sql`NOT NULL nickname`),
-	check("users_email_not_null", sql`NOT NULL email`),
-	check("users_password_hash_not_null", sql`NOT NULL password_hash`),
-	check("users_permission_not_null", sql`NOT NULL permission`),
-	check("users_disabled_not_null", sql`NOT NULL disabled`),
 ]);
 
 export const session = pgTable('session', {
@@ -42,9 +35,6 @@ export const session = pgTable('session', {
 		.references(() => user.id),
 	expiresAt: timestamp('expires_at', { withTimezone: true, mode: 'date' }).notNull()
 }, (table) => [
-	check("session_id_not_null", sql`NOT NULL id`),
-	check("session_user_id_not_null", sql`NOT NULL user_id`),
-	check("session_expires_at_not_null", sql`NOT NULL expires_at`),
 ]);
 
 // User public info table
@@ -58,10 +48,6 @@ export const userPublicInfo = pgTable('user_public_info', {
 }, (table) => [
 	index('user_public_info_user_id_idx').on(table.userId),
 	index('user_public_info_platform_idx').on(table.platform),
-	check("user_public_info_id_not_null", sql`NOT NULL id`),
-	check("user_public_info_user_id_not_null", sql`NOT NULL user_id`),
-	check("user_public_info_platform_not_null", sql`NOT NULL platform`),
-	check("user_public_info_link_not_null", sql`NOT NULL link`),
 ]);
 
 // Brand table
@@ -72,8 +58,6 @@ export const brands = pgTable('brands', {
 	updatedAt: timestamp('updated_at').defaultNow(),
 }, (table) => [
 	index('brands_name_idx').on(table.name),
-	check("brands_id_not_null", sql`NOT NULL id`),
-	check("brands_name_not_null", sql`NOT NULL name`),
 ]);
 
 // Product type table
@@ -84,8 +68,6 @@ export const productTypes = pgTable('product_types', {
 	updatedAt: timestamp('updated_at').defaultNow(),
 }, (table) => [
 	index('product_types_name_idx').on(table.name),
-	check("product_types_id_not_null", sql`NOT NULL id`),
-	check("product_types_name_not_null", sql`NOT NULL name`),
 ]);
 
 // Product series table
@@ -100,10 +82,6 @@ export const productSeries = pgTable('product_series', {
 	index('product_series_name_idx').on(table.name),
 	index('product_series_brand_id_idx').on(table.brandId),
 	index('product_series_product_type_id_idx').on(table.productTypeId),
-	check("product_series_id_not_null", sql`NOT NULL id`),
-	check("product_series_name_not_null", sql`NOT NULL name`),
-	check("product_series_brand_id_not_null", sql`NOT NULL brand_id`),
-	check("product_series_product_type_id_not_null", sql`NOT NULL product_type_id`),
 ]);
 
 // Product light table (merged from products + product_light_info)
@@ -130,14 +108,6 @@ export const productLight = pgTable('product_light', {
 	index('product_light_light_engine_idx').on(table.lightEngine),
 	index('product_light_form_factor_idx').on(table.formFactor),
 	index('product_light_size_idx').on(table.size),
-	check("product_light_id_not_null", sql`NOT NULL id`),
-	check("product_light_name_not_null", sql`NOT NULL name`),
-	check("product_light_series_id_not_null", sql`NOT NULL series_id`),
-	check("product_light_color_type_not_null", sql`NOT NULL color_type`),
-	check("product_light_light_engine_not_null", sql`NOT NULL light_engine`),
-	check("product_light_form_factor_not_null", sql`NOT NULL form_factor`),
-	check("product_light_size_not_null", sql`NOT NULL size`),
-	check("product_light_modes_available_not_null", sql`NOT NULL modes_available`),
 ]);
 
 // Product light accessory table (merged from products + product_light_accessary_info)
@@ -154,10 +124,6 @@ export const productLightAccessary = pgTable('product_light_accessary', {
 	index('product_light_accessary_name_idx').on(table.name),
 	index('product_light_accessary_series_id_idx').on(table.seriesId),
 	index('product_light_accessary_accessary_type_idx').on(table.accessaryType),
-	check("product_light_accessary_id_not_null", sql`NOT NULL id`),
-	check("product_light_accessary_name_not_null", sql`NOT NULL name`),
-	check("product_light_accessary_series_id_not_null", sql`NOT NULL series_id`),
-	check("product_light_accessary_accessary_type_not_null", sql`NOT NULL accessary_type`),
 ]);
 
 // Spectrometer table
@@ -168,8 +134,6 @@ export const spectrometer = pgTable('spectrometer', {
 	updatedAt: timestamp('updated_at').defaultNow(),
 }, (table) => [
 	index('spectrometer_name_idx').on(table.name),
-	check("spectrometer_id_not_null", sql`NOT NULL id`),
-	check("spectrometer_name_not_null", sql`NOT NULL name`),
 ]);
 
 // Product camera table
@@ -184,9 +148,6 @@ export const productCameras = pgTable('product_cameras', {
 }, (table) => [
 	index('product_cameras_name_idx').on(table.name),
 	index('product_cameras_brand_id_idx').on(table.brandId),
-	check("product_cameras_id_not_null", sql`NOT NULL id`),
-	check("product_cameras_name_not_null", sql`NOT NULL name`),
-	check("product_cameras_brand_id_not_null", sql`NOT NULL brand_id`),
 ]);
 
 // Camera dynamic range data table
@@ -252,12 +213,6 @@ export const benchmarkLightWhite = pgTable('benchmark_light_white', {
 	index('benchmark_light_white_set_cct_idx').on(table.setCct),
 	index('benchmark_light_white_set_int_idx').on(table.setInt),
 	index('benchmark_light_white_accessary_idx').on(table.accessary),
-	check("benchmark_light_white_id_not_null", sql`NOT NULL id`),
-	check("benchmark_light_white_product_id_not_null", sql`NOT NULL product_id`),
-	check("benchmark_light_white_user_id_not_null", sql`NOT NULL user_id`),
-	check("benchmark_light_white_set_int_not_null", sql`NOT NULL set_int`),
-	check("benchmark_light_white_set_cct_not_null", sql`NOT NULL set_cct`),
-	check("benchmark_light_white_set_gm_not_null", sql`NOT NULL set_gm`),
 ]);
 
 // Define relations
