@@ -1,8 +1,8 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { user, brands, productTypes, productSeries } from './schema.js';
+import { user, brands, productTypes, productSeries } from './schema';
 import { sql } from 'drizzle-orm';
-import { hashPassword } from '$lib/password.js';
+import { hashPassword } from '../../password';
 
 // 直接使用环境变量，不依赖SvelteKit
 const DATABASE_URL = process.env.DATABASE_URL;

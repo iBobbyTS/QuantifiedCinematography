@@ -72,20 +72,26 @@ export async function invalidateSession(sessionId: string) {
 }
 
 export function setSessionTokenCookie(event: RequestEvent, token: string, expiresAt: Date) {
+	const forwardedProto = event.request.headers.get('x-forwarded-proto');
+	const isHttps = event.url.protocol === 'https:' || forwardedProto === 'https';
 	event.cookies.set(sessionCookieName, token, {
 		expires: expiresAt,
         path: '/',
         httpOnly: true,
         sameSite: 'lax',
-        secure: !dev
+        // Secure cookies are ignored on plain HTTP. In production behind a TLS proxy,
+        // `x-forwarded-proto` should be forwarded so we can still set Secure correctly.
+        secure: !dev && isHttps
 	});
 }
 
 export function deleteSessionTokenCookie(event: RequestEvent) {
+	const forwardedProto = event.request.headers.get('x-forwarded-proto');
+	const isHttps = event.url.protocol === 'https:' || forwardedProto === 'https';
 	event.cookies.delete(sessionCookieName, {
         path: '/',
         httpOnly: true,
         sameSite: 'lax',
-        secure: !dev
+        secure: !dev && isHttps
 	});
 }
